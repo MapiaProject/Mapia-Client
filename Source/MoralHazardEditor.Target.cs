@@ -3,13 +3,13 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class MapiaTarget : TargetRules
+public class MoralHazardEditorTarget : TargetRules
 {
-	public MapiaTarget( TargetInfo Target) : base(Target)
+	public MoralHazardEditorTarget( TargetInfo Target) : base(Target)
 	{
-		Type = TargetType.Game;
+		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
-		ExtraModuleNames.Add("Mapia");
+		ExtraModuleNames.Add("MoralHazard");
 	}
 }

@@ -17,8 +17,6 @@
 
 
 namespace gen {
-    enum ETempEnum : uint16 {
-        ABC
-    };
+    
 }
 #pragma warning(pop)

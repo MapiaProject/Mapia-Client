@@ -3,4 +3,4 @@
 #include "Mapia.h"
 #include "Modules/ModuleManager.h"
 
-IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, Mapia, "Mapia" );
+IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, MoralHazard, "MoralHazard" );

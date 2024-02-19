@@ -15,7 +15,7 @@ public class Mapia : ModuleRules
 
 		PublicIncludePaths.AddRange(new string[]
 		{
-			"Mapia/"
+			"MoralHazard/"
 		});
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
