@@ -16,7 +16,7 @@ public:
 	void OnReceive(std::span<char> buffer, int32 length);
 public:
 	void Send(std::span<char> data);
-	void Send(sv::Packet* pkt);
+	void Send(class Packet* pkt);
 public:
 	net::Socket* GetHandle() const;
 	void Flush();

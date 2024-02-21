@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "ManagerBase.h"
-#include "Chaos/AABB.h"
+
 #include "net/Socket.hpp"
-#include "Network/Packet.h"
 #include "Network.generated.h"
 
 class FSession;
@@ -15,7 +15,7 @@ class ANetworkCharacter;
  * 
  */
 UCLASS()
-class MAPIA_API UNetwork : public UManagerBase
+class MORALHAZARD_API UNetwork : public UManagerBase
 {
 	GENERATED_BODY()
 	friend class FIoThread;
@@ -26,7 +26,7 @@ public:
 	bool Connect(const net::Endpoint& EndPoint);
 	void Disconnect();
 	bool IsConnected() const;
-	void Send(sv::Packet* Packet) const;
+	void Send(class Packet* Packet) const;
 public:
 	void SetSession(const TSharedPtr<FSession>& NewSession);
 	TSharedPtr<FSession> GetSession();

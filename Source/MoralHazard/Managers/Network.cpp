@@ -2,9 +2,7 @@
 
 
 #include "Managers/Network.h"
-
 #include "Network/IoThread.h"
-#include "Engine/World.h"
 
 UNetwork::UNetwork() : bIsConnected(false), IoThread(nullptr)
 {

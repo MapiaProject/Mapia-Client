@@ -7,8 +7,8 @@
 #ifdef __UNREAL__
 #include "Network/Packet.h"
 #elif __SERVER__
-#include "core/Packet.hpp"
-#include "util/Types.hpp"
+#include "Network/Packet.hpp"
+#include "Util/Types.hpp"
 #endif
 
 #include <vector>

@@ -4,11 +4,12 @@
 #include "Manager.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "Managers/Network.h"
 #include "Network/Session.h"
+#include "Managers/Network.h"
 
 UManager::UManager() : NetworkObject(nullptr)
 {
+	NetworkClass = UNetwork::StaticClass();
 }
 
 UManager::~UManager()
@@ -39,13 +40,17 @@ void UManager::ConnectToServer() const
 
 void UManager::HandlePacket() const
 {
+	if (!NetworkObject)
+		return;
 	if (NetworkObject->IsConnected())
 		NetworkObject->GetSession()->Flush();
 }
 
 void UManager::DisconnectFromServer() const
 {
-	if (NetworkObject->IsConnected())
+	if(!NetworkObject)
+		return;
+	if (!NetworkObject->IsConnected())
 	{
 
 	}
@@ -77,6 +82,6 @@ UManager* UManager::Instance(const UWorld* World)
 
 void UManager::Initialize()
 {
-	INIT_MANAGER(Network)
+	INIT_MANAGER(Network);
 }
 

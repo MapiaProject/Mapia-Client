@@ -1,5 +1,7 @@
 ﻿#include "Session.h"
 
+#include "Packet.h"
+
 #include "generated/ClientPacketHandler.gen.hpp"
 
 FSession::FSession(net::Socket* socket) : Socket(socket)
@@ -30,7 +32,7 @@ void FSession::Send(std::span<char> data)
 		OnDisconnected();
 }
 
-void FSession::Send(sv::Packet* pkt)
+void FSession::Send(Packet* pkt)
 {
 	pkt->write();
 	Send(pkt->data());

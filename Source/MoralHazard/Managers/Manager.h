@@ -24,7 +24,7 @@ class UNetwork;
  * 
  */
 UCLASS()
-class MAPIA_API UManager : public UGameInstance
+class MORALHAZARD_API UManager : public UGameInstance
 {
 	GENERATED_BODY()
 public:

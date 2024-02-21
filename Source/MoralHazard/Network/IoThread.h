@@ -9,7 +9,7 @@
 /**
  * 
  */
-class MAPIA_API FIoThread : FRunnable
+class MORALHAZARD_API FIoThread : FRunnable
 {
 public:
 	FIoThread(net::Socket* socket);
@@ -20,7 +20,7 @@ public:
 	virtual void Stop() override;
 	virtual void Exit() override;
 public:
-	void Send(Packet* packet);
+	void Send(class Packet* packet);
 private:
 	FRunnableThread* Thread;
 	TSharedPtr<FSession> Session;

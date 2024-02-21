@@ -4,8 +4,6 @@
 #define htonll(x)   ((((uint64_t)htonl(x)) << 32) + htonl(x >> 32))
 #define ntohll(x)   ((((uint64_t)ntohl(x)) << 32) + ntohl(x >> 32))
 
-using namespace sv;
-
 Packet::Packet(unsigned short id, int reserve) : m_buffer(4, 0), m_id(0), m_size(0) {
     m_buffer.reserve(reserve);
     for (int i = sizeof(unsigned short) - 1; i >= 0; --i)
