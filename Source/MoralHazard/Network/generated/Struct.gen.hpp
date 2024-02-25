@@ -17,6 +17,41 @@
 #include "Enum.gen.hpp"
 
 namespace gen {
+    class Room
+            : public Packet {
+    public:
+        Room() : Packet(static_cast<unsigned short>(PacketId::NONE)) {
+        }
+        ~Room() {
     
+        }
+    protected:
+        virtual void Read() override
+        {
+            Packet::Read();
+            *this >> id >> name >> userCount;
+        }
+        virtual void Write() override
+        {
+            *this << id << name << userCount;
+            Finish();
+        }
+    public:
+        String id;
+		String name;
+		uint8 userCount;
+	
+    };
+    
+    inline Packet& operator>>(Packet& pk, Room& room) {
+        pk >> room.id >> room.name >> room.userCount;
+        return pk;
+    }
+
+    inline Packet& operator<<(Packet& pk, const Room& room) {
+        pk << room.id << room.name << room.userCount;
+        return pk;
+    }
+
 }
 #pragma warning(pop)

@@ -17,6 +17,10 @@
 
 
 namespace gen {
-    
+    enum ERoomEvent : uint16 {
+        CREATE,
+		ENTER,
+		LEAVE
+    };
 }
 #pragma warning(pop)

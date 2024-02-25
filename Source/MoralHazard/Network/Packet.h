@@ -4,87 +4,88 @@
 #include <memory>
 #include <span>
 
+#ifdef __UNREAL__
+using String = FString;
+using StringView = FStringView;
+#endif
+
 class FSession;
 
 class Packet {
     friend FSession;
-    using HandlerFunc = TFunction<void(TSharedPtr<FSession>)>;
 public:
+    Packet() = default;
     Packet(unsigned short id, int reserve = 1024);
     virtual ~Packet() {};
 public:
-    Packet& operator<<(unsigned char data);
-    Packet& operator<<(unsigned short data);
-    Packet& operator<<(unsigned int data);
-    Packet& operator<<(unsigned long data);
-    Packet& operator<<(unsigned long long data);
-    Packet& operator<<(bool data);
-    Packet& operator<<(char data);
-    Packet& operator<<(short data);
-    Packet& operator<<(int data);
-    Packet& operator<<(long data);
-    Packet& operator<<(long long data);
-    Packet& operator<<(float data);
-    Packet& operator<<(double data);
-    Packet& operator<<(std::string_view data);
+    Packet& operator<<(unsigned char Data);
+    Packet& operator<<(unsigned short Data);
+    Packet& operator<<(unsigned int Data);
+    Packet& operator<<(unsigned long Data);
+    Packet& operator<<(unsigned long long Data);
+    Packet& operator<<(bool Data);
+    Packet& operator<<(char Data);
+    Packet& operator<<(short Data);
+    Packet& operator<<(int Data);
+    Packet& operator<<(long Data);
+    Packet& operator<<(long long Data);
+    Packet& operator<<(float Data);
+    Packet& operator<<(double Data);
+    Packet& operator<<(StringView Data);
 
     template<class T>
-    Packet& operator<<(std::vector<T> data) {
-        *this << static_cast<unsigned short>(data.size());
-        for(const T& elem : data)
+    Packet& operator<<(std::vector<T> Data) {
+        *this << static_cast<unsigned short>(Data.size());
+        for(const T& elem : Data)
             *this << elem;
         return *this;
     }
 public:
-    Packet& operator>>(long long& data);
-    Packet& operator>>(unsigned char& data);
-    Packet& operator>>(unsigned short& data);
-    Packet& operator>>(unsigned int& data);
-    Packet& operator>>(unsigned long& data);
-    Packet& operator>>(unsigned long long& data);
-    Packet& operator>>(bool& data);
-    Packet& operator>>(char& data);
-    Packet& operator>>(short& data);
-    Packet& operator>>(int& data);
-    Packet& operator>>(long& data);
-    Packet& operator>>(float& data);
-    Packet& operator>>(double& data);
-    Packet& operator>>(std::string& data);
+    Packet& operator>>(long long& Data);
+    Packet& operator>>(unsigned char& Data);
+    Packet& operator>>(unsigned short& Data);
+    Packet& operator>>(unsigned int& Data);
+    Packet& operator>>(unsigned long& Data);
+    Packet& operator>>(unsigned long long& Data);
+    Packet& operator>>(bool& Data);
+    Packet& operator>>(char& Data);
+    Packet& operator>>(short& Data);
+    Packet& operator>>(int& Data);
+    Packet& operator>>(long& Data);
+    Packet& operator>>(float& Data);
+    Packet& operator>>(double& Data);
+    Packet& operator>>(String& Data);
 
     template<class T>
-    Packet& operator>>(std::vector<T>& data) {
+    Packet& operator>>(std::vector<T>& Data) {
         unsigned short len;
         *this >> len;
         for(unsigned short i = 0; i < len; ++i) {
             T t;
             *this >> t;
-            data.push_back(t);
+            Data.push_back(t);
         }
         return *this;
     }
 protected:
-    void virtual write() {};
-    void virtual read();
-    void finish();
+    void virtual Write() {};
+    void virtual Read();
+    void Finish();
 public:
-    unsigned short getId() const { return m_id; }
-    unsigned short getSize() const { return m_size; }
+    unsigned short GetId() const { return m_id; }
+    unsigned short GetSize() const { return m_size; }
 public:
-    void parse(std::span<char> buffer);
+    void Parse(std::span<char> buffer);
 
     template<class T>
-    static TSharedPtr<T> parseFrom(std::span<char> buffer)
+    static TSharedPtr<T> ParseFrom(std::span<char> buffer)
     {
         auto pk = MakeShared<T>();
-        pk->parse(buffer);
+        pk->Parse(buffer);
         return pk;
     }
-    
-    std::vector<char>& data();
-    void setHandler(const HandlerFunc& handler);
-    void executeHandler(const TSharedPtr<FSession>& session) const;
+    std::vector<char>& Data();
 private:
-    HandlerFunc m_handler;
     std::vector<char> m_buffer;
     unsigned short m_id;
     unsigned short m_size;

@@ -24,7 +24,7 @@ using TFunction = std::function<T>;
 class Session;
 #endif
 
-#define BIND_HANDLER(pckname, buffer) std::bind(pckname##PacketHandler, std::placeholders::_1, STATIC_POINTER_CAST(pckname, Packet::parseFrom<pckname>(buffer)));
+#define BIND_HANDLER(pckname, buffer) std::bind(pckname##PacketHandler, std::placeholders::_1, STATIC_POINTER_CAST(pckname, Packet::ParseFrom<pckname>(buffer)));
 
 namespace gen
 {
@@ -42,7 +42,12 @@ namespace gen
             {
             case PacketId::NONE:
                 break;
-
+			case LOGIN_RES:
+				return BIND_HANDLER(LoginRes, buffer);
+			case NOTIFY_ROOM_LIST:
+				return BIND_HANDLER(NotifyRoomList, buffer);
+			case ENTER_ROOM_RES:
+				return BIND_HANDLER(EnterRoomRes, buffer);
             default:
                 break;
             }
@@ -55,6 +60,8 @@ namespace gen
                 return false;
             return handler(session);
         }
-
+		static bool LoginResPacketHandler(TSharedPtr<Session> session, TSharedPtr<LoginRes> packet);
+		static bool NotifyRoomListPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyRoomList> packet);
+		static bool EnterRoomResPacketHandler(TSharedPtr<Session> session, TSharedPtr<EnterRoomRes> packet);
 	};
 }

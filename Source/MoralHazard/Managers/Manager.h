@@ -19,6 +19,7 @@ if (!name##Object)												\
 }																\
 
 class UNetwork;
+class UWidget;
 
 /**
  * 
@@ -39,6 +40,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void EndPlay();
+
+	UFUNCTION(BlueprintCallable)
+	void EnterGame();
 	
 	void ConnectToServer() const;
 	void HandlePacket() const;

@@ -34,8 +34,8 @@ void FSession::Send(std::span<char> data)
 
 void FSession::Send(Packet* pkt)
 {
-	pkt->write();
-	Send(pkt->data());
+	pkt->Write();
+	Send(pkt->Data());
 }
 
 net::Socket* FSession::GetHandle() const

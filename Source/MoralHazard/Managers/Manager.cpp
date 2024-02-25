@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Network/Session.h"
 #include "Managers/Network.h"
+#include "Components/Widget.h"
 
 UManager::UManager() : NetworkObject(nullptr)
 {
@@ -30,6 +31,15 @@ void UManager::Tick()
 void UManager::EndPlay()
 {
 	DisconnectFromServer();
+}
+
+void UManager::EnterGame()
+{
+	if (NetworkObject)
+	{
+		auto packet = gen::EnterGameReq {};
+		NetworkObject->Send(&packet);
+	}
 }
 
 void UManager::ConnectToServer() const
