@@ -37,7 +37,7 @@ namespace gen {
             Finish();
         }
     public:
-        String id;
+        uint32 id;
 		String name;
 		uint8 userCount;
 	

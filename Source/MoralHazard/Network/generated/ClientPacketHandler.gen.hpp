@@ -48,6 +48,8 @@ namespace gen
 				return BIND_HANDLER(NotifyRoomList, buffer);
 			case ENTER_ROOM_RES:
 				return BIND_HANDLER(EnterRoomRes, buffer);
+			case ROOM_EVENT_RES:
+				return BIND_HANDLER(RoomEventRes, buffer);
             default:
                 break;
             }
@@ -63,5 +65,6 @@ namespace gen
 		static bool LoginResPacketHandler(TSharedPtr<Session> session, TSharedPtr<LoginRes> packet);
 		static bool NotifyRoomListPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyRoomList> packet);
 		static bool EnterRoomResPacketHandler(TSharedPtr<Session> session, TSharedPtr<EnterRoomRes> packet);
+		static bool RoomEventResPacketHandler(TSharedPtr<Session> session, TSharedPtr<RoomEventRes> packet);
 	};
 }

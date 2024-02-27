@@ -8,10 +8,11 @@ namespace gen {
 		LOGIN_REQ = 1,
 		ENTER_GAME_REQ = 2,
 		ENTER_ROOM_REQ = 3,
-		ADD_ROOM_EVENT = 4,
+		ROOM_EVENT_REQ = 4,
 		LOGIN_RES = 5,
 		NOTIFY_ROOM_LIST = 6,
-		ENTER_ROOM_RES = 7    
+		ENTER_ROOM_RES = 7,
+		ROOM_EVENT_RES = 8    
 	};
 
 }

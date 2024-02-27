@@ -45,7 +45,10 @@ void UManager::EnterGame()
 void UManager::ConnectToServer() const
 {
 	if (!NetworkObject->Connect(net::Endpoint(net::IpAddress::Loopback, 9999)))
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Connect failed."));
+	{
+		UE_LOG(LogNet, Warning, TEXT("Can't connect with server."));
+		UKismetSystemLibrary::QuitGame(GetWorld(), GetWorld()->GetFirstPlayerController(), EQuitPreference::Type::Quit, false);
+	}
 }
 
 void UManager::HandlePacket() const

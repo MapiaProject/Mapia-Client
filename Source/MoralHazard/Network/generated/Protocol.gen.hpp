@@ -118,12 +118,12 @@ namespace gen {
         return pk;
     }
 
-	class AddRoomEvent
+	class RoomEventReq
             : public Packet {
     public:
-        AddRoomEvent() : Packet(static_cast<unsigned short>(PacketId::ADD_ROOM_EVENT)) {
+        RoomEventReq() : Packet(static_cast<unsigned short>(PacketId::ROOM_EVENT_REQ)) {
         }
-        ~AddRoomEvent() {
+        ~RoomEventReq() {
     
         }
     protected:
@@ -143,13 +143,13 @@ namespace gen {
 	
     };
     
-    inline Packet& operator>>(Packet& pk, AddRoomEvent& addRoomEvent) {
-        pk >> addRoomEvent.room >> reinterpret_cast<uint16&>(addRoomEvent.event);
+    inline Packet& operator>>(Packet& pk, RoomEventReq& roomEventReq) {
+        pk >> roomEventReq.room >> reinterpret_cast<uint16&>(roomEventReq.event);
         return pk;
     }
 
-    inline Packet& operator<<(Packet& pk, const AddRoomEvent& addRoomEvent) {
-        pk << addRoomEvent.room << (addRoomEvent.event);
+    inline Packet& operator<<(Packet& pk, const RoomEventReq& roomEventReq) {
+        pk << roomEventReq.room << (roomEventReq.event);
         return pk;
     }
 
@@ -252,6 +252,40 @@ namespace gen {
 
     inline Packet& operator<<(Packet& pk, const EnterRoomRes& enterRoomRes) {
         pk << enterRoomRes.success;
+        return pk;
+    }
+
+	class RoomEventRes
+            : public Packet {
+    public:
+        RoomEventRes() : Packet(static_cast<unsigned short>(PacketId::ROOM_EVENT_RES)) {
+        }
+        ~RoomEventRes() {
+    
+        }
+    protected:
+        virtual void Read() override
+        {
+            Packet::Read();
+            *this >> success;
+        }
+        virtual void Write() override
+        {
+            *this << success;
+            Finish();
+        }
+    public:
+        bool success;
+	
+    };
+    
+    inline Packet& operator>>(Packet& pk, RoomEventRes& roomEventRes) {
+        pk >> roomEventRes.success;
+        return pk;
+    }
+
+    inline Packet& operator<<(Packet& pk, const RoomEventRes& roomEventRes) {
+        pk << roomEventRes.success;
         return pk;
     }
 
