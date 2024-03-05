@@ -83,41 +83,6 @@ namespace gen {
         return pk;
     }
 
-	class EnterRoomReq
-            : public Packet {
-    public:
-        EnterRoomReq() : Packet(static_cast<unsigned short>(PacketId::ENTER_ROOM_REQ)) {
-        }
-        ~EnterRoomReq() {
-    
-        }
-    protected:
-        virtual void Read() override
-        {
-            Packet::Read();
-            *this >> nickname >> roomId;
-        }
-        virtual void Write() override
-        {
-            *this << nickname << roomId;
-            Finish();
-        }
-    public:
-        String nickname;
-		uint32 roomId;
-	
-    };
-    
-    inline Packet& operator>>(Packet& pk, EnterRoomReq& enterRoomReq) {
-        pk >> enterRoomReq.nickname >> enterRoomReq.roomId;
-        return pk;
-    }
-
-    inline Packet& operator<<(Packet& pk, const EnterRoomReq& enterRoomReq) {
-        pk << enterRoomReq.nickname << enterRoomReq.roomId;
-        return pk;
-    }
-
 	class RoomEventReq
             : public Packet {
     public:
@@ -221,40 +186,6 @@ namespace gen {
         return pk;
     }
 
-	class EnterRoomRes
-            : public Packet {
-    public:
-        EnterRoomRes() : Packet(static_cast<unsigned short>(PacketId::ENTER_ROOM_RES)) {
-        }
-        ~EnterRoomRes() {
-    
-        }
-    protected:
-        virtual void Read() override
-        {
-            Packet::Read();
-            *this >> success;
-        }
-        virtual void Write() override
-        {
-            *this << success;
-            Finish();
-        }
-    public:
-        bool success;
-	
-    };
-    
-    inline Packet& operator>>(Packet& pk, EnterRoomRes& enterRoomRes) {
-        pk >> enterRoomRes.success;
-        return pk;
-    }
-
-    inline Packet& operator<<(Packet& pk, const EnterRoomRes& enterRoomRes) {
-        pk << enterRoomRes.success;
-        return pk;
-    }
-
 	class RoomEventRes
             : public Packet {
     public:
@@ -267,25 +198,60 @@ namespace gen {
         virtual void Read() override
         {
             Packet::Read();
-            *this >> success;
+            *this >> reinterpret_cast<uint16&>(event) >> success;
         }
         virtual void Write() override
         {
-            *this << success;
+            *this << (event) << success;
             Finish();
         }
     public:
-        bool success;
+        ERoomEvent event;
+		bool success;
 	
     };
     
     inline Packet& operator>>(Packet& pk, RoomEventRes& roomEventRes) {
-        pk >> roomEventRes.success;
+        pk >> reinterpret_cast<uint16&>(roomEventRes.event) >> roomEventRes.success;
         return pk;
     }
 
     inline Packet& operator<<(Packet& pk, const RoomEventRes& roomEventRes) {
-        pk << roomEventRes.success;
+        pk << (roomEventRes.event) << roomEventRes.success;
+        return pk;
+    }
+
+	class NotifyPlayerList
+            : public Packet {
+    public:
+        NotifyPlayerList() : Packet(static_cast<unsigned short>(PacketId::NOTIFY_PLAYER_LIST)) {
+        }
+        ~NotifyPlayerList() {
+    
+        }
+    protected:
+        virtual void Read() override
+        {
+            Packet::Read();
+            *this >> playerList;
+        }
+        virtual void Write() override
+        {
+            *this << playerList;
+            Finish();
+        }
+    public:
+        std::vector<PlayerInfo> playerList;
+	
+    };
+    
+    inline Packet& operator>>(Packet& pk, NotifyPlayerList& notifyPlayerList) {
+        pk >> notifyPlayerList.playerList;
+        return pk;
+    }
+
+    inline Packet& operator<<(Packet& pk, const NotifyPlayerList& notifyPlayerList) {
+        pk << notifyPlayerList.playerList;
         return pk;
     }
 

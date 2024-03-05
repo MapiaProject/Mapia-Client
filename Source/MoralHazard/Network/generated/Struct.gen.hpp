@@ -53,5 +53,40 @@ namespace gen {
         return pk;
     }
 
+	class PlayerInfo
+            : public Packet {
+    public:
+        PlayerInfo() : Packet(static_cast<unsigned short>(PacketId::NONE)) {
+        }
+        ~PlayerInfo() {
+    
+        }
+    protected:
+        virtual void Read() override
+        {
+            Packet::Read();
+            *this >> id >> name;
+        }
+        virtual void Write() override
+        {
+            *this << id << name;
+            Finish();
+        }
+    public:
+        uint32 id;
+		String name;
+	
+    };
+    
+    inline Packet& operator>>(Packet& pk, PlayerInfo& playerInfo) {
+        pk >> playerInfo.id >> playerInfo.name;
+        return pk;
+    }
+
+    inline Packet& operator<<(Packet& pk, const PlayerInfo& playerInfo) {
+        pk << playerInfo.id << playerInfo.name;
+        return pk;
+    }
+
 }
 #pragma warning(pop)

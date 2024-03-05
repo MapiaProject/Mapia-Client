@@ -1,5 +1,6 @@
 ﻿#include "Session.h"
 #include "generated/ClientPacketHandler.gen.hpp"
+#include "Managers/Manager.h"
 
 using namespace gen;
 
@@ -10,15 +11,12 @@ bool gen::PacketHandler::LoginResPacketHandler(TSharedPtr<Session> session, TSha
 
 bool gen::PacketHandler::NotifyRoomListPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyRoomList> packet)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Emerald, TEXT("Room len : ") + FString::FromInt(packet->roomList.size()));
-	for(const auto& room : packet->roomList)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Emerald, TEXT("name : ") + room.name);
-	}
+	UManager::Instance()->RefreshRoom(*packet);
 	return true;
 }
 
-bool gen::PacketHandler::EnterRoomResPacketHandler(TSharedPtr<Session> session, TSharedPtr<EnterRoomRes> packet)
+bool gen::PacketHandler::RoomEventResPacketHandler(TSharedPtr<Session> session, TSharedPtr<RoomEventRes> packet)
 {
+	UManager::Instance()->HandleRoomEventResult(*packet);
 	return false;
 }
