@@ -9,7 +9,7 @@
 /**
  * 
  */
-class MORALHAZARD_API FIoThread : FRunnable
+class WOS_API FIoThread : FRunnable
 {
 public:
 	FIoThread(net::Socket* socket);

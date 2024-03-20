@@ -11,7 +11,8 @@ class UManager;
  */
 
 UCLASS(Blueprintable, BlueprintType)
-class MORALHAZARD_API UManagerBase : public UObject
+class 
+	UManagerBase : public UObject
 {
 	GENERATED_BODY()
 public:

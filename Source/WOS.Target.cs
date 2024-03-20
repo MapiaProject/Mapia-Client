@@ -3,13 +3,13 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class MoralHazardEditorTarget : TargetRules
+public class WOSTarget : TargetRules
 {
-	public MoralHazardEditorTarget( TargetInfo Target) : base(Target)
+	public WOSTarget( TargetInfo Target) : base(Target)
 	{
-		Type = TargetType.Editor;
+		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
-		ExtraModuleNames.Add("MoralHazard");
+		ExtraModuleNames.Add("WOS");
 	}
 }

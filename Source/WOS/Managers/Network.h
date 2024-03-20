@@ -15,7 +15,7 @@ class ANetworkCharacter;
  * 
  */
 UCLASS()
-class MORALHAZARD_API UNetwork : public UManagerBase
+class WOS_API UNetwork : public UManagerBase
 {
 	GENERATED_BODY()
 	friend class FIoThread;
