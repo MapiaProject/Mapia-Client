@@ -4,9 +4,8 @@
 #include "Manager.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "Network/Session.h"
+#include "Network/Session/Session.h"
 #include "Managers/Network.h"
-#include "Components/Widget.h"
 
 UManager::UManager() : NetworkObject(nullptr)
 {
@@ -17,34 +16,18 @@ UManager::~UManager()
 {
 }
 
-void UManager::BeginPlay()
-{
-	Initialize();
-	ConnectToServer();
-}
-
-void UManager::Tick()
-{
-	HandlePacket();
-}
-
-void UManager::EndPlay()
-{
-	DisconnectFromServer();
-}
-
 void UManager::EnterGame()
 {
 	if (NetworkObject)
 	{
-		auto packet = gen::EnterGameReq {};
-		NetworkObject->Send(&packet);
+		// auto packet = gen::EnterGameReq {};
+		// NetworkObject->Send(&packet);
 	}
 }
 
-void UManager::ConnectToServer() const
+void UManager::ConnectToServer(ServerType server, SessionFactoryFunc SessionFactory) const
 {
-	if (!NetworkObject->Connect(net::Endpoint(net::IpAddress::Loopback, 9999)))
+	if (!NetworkObject->Connect(net::Endpoint(net::IpAddress::Loopback, static_cast<uint16>(server)), SessionFactory))
 	{
 		UE_LOG(LogNet, Warning, TEXT("Can't connect with server."));
 		UKismetSystemLibrary::QuitGame(GetWorld(), GetWorld()->GetFirstPlayerController(), EQuitPreference::Type::Quit, false);

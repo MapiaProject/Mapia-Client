@@ -19,11 +19,13 @@ class WOS_API UNetwork : public UManagerBase
 {
 	GENERATED_BODY()
 	friend class FIoThread;
+	
+	using SessionFactoryFunc = TFunction<TSharedPtr<FSession>(net::Socket*)>;
 public:
 	UNetwork();
 	virtual ~UNetwork() override;
 public:
-	bool Connect(const net::Endpoint& EndPoint);
+	bool Connect(const net::Endpoint& EndPoint, SessionFactoryFunc SessionFactory);
 	void Disconnect();
 	bool IsConnected() const;
 	void Send(class Packet* Packet) const;

@@ -12,13 +12,13 @@ UNetwork::~UNetwork()
 {
 }
 
-bool UNetwork::Connect(const net::Endpoint& EndPoint)
+bool UNetwork::Connect(const net::Endpoint& EndPoint, SessionFactoryFunc SessionFactory)
 {
 	Socket.create(net::Protocol::Tcp);
 	bIsConnected = Socket.connect(EndPoint);
 	if (bIsConnected)
 	{
-		IoThread = new ::FIoThread(&Socket);
+		IoThread = new ::FIoThread(&Socket, SessionFactory);
 	}
 	return bIsConnected;
 }

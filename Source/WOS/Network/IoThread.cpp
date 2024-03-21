@@ -4,15 +4,6 @@
 #include "IoThread.h"
 
 #include "Managers/Network.h"
-#include "Managers/Manager.h"
-
-
-FIoThread::FIoThread(net::Socket* socket) : Session(MakeShared<::Session>(socket))
-{
-	UManager::Net()->SetSession(Session);
-	Session->OnConnected();
-	Thread = FRunnableThread::Create(this, TEXT("Net I/O Thread"));
-}
 
 FIoThread::~FIoThread()
 {
@@ -37,7 +28,6 @@ uint32 FIoThread::Run()
 			Session->OnReceive(Session->m_buffer, n);
 		else
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Yellow, TEXT("RECV 0"));
 			Session->OnDisconnected();
 			break;
 		}

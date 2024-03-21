@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Define.h"
+#include "Session/Session.h"
 #include "Manager.generated.h"
 
 #define INIT_MANAGER(name)\
@@ -28,28 +30,20 @@ UCLASS()
 class WOS_API UManager : public UGameInstance
 {
 	GENERATED_BODY()
+	using SessionFactoryFunc = TFunction<TSharedPtr<FSession>(net::Socket*)>;
 public:
 	UManager();
 	virtual ~UManager() override;
 public:
 	UFUNCTION(BlueprintCallable)
-	void BeginPlay();
-
-	UFUNCTION(BlueprintCallable)
-	void Tick();
-
-	UFUNCTION(BlueprintCallable)
-	void EndPlay();
-
-	UFUNCTION(BlueprintCallable)
 	void EnterGame();
 	
-	void ConnectToServer() const;
+	void ConnectToServer(ServerType server, SessionFactoryFunc SessionFactory) const;
 	void HandlePacket() const;
 	void DisconnectFromServer() const;
 public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());
-private:
+
 	static UManager* Instance(const UWorld* World = GEngine->GameViewport->GetWorld());
 	void Initialize();
 private:
