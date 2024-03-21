@@ -1,5 +1,7 @@
 .idea
 .vs
+*.sln
+.vsconfig
 Binaries
 Intermediate
 Saved
