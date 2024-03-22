@@ -4,32 +4,29 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "LoginUI.generated.h"
+#include "LoginPopup.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class WOS_API ULoginUI : public UUserWidget
+class WOS_API ULoginPopup : public UUserWidget
 {
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
+public:
+	void SetTitle(FText TitleName);
+	void SetContent(FText ContentText);
 private:
 	UFUNCTION()
-	void OnClickLogin();
-	UFUNCTION()
-	void OnClickRegister();
-
-	void Reset();
+	void OnClick();
 protected:
 	UPROPERTY(meta=(BindWidget))
-	class UEditableTextBox* ID;
+	class UTextBlock* Title;
 	UPROPERTY(meta=(BindWidget))
-	class UEditableTextBox* Password;
+	class UTextBlock* Content;
 	UPROPERTY(meta=(BindWidget))
-	class UButton* RegisterButton;
-	UPROPERTY(meta=(BindWidget))
-	class UButton* LoginButton;
+	class UButton* CancelButton;
 };

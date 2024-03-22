@@ -3,9 +3,12 @@
 
 #include "Manager.h"
 
+#include "WOSGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Network/Session/Session.h"
 #include "Managers/Network.h"
+#include "Session/MMOSession.h"
+#include "UI/LoginPopup.h"
 
 UManager::UManager() : NetworkObject(nullptr)
 {
@@ -52,12 +55,58 @@ void UManager::DisconnectFromServer() const
 	}
 }
 
-TObjectPtr<UNetwork> UManager::Net(const UWorld* World)
+void UManager::HandleLogin(gen::account::LoginRes* Packet)
 {
-	return Instance(World)->NetworkObject;
+	if (Packet->success)
+	{
+		ConnectToServer(ServerType::MMO, [](net::Socket* sock)
+		{
+			return MakeShared<FMMOSession>(sock);
+		});
+	}
+	else
+	{
+		auto World = GEngine->GameViewport->GetWorld();
+		auto WOSGameMode = Cast<AWOSGameModeBase>(UGameplayStatics::GetGameMode(World));
+		auto Popup = Cast<ULoginPopup>(CreateWidget(World, WOSGameMode->LoginPopup));
+		if (Popup)
+		{
+			Popup->AddToViewport();
+			Popup->SetTitle(FText::FromString(TEXT("알림")));
+			Popup->SetContent(FText::FromString(TEXT("닉네임 또는 비밀번호가 일치하지 않습니다.")));
+		}	
+	}
 }
 
-UManager* UManager::Instance(const UWorld* World)
+void UManager::HandleRegister(gen::account::RegisterRes* Packet)
+{
+	if (Packet->success)
+	{
+		ConnectToServer(ServerType::MMO, [](net::Socket* sock)
+		{
+			return MakeShared<FMMOSession>(sock);
+		});
+	}
+	else
+	{
+		auto World = GEngine->GameViewport->GetWorld();
+		auto WOSGameMode = Cast<AWOSGameModeBase>(UGameplayStatics::GetGameMode(World));
+		auto Popup = Cast<ULoginPopup>(CreateWidget(World, WOSGameMode->LoginPopup));
+		if (Popup)
+		{
+			Popup->AddToViewport();
+			Popup->SetTitle(FText::FromString(TEXT("알림")));
+			Popup->SetContent(FText::FromString(TEXT("이미 존재하는 닉네임입니다.")));
+		}	
+	}	
+}
+
+TObjectPtr<UNetwork> UManager::Net(const UWorld* World)
+{
+	return Get(World)->NetworkObject;
+}
+
+UManager* UManager::Get(const UWorld* World)
 {
 	if (World == nullptr)
 		return nullptr;

@@ -26,5 +26,7 @@ public:
 	UPROPERTY()
 	TSubclassOf<UUserWidget> LobbyUIClass;
 	UPROPERTY()
+	TSubclassOf<UUserWidget> LoginPopup;
+	UPROPERTY()
 	UUserWidget* CurrentWidget;
 };

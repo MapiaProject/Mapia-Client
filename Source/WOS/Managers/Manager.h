@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Define.h"
+#include "generated/account/Protocol.gen.hpp"
 #include "Session/Session.h"
 #include "Manager.generated.h"
 
@@ -42,9 +43,12 @@ public:
 	void HandlePacket() const;
 	void DisconnectFromServer() const;
 public:
+	void HandleLogin(gen::account::LoginRes* Packet);
+	void HandleRegister(gen::account::RegisterRes* Packet);
+public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());
 
-	static UManager* Instance(const UWorld* World = GEngine->GameViewport->GetWorld());
+	static UManager* Get(const UWorld* World = GEngine->GameViewport->GetWorld());
 	void Initialize();
 private:
 	UPROPERTY(EditAnywhere)
