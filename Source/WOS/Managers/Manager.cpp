@@ -68,12 +68,22 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet)
 	{
 		auto World = GEngine->GameViewport->GetWorld();
 		auto WOSGameMode = Cast<AWOSGameModeBase>(UGameplayStatics::GetGameMode(World));
+		
 		auto Popup = Cast<ULoginPopup>(CreateWidget(World, WOSGameMode->LoginPopup));
 		if (Popup)
 		{
 			Popup->AddToViewport();
 			Popup->SetTitle(FText::FromString(TEXT("알림")));
-			Popup->SetContent(FText::FromString(TEXT("닉네임 또는 비밀번호가 일치하지 않습니다.")));
+
+			switch(Packet->cause)
+			{
+			case gen::account::ELoginFail::EXIST:
+				Popup->SetContent(FText::FromString(TEXT("이미 접속중인 계정입니다.")));
+				break;
+			case gen::account::ELoginFail::INVALID:
+				Popup->SetContent(FText::FromString(TEXT("비밀번호 또는 닉네임이 일치하지 않습니다.")));
+				break;
+			}
 		}	
 	}
 }

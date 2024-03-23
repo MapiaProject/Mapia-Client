@@ -13,6 +13,8 @@
 
 #include <vector>
 
+#undef ERROR
+
 /* Additional headers. */
 #include "Struct.gen.hpp"
 namespace gen {
