@@ -35,7 +35,7 @@ public:
 	virtual ~UNetwork() override;
 public:
 	bool Connect(ServerType Type, const net::Endpoint& EndPoint, SessionFactoryFunc SessionFactory);
-	void Disconnect(ServerType Type);
+	void Disconnect();
 	void Send(ServerType Type, class Packet* Packet) const;
 public:
 	void AddSession(::ServerType Type, const TSharedPtr<FSession>& NewSession);

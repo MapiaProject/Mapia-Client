@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include "net/Socket.hpp"
 
-class FSession : public TSharedFromThis<FSession>
+class FSession : public TSharedFromThis<FSession>, public FRunnable
 {
 	friend class FIoThread;
 public:
 	FSession(net::Socket* socket);
-	virtual ~FSession();
+	virtual ~FSession() override;
 public:
 	virtual void OnConnected();
 	virtual void OnDisconnected();
@@ -25,7 +25,12 @@ protected:
 	{
 		JobQue.Enqueue([=] { Functor(Args...); });
 	}
+
+public:
+	virtual uint32 Run() override;
+
 private:
+	FRunnableThread* Thread;
 	net::Socket* Socket;
 	char m_buffer[4096];
 	TQueue<TFunction<void()>> JobQue;

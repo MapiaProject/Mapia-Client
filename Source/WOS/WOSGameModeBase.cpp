@@ -5,6 +5,7 @@
 #include "Managers/Manager.h"
 #include "Blueprint/UserWidget.h"
 #include "generated/mmo/ClientPacketHandler.gen.hpp"
+#include "Managers/Network.h"
 #include "Session/AccountSession.h"
 
 AWOSGameModeBase::AWOSGameModeBase() : Super(), CurrentWidget(nullptr)
@@ -34,7 +35,6 @@ AWOSGameModeBase::~AWOSGameModeBase()
 void AWOSGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("BeginPlay"));
 	
 	UManager::Get(GetWorld())->Initialize();
 	UManager::Get(GetWorld())->ConnectToServer(ServerType::Account, [](net::Socket* sock)
@@ -52,4 +52,5 @@ void AWOSGameModeBase::Tick(float DeltaSeconds)
 void AWOSGameModeBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
+	UManager::Net(GetWorld())->Disconnect();
 }

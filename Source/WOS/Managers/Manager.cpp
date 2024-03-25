@@ -71,10 +71,10 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet)
 		switch (Packet->cause)
 		{
 		case gen::account::EXIST:
-			UISystemObject->ShowPopup(TEXT("알림"), TEXT("이미 접속하고 있는 유저가 있습니다."));
+			UI()->ShowPopup(TEXT("알림"), TEXT("이미 접속하고 있는 유저가 있습니다."));
 			break;
 		case gen::account::INVALID:
-			UISystemObject->ShowPopup(TEXT("알림"), TEXT("닉네임이나 비밀번호가 잘못되었습니다."));
+			UI()->ShowPopup(TEXT("알림"), TEXT("닉네임이나 비밀번호가 잘못되었습니다."));
 			break;
 		default:
 			break;;
@@ -86,17 +86,22 @@ void UManager::HandleRegister(gen::account::RegisterRes* Packet)
 {
 	if (Packet->success)
 	{
-		UISystemObject->ShowPopup(TEXT("알림"), TEXT("회원등록에 성공했습니다."));
+		UI()->ShowPopup(TEXT("알림"), TEXT("회원등록에 성공했습니다."));
 	}
 	else
 	{
-		UISystemObject->ShowPopup(TEXT("알림"), TEXT("이미 존재하는 닉네임입니다."));
+		UI()->ShowPopup(TEXT("알림"), TEXT("이미 존재하는 닉네임입니다."));
 	}	
 }
 
 TObjectPtr<UNetwork> UManager::Net(const UWorld* World)
 {
 	return Get(World)->NetworkObject;
+}
+
+TObjectPtr<UUISystem> UManager::UI(const UWorld* World)
+{
+	return Get(World)->UISystemObject;
 }
 
 UManager* UManager::Get(const UWorld* World)

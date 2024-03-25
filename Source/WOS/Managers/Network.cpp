@@ -2,7 +2,7 @@
 
 
 #include "Managers/Network.h"
-#include "Network/IoThread.h"
+#include "Session/Session.h"
 
 UNetwork::UNetwork()
 {
@@ -21,22 +21,25 @@ bool UNetwork::Connect(ServerType Type, const net::Endpoint& EndPoint, SessionFa
 		const auto Session = SessionFactory(&Socket);
 		Session->OnConnected();
 		
-		const auto IoThread =  MakeShared<FIoThread>(Session);
-		
 		AddSession(Type, Session);
 	}
 	return bIsConnected;
 }
 
-void UNetwork::Disconnect(ServerType Type)
+void UNetwork::Disconnect()
 {
+	for (auto& Tuple : Sessions)
+	{
+		Tuple.Value->GetHandle()->disconnect();
+		Tuple.Value = nullptr;
+	}
+	Sessions.Reset();
 }
 
 void UNetwork::Send(ServerType Type, Packet* Packet) const
 {
-	auto Session = Sessions[Type];
-	if (Session != nullptr)
-		Session->Send(Packet);
+	if (Sessions.Contains(Type))
+		Sessions[Type]->Send(Packet);
 }
 
 void UNetwork::AddSession(ServerType Type, const TSharedPtr<FSession>& NewSession)
