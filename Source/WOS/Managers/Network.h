@@ -2,9 +2,18 @@
 
 #pragma once
 
+#include <optional>
+
 #include "CoreMinimal.h"
+#include "Define.h"
 
 #include "ManagerBase.h"
+#include "Chaos/AABB.h"
+#include "Chaos/AABB.h"
+#include "Chaos/AABB.h"
+#include "Chaos/AABB.h"
+#include "Chaos/AABB.h"
+#include "Chaos/AABB.h"
 
 #include "net/Socket.hpp"
 #include "Network.generated.h"
@@ -25,16 +34,20 @@ public:
 	UNetwork();
 	virtual ~UNetwork() override;
 public:
-	bool Connect(const net::Endpoint& EndPoint, SessionFactoryFunc SessionFactory);
+	bool Connect(::ServerType Type, const net::Endpoint& EndPoint, SessionFactoryFunc SessionFactory);
 	void Disconnect();
 	bool IsConnected() const;
-	void Send(class Packet* Packet) const;
+	void Send(ServerType Type, class Packet* Packet) const;
 public:
-	void SetSession(const TSharedPtr<FSession>& NewSession);
-	TSharedPtr<FSession> GetSession();
+	void AddSession(::ServerType Type, const TSharedPtr<FSession>& NewSession);
+	TArray<TSharedPtr<FSession>> GetSessions();
+public:
+	void SetUUID(FString Uuid);
+	std::optional<FString> GetUUID() const;
 private:
 	bool bIsConnected;
 	FIoThread* IoThread;
 	net::Socket Socket;
-	TSharedPtr<FSession> Session;
+	TMap<ServerType, TSharedPtr<FSession>> Sessions;
+	std::optional<FString> UUID;
 };

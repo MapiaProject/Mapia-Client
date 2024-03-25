@@ -32,13 +32,17 @@ net::Socket* FSession::GetHandle() const
 
 void FSession::Flush()
 {
-	while (!HandlerQue.IsEmpty())
+	while (!JobQue.IsEmpty())
 	{
-		TFunction<bool(TSharedPtr<FSession>)> Handler;
-		if (HandlerQue.Dequeue(Handler))
+		TFunction<void()> Handler;
+		if (JobQue.Dequeue(Handler))
 		{
-			if (Handler)
-				bool Result = Handler(AsShared());
+			if (Handler) Handler();
 		}
 	}
+}
+
+void FSession::PushJob(TFunction<void()> Functor)
+{
+	JobQue.Enqueue(Functor);
 }

@@ -28,9 +28,9 @@ void UManager::EnterGame()
 	}
 }
 
-void UManager::ConnectToServer(ServerType server, SessionFactoryFunc SessionFactory) const
+void UManager::ConnectToServer(ServerType Type, SessionFactoryFunc SessionFactory) const
 {
-	if (!NetworkObject->Connect(net::Endpoint(net::IpAddress::Loopback, static_cast<uint16>(server)), SessionFactory))
+	if (!NetworkObject->Connect(Type, net::Endpoint(net::IpAddress::Loopback, static_cast<uint16>(Type)), SessionFactory))
 	{
 		UE_LOG(LogNet, Warning, TEXT("Can't connect with server."));
 		UKismetSystemLibrary::QuitGame(GetWorld(), GetWorld()->GetFirstPlayerController(), EQuitPreference::Type::Quit, false);
@@ -42,7 +42,11 @@ void UManager::HandlePacket() const
 	if (!NetworkObject)
 		return;
 	if (NetworkObject->IsConnected())
-		NetworkObject->GetSession()->Flush();
+	{
+		const auto& Sessions = NetworkObject->GetSessions();
+		for (const auto& Session : Sessions)
+			Session->Flush();
+	}
 }
 
 void UManager::DisconnectFromServer() const
@@ -59,6 +63,7 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet)
 {
 	if (Packet->success)
 	{
+		NetworkObject->SetUUID(Packet->uuid);
 		ConnectToServer(ServerType::MMO, [](net::Socket* sock)
 		{
 			return MakeShared<FMMOSession>(sock);
@@ -92,10 +97,7 @@ void UManager::HandleRegister(gen::account::RegisterRes* Packet)
 {
 	if (Packet->success)
 	{
-		ConnectToServer(ServerType::MMO, [](net::Socket* sock)
-		{
-			return MakeShared<FMMOSession>(sock);
-		});
+		//TODO: Add UI Manager::ShowPopup();
 	}
 	else
 	{

@@ -16,9 +16,9 @@ class WOS_API FIoThread : FRunnable
 {
 	using SessionFactoryFunc = TFunction<TSharedPtr<FSession>(net::Socket*)>;
 public:
-	FIoThread(net::Socket* sock, SessionFactoryFunc SessionFactory) : Session(SessionFactory(sock))
+	FIoThread(ServerType Type, net::Socket* Sock, SessionFactoryFunc SessionFactory) : Session(SessionFactory(Sock))
 	{
-		UManager::Net()->SetSession(Session);
+		UManager::Net()->AddSession(Type, Session);
 		Session->OnConnected();
 		Thread = FRunnableThread::Create(this, TEXT("Net I/O Thread"));
 	}

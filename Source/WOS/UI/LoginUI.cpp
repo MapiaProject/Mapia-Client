@@ -35,7 +35,7 @@ void ULoginUI::OnClickLogin()
 	gen::account::LoginReq req;
 	req.nickname = ID->GetText().ToString();
 	req.password = FMD5::HashAnsiString(*Password->GetText().ToString());
-	UManager::Net()->Send(&req);
+	UManager::Net()->Send(ServerType::Account, &req);
 
 	Reset();
 }
@@ -45,7 +45,7 @@ void ULoginUI::OnClickRegister()
 	gen::account::RegisterReq req;
 	req.nickname = ID->GetText().ToString();
 	req.password = FMD5::HashAnsiString(*Password->GetText().ToString());
-	UManager::Net()->Send(&req);
+	UManager::Net()->Send(ServerType::Account, &req);
 
 	Reset();
 }

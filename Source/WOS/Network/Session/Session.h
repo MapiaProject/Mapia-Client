@@ -19,9 +19,16 @@ public:
 public:
 	net::Socket* GetHandle() const;
 	void Flush();
+protected:
+	void PushJob(TFunction<void()> Functor);
+	
+	template<class TRet, class ...TArgs>
+	FORCEINLINE void PushJob(TFunction<TRet(TArgs...)> Functor, TArgs... Args)
+	{
+		JobQue.Enqueue([=] { Functor(Args...); });
+	}
 private:
 	net::Socket* Socket;
 	char m_buffer[4096];
-protected:
-	TQueue<TFunction<bool(TSharedPtr<FSession>)>> HandlerQue;
+	TQueue<TFunction<void()>> JobQue;
 };

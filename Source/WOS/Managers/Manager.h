@@ -39,7 +39,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void EnterGame();
 	
-	void ConnectToServer(ServerType server, SessionFactoryFunc SessionFactory) const;
+	void ConnectToServer(ServerType Type, SessionFactoryFunc SessionFactory) const;
 	void HandlePacket() const;
 	void DisconnectFromServer() const;
 public:
