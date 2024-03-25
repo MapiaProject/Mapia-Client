@@ -1,17 +1,15 @@
 ﻿#pragma once
 #include "net/Socket.hpp"
 
-#include "Templates/SharedPointer.h"
-
 class FSession : public TSharedFromThis<FSession>
 {
 	friend class FIoThread;
 public:
 	FSession(net::Socket* socket);
-	virtual ~FSession() = default;
+	virtual ~FSession();
 public:
-	virtual void OnConnected() {}
-	virtual void OnDisconnected() {}
+	virtual void OnConnected();
+	virtual void OnDisconnected();
 	virtual void OnReceive(std::span<char> buffer, int32 length);
 public:
 	void Send(std::span<char> data);

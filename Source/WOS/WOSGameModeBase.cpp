@@ -34,6 +34,8 @@ AWOSGameModeBase::~AWOSGameModeBase()
 void AWOSGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("BeginPlay"));
+	
 	UManager::Get(GetWorld())->Initialize();
 	UManager::Get(GetWorld())->ConnectToServer(ServerType::Account, [](net::Socket* sock)
 	{

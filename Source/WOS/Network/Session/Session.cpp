@@ -1,10 +1,21 @@
 ﻿#include "Session.h"
-
 #include "Packet.h"
 
 FSession::FSession(net::Socket* socket) : Socket(socket)
 {
 	ZeroMemory(&m_buffer, sizeof(m_buffer));
+}
+
+FSession::~FSession()
+{
+}
+
+void FSession::OnConnected()
+{
+}
+
+void FSession::OnDisconnected()
+{
 }
 
 void FSession::OnReceive(std::span<char> buffer, int32 length)

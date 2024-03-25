@@ -5,9 +5,15 @@
 
 #include "Managers/Network.h"
 
+FIoThread::FIoThread(TSharedPtr<FSession> Session)
+{
+	Owner = Session;
+	Thread = FRunnableThread::Create(this, TEXT("Net I/O Thread"));
+}
+
 FIoThread::~FIoThread()
 {
-	if(Thread)
+	if (Thread)
 	{
 		Thread->Kill();
 		delete Thread;
@@ -21,14 +27,14 @@ bool FIoThread::Init()
 
 uint32 FIoThread::Run()
 {
-	while(Session->GetHandle()->isOpen())
-	{	
-		auto n = Session->GetHandle()->receive(Session->m_buffer);
-		if (n > 0)
-			Session->OnReceive(Session->m_buffer, n);
+	while (Owner->GetHandle()->isOpen())
+	{
+		const auto Length = Owner->GetHandle()->receive(Owner->m_buffer);
+		if (Length > 0)
+			Owner->OnReceive(Owner->m_buffer, Length);
 		else
 		{
-			Session->OnDisconnected();
+			Owner->OnDisconnected();
 			break;
 		}
 	}
@@ -43,10 +49,4 @@ void FIoThread::Stop()
 void FIoThread::Exit()
 {
 	FRunnable::Exit();
-}
-
-void FIoThread::Send(Packet* packet)
-{
-	FScopeLock Lock(&CriticalSection);
-	Session->Send(packet);
 }

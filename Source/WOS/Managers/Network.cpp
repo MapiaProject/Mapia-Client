@@ -4,7 +4,7 @@
 #include "Managers/Network.h"
 #include "Network/IoThread.h"
 
-UNetwork::UNetwork() : bIsConnected(false), IoThread(nullptr)
+UNetwork::UNetwork()
 {
 }
 
@@ -15,29 +15,21 @@ UNetwork::~UNetwork()
 bool UNetwork::Connect(ServerType Type, const net::Endpoint& EndPoint, SessionFactoryFunc SessionFactory)
 {
 	Socket.create(net::Protocol::Tcp);
-	bIsConnected = Socket.connect(EndPoint);
-	if (bIsConnected)
+	const bool bIsConnected = Socket.connect(EndPoint);
+	if(bIsConnected)
 	{
-		IoThread = new ::FIoThread(Type, &Socket, SessionFactory);
+		const auto Session = SessionFactory(&Socket);
+		Session->OnConnected();
+		
+		const auto IoThread =  MakeShared<FIoThread>(Session);
+		
+		AddSession(Type, Session);
 	}
 	return bIsConnected;
 }
 
-void UNetwork::Disconnect()
+void UNetwork::Disconnect(ServerType Type)
 {
-	if (bIsConnected)
-	{
-		bIsConnected = false;
-		Socket.disconnect();
-		Socket.close();
-
-		delete IoThread;
-	}
-}
-
-bool UNetwork::IsConnected() const
-{
-	return bIsConnected;
 }
 
 void UNetwork::Send(ServerType Type, Packet* Packet) const

@@ -3,6 +3,7 @@
 
 #include "Manager.h"
 
+#include "UISystem.h"
 #include "WOSGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Network/Session/Session.h"
@@ -13,6 +14,7 @@
 UManager::UManager() : NetworkObject(nullptr)
 {
 	NetworkClass = UNetwork::StaticClass();
+	UISystemClass = UUISystem::StaticClass();
 }
 
 UManager::~UManager()
@@ -41,28 +43,23 @@ void UManager::HandlePacket() const
 {
 	if (!NetworkObject)
 		return;
-	if (NetworkObject->IsConnected())
-	{
-		const auto& Sessions = NetworkObject->GetSessions();
-		for (const auto& Session : Sessions)
-			Session->Flush();
-	}
+	const auto& Sessions = NetworkObject->GetSessions();
+	for (const auto& Session : Sessions)
+		Session->Flush();
 }
 
 void UManager::DisconnectFromServer() const
 {
 	if(!NetworkObject)
 		return;
-	if (!NetworkObject->IsConnected())
-	{
-
-	}
 }
 
 void UManager::HandleLogin(gen::account::LoginRes* Packet)
 {
 	if (Packet->success)
 	{
+		UISystemObject->ShowPopup(TEXT("알림"), TEXT("로그인 성공."));
+		
 		NetworkObject->SetUUID(Packet->uuid);
 		ConnectToServer(ServerType::MMO, [](net::Socket* sock)
 		{
@@ -71,25 +68,17 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet)
 	}
 	else
 	{
-		auto World = GEngine->GameViewport->GetWorld();
-		auto WOSGameMode = Cast<AWOSGameModeBase>(UGameplayStatics::GetGameMode(World));
-		
-		auto Popup = Cast<ULoginPopup>(CreateWidget(World, WOSGameMode->LoginPopup));
-		if (Popup)
+		switch (Packet->cause)
 		{
-			Popup->AddToViewport();
-			Popup->SetTitle(FText::FromString(TEXT("알림")));
-
-			switch(Packet->cause)
-			{
-			case gen::account::ELoginFail::EXIST:
-				Popup->SetContent(FText::FromString(TEXT("이미 접속중인 계정입니다.")));
-				break;
-			case gen::account::ELoginFail::INVALID:
-				Popup->SetContent(FText::FromString(TEXT("비밀번호 또는 닉네임이 일치하지 않습니다.")));
-				break;
-			}
-		}	
+		case gen::account::EXIST:
+			UISystemObject->ShowPopup(TEXT("알림"), TEXT("이미 접속하고 있는 유저가 있습니다."));
+			break;
+		case gen::account::INVALID:
+			UISystemObject->ShowPopup(TEXT("알림"), TEXT("닉네임이나 비밀번호가 잘못되었습니다."));
+			break;
+		default:
+			break;;
+		}
 	}
 }
 
@@ -97,19 +86,11 @@ void UManager::HandleRegister(gen::account::RegisterRes* Packet)
 {
 	if (Packet->success)
 	{
-		//TODO: Add UI Manager::ShowPopup();
+		UISystemObject->ShowPopup(TEXT("알림"), TEXT("회원등록에 성공했습니다."));
 	}
 	else
 	{
-		auto World = GEngine->GameViewport->GetWorld();
-		auto WOSGameMode = Cast<AWOSGameModeBase>(UGameplayStatics::GetGameMode(World));
-		auto Popup = Cast<ULoginPopup>(CreateWidget(World, WOSGameMode->LoginPopup));
-		if (Popup)
-		{
-			Popup->AddToViewport();
-			Popup->SetTitle(FText::FromString(TEXT("알림")));
-			Popup->SetContent(FText::FromString(TEXT("이미 존재하는 닉네임입니다.")));
-		}	
+		UISystemObject->ShowPopup(TEXT("알림"), TEXT("이미 존재하는 닉네임입니다."));
 	}	
 }
 
@@ -140,5 +121,6 @@ UManager* UManager::Get(const UWorld* World)
 void UManager::Initialize()
 {
 	INIT_MANAGER(Network);
+	INIT_MANAGER(UISystem);
 }
 

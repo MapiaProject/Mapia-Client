@@ -22,6 +22,7 @@ if (!name##Object)												\
 }																\
 
 class UNetwork;
+class UUISystem;
 class UWidget;
 
 /**
@@ -53,6 +54,10 @@ public:
 private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UNetwork> NetworkClass;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUISystem> UISystemClass;
 	UPROPERTY()
 	TObjectPtr<UNetwork> NetworkObject;
+	UPROPERTY()
+	TObjectPtr<UUISystem> UISystemObject;
 };	
