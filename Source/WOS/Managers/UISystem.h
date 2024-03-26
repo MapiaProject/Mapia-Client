@@ -14,5 +14,5 @@ class WOS_API UUISystem : public UManagerBase
 {
 	GENERATED_BODY()
 public:
-	void ShowPopup(FString Title, FString Content) const;
+	void ShowPopup(UWorld* World, FString Title, FString Content);
 };

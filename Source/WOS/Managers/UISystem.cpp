@@ -7,11 +7,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "UI/LoginPopup.h"
 
-void UUISystem::ShowPopup(FString Title, FString Content) const
+void UUISystem::ShowPopup(UWorld* World, FString Title, FString Content)
 {
-	auto WOSGameMode = Cast<AWOSGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	auto Popup = Cast<ULoginPopup>(CreateWidget(GetWorld(), WOSGameMode->LoginPopup));
-	if (Popup)
+	const auto WOSGameMode = Cast<AWOSGameModeBase>(UGameplayStatics::GetGameMode(World));
+	if (auto Popup = Cast<ULoginPopup>(CreateWidget(World, WOSGameMode->LoginPopup)))
 	{
 		Popup->AddToViewport();
 		Popup->SetTitle(FText::FromString(Title));

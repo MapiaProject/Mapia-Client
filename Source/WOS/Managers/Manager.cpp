@@ -4,13 +4,11 @@
 #include "Manager.h"
 
 #include "UISystem.h"
-#include "WOSGameModeBase.h"
 #include "generated/mmo/ClientPacketHandler.gen.hpp"
 #include "Kismet/GameplayStatics.h"
 #include "Network/Session/Session.h"
 #include "Managers/Network.h"
 #include "Session/MMOSession.h"
-#include "UI/LoginPopup.h"
 
 UManager::UManager() : NetworkObject(nullptr)
 {
@@ -20,15 +18,6 @@ UManager::UManager() : NetworkObject(nullptr)
 
 UManager::~UManager()
 {
-}
-
-void UManager::EnterGame()
-{
-	if (NetworkObject)
-	{
-		// auto packet = gen::EnterGameReq {};
-		// NetworkObject->Send(&packet);
-	}
 }
 
 void UManager::ConnectToServer(ServerType Type, SessionFactoryFunc SessionFactory) const
@@ -49,17 +38,12 @@ void UManager::HandlePacket() const
 		Session->Flush();
 }
 
-void UManager::DisconnectFromServer() const
-{
-	if(!NetworkObject)
-		return;
-}
-
 void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 {
+	auto World = GetWorld();
 	if (Packet->success)
 	{
-		UISystemObject->ShowPopup(TEXT("알림"), TEXT("로그인 성공."));
+		UISystemObject->ShowPopup(World, TEXT("알림"), TEXT("로그인 성공."));
 		
 		NetworkObject->SetUUID(Packet->uuid);
 		ConnectToServer(ServerType::MMO, [](TSharedPtr<net::Socket> Socket)
@@ -73,10 +57,10 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 		switch (Packet->cause)
 		{
 		case gen::account::EXIST:
-			UI()->ShowPopup(TEXT("알림"), TEXT("이미 접속하고 있는 유저가 있습니다."));
+			UI()->ShowPopup(World, TEXT("알림"), TEXT("이미 접속하고 있는 유저가 있습니다."));
 			break;
 		case gen::account::INVALID:
-			UI()->ShowPopup(TEXT("알림"), TEXT("닉네임이나 비밀번호가 잘못되었습니다."));
+			UI(GetWorld())->ShowPopup(World, TEXT("알림"), TEXT("닉네임이나 비밀번호가 잘못되었습니다."));
 			break;
 		default:
 			break;;
@@ -86,13 +70,14 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 
 void UManager::HandleRegister(gen::account::RegisterRes* Packet)
 {
+	auto World = GetWorld();
 	if (Packet->success)
 	{
-		UI()->ShowPopup(TEXT("알림"), TEXT("회원등록에 성공했습니다."));
+		UI()->ShowPopup(World, TEXT("알림"), TEXT("회원등록에 성공했습니다."));
 	}
 	else
 	{
-		UI()->ShowPopup(TEXT("알림"), TEXT("이미 존재하는 닉네임입니다."));
+		UI()->ShowPopup(World, TEXT("알림"), TEXT("이미 존재하는 닉네임입니다."));
 	}	
 }
 
@@ -110,19 +95,19 @@ UManager* UManager::Get(const UWorld* World)
 {
 	if (World == nullptr)
 		return nullptr;
-	auto manager = CastChecked<UManager>(UGameplayStatics::GetGameInstance(World));
-	if (manager != nullptr)
+	const auto Manager = CastChecked<UManager>(UGameplayStatics::GetGameInstance(World));
+	if (Manager != nullptr)
 	{
-		manager->Initialize();
-		return manager;
+		Manager->Initialize();
+		return Manager;
 	}
 #if WITH_EDITOR
 	UE_LOG(LogTemp, Error, TEXT("Invalid Game Instance"));
 #endif
-	
-	auto instance = NewObject<UManager>();
-	instance->Initialize();
-	return instance;
+
+	const auto Instance = NewObject<UManager>();
+	Instance->Initialize();
+	return Instance;
 }
 
 void UManager::Initialize()

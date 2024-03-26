@@ -37,12 +37,8 @@ public:
 	UManager();
 	virtual ~UManager() override;
 public:
-	UFUNCTION(BlueprintCallable)
-	void EnterGame();
-	
 	void ConnectToServer(ServerType Type, SessionFactoryFunc SessionFactory) const;
 	void HandlePacket() const;
-	void DisconnectFromServer() const;
 public:
 	void HandleLogin(gen::account::LoginRes* Packet) const;
 	void HandleRegister(gen::account::RegisterRes* Packet);
