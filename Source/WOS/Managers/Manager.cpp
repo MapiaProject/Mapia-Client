@@ -5,6 +5,7 @@
 
 #include "UISystem.h"
 #include "WOSGameModeBase.h"
+#include "generated/mmo/ClientPacketHandler.gen.hpp"
 #include "Kismet/GameplayStatics.h"
 #include "Network/Session/Session.h"
 #include "Managers/Network.h"
@@ -54,16 +55,17 @@ void UManager::DisconnectFromServer() const
 		return;
 }
 
-void UManager::HandleLogin(gen::account::LoginRes* Packet)
+void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 {
 	if (Packet->success)
 	{
 		UISystemObject->ShowPopup(TEXT("알림"), TEXT("로그인 성공."));
 		
 		NetworkObject->SetUUID(Packet->uuid);
-		ConnectToServer(ServerType::MMO, [](net::Socket* sock)
+		ConnectToServer(ServerType::MMO, [](TSharedPtr<net::Socket> Socket)
 		{
-			return MakeShared<FMMOSession>(sock);
+			auto Session = MakeShared<FMMOSession>(Socket);
+			return Session;
 		});
 	}
 	else

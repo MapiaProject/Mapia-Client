@@ -33,13 +33,14 @@ AWOSGameModeBase::~AWOSGameModeBase()
 }
 
 void AWOSGameModeBase::BeginPlay()
-{
+{	
 	Super::BeginPlay();
 	
 	UManager::Get(GetWorld())->Initialize();
-	UManager::Get(GetWorld())->ConnectToServer(ServerType::Account, [](net::Socket* sock)
+	UManager::Get(GetWorld())->ConnectToServer(ServerType::Account, [](TSharedPtr<net::Socket> Socket)
 	{
-		return MakeShared<FAccountSession>(sock);
+		auto Session = MakeShared<FAccountSession>(Socket);
+		return Session;
 	});
 }
 

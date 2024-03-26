@@ -6,8 +6,8 @@
 class FAccountSession final : public FSession
 {
 public:
-	explicit FAccountSession(net::Socket* socket)
-		: FSession(socket)
+	explicit FAccountSession(TSharedPtr<net::Socket> Socket)
+		: FSession(Socket)
 	{
 	}
 

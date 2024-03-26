@@ -1,9 +1,5 @@
-﻿#include "WOSGameModeBase.h"
-#include "Blueprint/UserWidget.h"
-#include "generated/account/ClientPacketHandler.gen.hpp"
-#include "Kismet/GameplayStatics.h"
+﻿#include "generated/account/ClientPacketHandler.gen.hpp"
 #include "Managers/Manager.h"
-#include "UI/LoginPopup.h"
 
 using namespace gen;
 

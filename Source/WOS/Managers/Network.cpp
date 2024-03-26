@@ -14,11 +14,11 @@ UNetwork::~UNetwork()
 
 bool UNetwork::Connect(ServerType Type, const net::Endpoint& EndPoint, SessionFactoryFunc SessionFactory)
 {
-	Socket.create(net::Protocol::Tcp);
-	const bool bIsConnected = Socket.connect(EndPoint);
+	auto Socket = MakeShared<net::Socket>(net::Protocol::Tcp);
+	const bool bIsConnected = Socket->connect(EndPoint);
 	if(bIsConnected)
 	{
-		const auto Session = SessionFactory(&Socket);
+		const auto Session = SessionFactory(Socket);
 		Session->OnConnected();
 		
 		AddSession(Type, Session);
@@ -30,7 +30,7 @@ void UNetwork::Disconnect()
 {
 	for (auto& Tuple : Sessions)
 	{
-		Tuple.Value->GetHandle()->disconnect();
+		Tuple.Value->Disconnect();
 		Tuple.Value = nullptr;
 	}
 	Sessions.Reset();
@@ -42,7 +42,7 @@ void UNetwork::Send(ServerType Type, Packet* Packet) const
 		Sessions[Type]->Send(Packet);
 }
 
-void UNetwork::AddSession(ServerType Type, const TSharedPtr<FSession>& NewSession)
+void UNetwork::AddSession(ServerType Type, TSharedPtr<FSession> NewSession)
 {
 	this->Sessions.Add(Type, NewSession);
 }

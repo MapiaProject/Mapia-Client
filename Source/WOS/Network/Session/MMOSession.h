@@ -5,8 +5,8 @@
 class FMMOSession final : public FSession
 {
 public:
-	explicit FMMOSession(net::Socket* socket)
-		: FSession(socket)
+	explicit FMMOSession(TSharedPtr<net::Socket> Socket)
+		: FSession(Socket)
 	{
 	}
 

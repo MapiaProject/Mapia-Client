@@ -29,7 +29,7 @@ class WOS_API UNetwork : public UManagerBase
 	GENERATED_BODY()
 	friend class FIoThread;
 	
-	using SessionFactoryFunc = TFunction<TSharedPtr<FSession>(net::Socket*)>;
+	using SessionFactoryFunc = TFunction<TSharedPtr<FSession>(TSharedPtr<net::Socket>)>;
 public:
 	UNetwork();
 	virtual ~UNetwork() override;
@@ -38,13 +38,12 @@ public:
 	void Disconnect();
 	void Send(ServerType Type, class Packet* Packet) const;
 public:
-	void AddSession(::ServerType Type, const TSharedPtr<FSession>& NewSession);
+	void AddSession(ServerType Type, TSharedPtr<FSession> NewSession);
 	TArray<TSharedPtr<FSession>> GetSessions();
 public:
 	void SetUUID(FString Uuid);
 	std::optional<FString> GetUUID() const;
 private:
-	net::Socket Socket;
 	TMap<ServerType, TSharedPtr<FSession>> Sessions;
 	std::optional<FString> UUID;
 };

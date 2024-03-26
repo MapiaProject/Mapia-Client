@@ -32,7 +32,7 @@ UCLASS()
 class WOS_API UManager : public UGameInstance
 {
 	GENERATED_BODY()
-	using SessionFactoryFunc = TFunction<TSharedPtr<FSession>(net::Socket*)>;
+	using SessionFactoryFunc = TFunction<TSharedPtr<FSession>(TSharedPtr<net::Socket>)>;
 public:
 	UManager();
 	virtual ~UManager() override;
@@ -44,7 +44,7 @@ public:
 	void HandlePacket() const;
 	void DisconnectFromServer() const;
 public:
-	void HandleLogin(gen::account::LoginRes* Packet);
+	void HandleLogin(gen::account::LoginRes* Packet) const;
 	void HandleRegister(gen::account::RegisterRes* Packet);
 public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());

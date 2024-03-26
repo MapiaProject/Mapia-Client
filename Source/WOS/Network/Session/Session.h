@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include "net/Socket.hpp"
 
-class FSession : public TSharedFromThis<FSession>, public FRunnable
+class FSession : public TSharedFromThis<FSession>
 {
 	friend class FIoThread;
 public:
-	FSession(net::Socket* socket);
-	virtual ~FSession() override;
+	FSession(TSharedPtr<net::Socket> socket);
+	virtual ~FSession();
 public:
 	virtual void OnConnected();
 	virtual void OnDisconnected();
@@ -15,8 +15,10 @@ public:
 	void Send(std::span<char> data);
 	void Send(class Packet* pkt);
 public:
-	net::Socket* GetHandle() const;
+ 	TSharedPtr<net::Socket> GetHandle();
 	void Flush();
+	void Disconnect() const;
+
 protected:
 	void PushJob(TFunction<void()> Functor);
 	
@@ -25,13 +27,8 @@ protected:
 	{
 		JobQue.Enqueue([=] { Functor(Args...); });
 	}
-
-public:
-	virtual uint32 Run() override;
-
 private:
-	FRunnableThread* Thread;
-	net::Socket* Socket;
-	char m_buffer[4096];
+	TSharedPtr<class FNetWorker> Worker;
+	TSharedPtr<net::Socket> Socket;
 	TQueue<TFunction<void()>> JobQue;
 };
