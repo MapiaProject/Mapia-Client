@@ -1,6 +1,9 @@
 .idea
 .vs
+*.sln
+.vsconfig
 Binaries
 Intermediate
 Saved
 Content/Assets/*
+Build/
