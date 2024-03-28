@@ -10,6 +10,6 @@ public class WOSEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
-		ExtraModuleNames.Add("WOS");
-	}
+		ExtraModuleNames.AddRange(new string[] { "WOS", "WOSEditor" });
+    }
 }
