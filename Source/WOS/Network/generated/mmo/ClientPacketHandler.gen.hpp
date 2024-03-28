@@ -43,12 +43,7 @@ namespace mmo
             {
             case PacketId::NONE:
                 break;
-			case NOTIFY_ROOM_LIST:
-				return BIND_HANDLER(NotifyRoomList, buffer);
-			case ROOM_EVENT_RES:
-				return BIND_HANDLER(RoomEventRes, buffer);
-			case NOTIFY_PLAYER_LIST:
-				return BIND_HANDLER(NotifyPlayerList, buffer);
+
             default:
                 break;
             }
@@ -61,9 +56,7 @@ namespace mmo
                 return false;
             return handler(session);
         }
-		static bool NotifyRoomListPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyRoomList> packet);
-		static bool RoomEventResPacketHandler(TSharedPtr<Session> session, TSharedPtr<RoomEventRes> packet);
-		static bool NotifyPlayerListPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyPlayerList> packet);
+
 	};
 }
 }

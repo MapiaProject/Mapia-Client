@@ -4,6 +4,8 @@
 #include "Manager.h"
 
 #include "UISystem.h"
+#include "WOSGameModeBase.h"
+#include "Blueprint/UserWidget.h"
 #include "generated/mmo/ClientPacketHandler.gen.hpp"
 #include "Kismet/GameplayStatics.h"
 #include "Network/Session/Session.h"
@@ -43,7 +45,8 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 	auto World = GetWorld();
 	if (Packet->success)
 	{
-		UISystemObject->ShowPopup(World, TEXT("알림"), TEXT("로그인 성공."));
+		auto GameMode = Cast<AWOSGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+		GameMode->CurrentWidget->RemoveFromParent();
 		
 		NetworkObject->SetUUID(Packet->uuid);
 		ConnectToServer(ServerType::MMO, [](TSharedPtr<net::Socket> Socket)

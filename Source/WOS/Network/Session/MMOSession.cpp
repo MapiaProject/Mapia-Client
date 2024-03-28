@@ -1,12 +1,14 @@
 ﻿#include "MMOSession.h"
 
-#include "generated/account/ClientPacketHandler.gen.hpp"
 #include "generated/mmo/ClientPacketHandler.gen.hpp"
 #include "Managers/Manager.h"
 
 void FMMOSession::OnConnected()
 {
 	FSession::OnConnected();
+
+	gen::mmo::EnterGameReq Req;
+	Send(&Req);
 }
 
 void FMMOSession::OnDisconnected()
