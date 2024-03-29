@@ -7,6 +7,7 @@
 #include "generated/mmo/ClientPacketHandler.gen.hpp"
 #include "Managers/Network.h"
 #include "Session/AccountSession.h"
+#include "UObject/ConstructorHelpers.h"
 
 AWOSGameModeBase::AWOSGameModeBase() : Super(), CurrentWidget(nullptr)
 {
