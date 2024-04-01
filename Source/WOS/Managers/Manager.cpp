@@ -81,7 +81,22 @@ void UManager::HandleRegister(gen::account::RegisterRes* Packet)
 	else
 	{
 		UI()->ShowPopup(World, TEXT("알림"), TEXT("이미 존재하는 닉네임입니다."));
-	}	
+	}
+}
+
+void UManager::HandleEnterGame(gen::mmo::EnterGameRes* Packet)
+{
+	if (NetworkObject->GetUUID().has_value())
+	{
+		gen::mmo::EnterMapReq EnterMap;
+		EnterMap.uid = NetworkObject->GetUUID().value();
+		EnterMap.mapName = TEXT("MainMap");
+		NetworkObject->Send(ServerType::MMO, &EnterMap);
+	}
+}
+
+void UManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
+{
 }
 
 TObjectPtr<UNetwork> UManager::Net(const UWorld* World)

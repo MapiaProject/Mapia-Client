@@ -6,7 +6,11 @@ namespace mmo {
 
     enum PacketId : uint16 {
         NONE = 0,
-		ENTER_GAME_REQ = 1    
+		ENTER_GAME_REQ = 1,
+		ENTER_MAP_REQ = 2,
+		ENTER_GAME_RES = 3,
+		SPAWN = 4,
+		ENTER_MAP_RES = 5    
 	};
 
 }
