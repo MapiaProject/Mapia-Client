@@ -3,6 +3,7 @@
 
 #include "Gizmo/CustomVisualizer.h"
 #include "MapLayoutViewer.h"
+//#include "Util/Ini.h"
 
 CustomVisualizer::CustomVisualizer()
 {
@@ -14,19 +15,66 @@ CustomVisualizer::~CustomVisualizer()
 
 void CustomVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI)
 {
-	UE_LOG(LogTemp, Log, TEXT("Visual"));
-	const UMapLayoutViewer* SphereComponent = Cast<UMapLayoutViewer>(Component);
-	if (SphereComponent)
+	const UMapLayoutViewer* mapLayoutViewer = Cast<UMapLayoutViewer>(Component);
+	if (mapLayoutViewer)
 	{
-		//const FVector SphereLocation = SphereComponent->GetActorLocation();
-		const FVector SphereLocation = FVector::Zero();
-		const float SphereRadius = 100;
-		const FColor SphereColor = FColor::Yellow;
+		if (mapLayoutViewer->mapFileilePath != filePath) {
+			filePath = mapLayoutViewer->mapFileilePath;
+			mapData = GenerateMapData(&filePath);
+		}
+		showLayout = mapLayoutViewer->showLayout;
+	}
 
-		DrawWireSphere(PDI, SphereLocation, SphereColor, SphereRadius, 16, SDPG_World);
+	if (showLayout) {
+		DrawWireBox(PDI, FBox(FVector::Zero(), FVector(boxSpacing.X * xSize, 0, boxSpacing.Z * zSize)), worldborderColor, 1);
+		for (int z = 0;z < mapData.size();z++) {
+			for (int x = 0;x < mapData[z].size();x++) {
+				if (mapData[z][x] != 0) {
+					int zPos = (mapData.size() - 1 - z) * boxSpacing.Z;
+					FVector boxPos = FVector(x * boxSpacing.X, 0, zPos);
+					DrawWireBox(PDI, FBox(boxPos, boxPos + boxSize), GetTileColor(mapData[z][x]), 1);
+				}
+			}
+		}
 	}
 }
 
-void CustomVisualizer::DrawVisualizationHUD(const UActorComponent* Component, const FViewport* Viewport, const FSceneView* View, FCanvas* Canvas) {
-	UE_LOG(LogTemp, Log, TEXT("HUD"));
+vector<vector<int>> CustomVisualizer::GenerateMapData(const FString* mapFilePath) {
+	auto generatedData = vector<vector<int>>();
+	//if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*mapFilePath))return generatedData;
+
+	//Ini ini = Ini(mapFilePath);
+	//FString data = ini[TEXT("map")].Get<FString>("data");
+	FString data = TEXT("00000000000000000000000000000000000000003000002222221111111111111");
+	//FString size = ini[TEXT("info")].Get<FString>("size");
+	//FString xData, zData;
+	//size.Split(TEXT(","), &xData, &zData);
+	//xSize = FCString::Atoi(*xData);
+	xSize = 13;
+	//zSize = FCString::Atoi(*zData);
+	zSize = 5;
+
+	generatedData.clear();
+	for (int z = 0;z < zSize;z++) {
+		generatedData.push_back(vector<int>());
+		for (int x = 0;x < xSize;x++) {
+			TCHAR c = data[z * xSize + x];
+			generatedData[z].push_back(FCString::Atoi(&c));
+		}
+	}
+
+	return generatedData;
+}
+
+FColor CustomVisualizer::GetTileColor(int tileID) {
+	switch (tileID) {
+	case 1:
+		return groundColor;
+	case 2:
+		return monsterSpawnPosColor;
+	case 3:
+		return portalColor;
+	default:
+		return FColor::Magenta;
+	}
 }

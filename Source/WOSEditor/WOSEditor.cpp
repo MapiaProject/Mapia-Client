@@ -12,6 +12,7 @@ void FWOSEditorModule::StartupModule()
     if (GUnrealEd)
     {
         TSharedPtr<CustomVisualizer> Visualizer = MakeShared<CustomVisualizer>();
+        GUnrealEd->RegisterComponentVisualizer(UStaticMeshComponent::StaticClass()->GetFName(), Visualizer);
         GUnrealEd->RegisterComponentVisualizer(UMapLayoutViewer::StaticClass()->GetFName(), Visualizer);
     }
 }
@@ -21,6 +22,7 @@ void FWOSEditorModule::ShutdownModule()
     // Check if editor is valid
     if (GUnrealEd)
     {
+        GUnrealEd->UnregisterComponentVisualizer(UStaticMeshComponent::StaticClass()->GetFName());
         GUnrealEd->UnregisterComponentVisualizer(UMapLayoutViewer::StaticClass()->GetFName());
     }
 }
