@@ -16,15 +16,46 @@ CustomVisualizer::~CustomVisualizer()
 void CustomVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI)
 {
 	const UMapLayoutViewer* mapLayoutViewer = Cast<UMapLayoutViewer>(Component);
+	//선택된 액터가 MapLayoutViewer 컴포넌트를 가지고있을 경우
 	if (mapLayoutViewer)
 	{
 		showLayout = mapLayoutViewer->showLayout;
-		if (mapLayoutViewer->mapName != fileName) {
-			fileName = mapLayoutViewer->mapName;
-			mapData = GenerateMapData(&fileName);
+		FString path = TEXT("C:\\GitHub\\WOS-Client\\Source\\WOS\\Network\\generated\\") + mapLayoutViewer->mapName + TEXT(".ini");
+		//파일이 없을경우 기즈모 숨기기
+		if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*path)) {
+			showLayout = false;
+			xSize = 0;
+			zSize = 0;
+		}
+		else {
+			Ini ini = Ini(path);
+			FString data = ini[TEXT("map")].Get<FString>("data");
+
+			//맵 데이터가 달라졌을 경우에만 정보 추출
+			if (mapDataTxt != data) {
+				mapDataTxt = data;
+				
+				//맵 사이즈 추출
+				FString size = ini[TEXT("info")].Get<FString>("size");
+				FString xData, zData;
+				size.Split(TEXT(","), &xData, &zData);
+				xSize = FCString::Atoi(*xData);
+				zSize = FCString::Atoi(*zData);
+
+				//맵 배열 생성
+				mapData.clear();
+				for (int z = 0;z < zSize;z++) {
+					mapData.push_back(vector<int>());
+					for (int x = 0;x < xSize;x++) {
+						TCHAR c = data[z * xSize + x];
+						mapData[z].push_back(FCString::Atoi(&c));
+					}
+				}
+			}
 		}
 	}
 
+	//선택된 액터와 관계없이 기즈모 출력
 	if (showLayout) {
 		DrawWireBox(PDI, FBox(FVector::Zero(), FVector(boxSpacing.X * xSize, 0, boxSpacing.Z * zSize)), worldborderColor, 1);
 		for (int z = 0;z < mapData.size();z++) {
@@ -37,35 +68,6 @@ void CustomVisualizer::DrawVisualization(const UActorComponent* Component, const
 			}
 		}
 	}
-}
-
-vector<vector<int>> CustomVisualizer::GenerateMapData(const FString* mapName) {
-	auto generatedData = vector<vector<int>>();
-	/*if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*(*mapFilePath))) {
-		showLayout = false;
-		xSize = 0;
-		zSize = 0;
-		return generatedData;
-	}*/
-
-	Ini ini = Ini(TEXT("C:\\GitHub\\WOS-Client\\Source\\WOS\\Network\\generated\\") + *mapName + TEXT(".ini"));
-	FString data = ini[TEXT("map")].Get<FString>("data");
-	FString size = ini[TEXT("info")].Get<FString>("size");
-	FString xData, zData;
-	size.Split(TEXT(","), &xData, &zData);
-	xSize = FCString::Atoi(*xData);
-	zSize = FCString::Atoi(*zData);
-
-	generatedData.clear();
-	for (int z = 0;z < zSize;z++) {
-		generatedData.push_back(vector<int>());
-		for (int x = 0;x < xSize;x++) {
-			TCHAR c = data[z * xSize + x];
-			generatedData[z].push_back(FCString::Atoi(&c));
-		}
-	}
-
-	return generatedData;
 }
 
 FColor CustomVisualizer::GetTileColor(int tileID) {
