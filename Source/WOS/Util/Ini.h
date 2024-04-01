@@ -2,8 +2,12 @@
 
 #pragma once
 
+#include "Windows/AllowWindowsPlatformTypes.h"
 #include "CoreMinimal.h"
-#include <windows.h>
+
+// include header with included Windows.h
+
+
 
 class Ini
 {
@@ -42,3 +46,4 @@ public:
 private:
     FString m_filename;
 };
+#include "Windows/HideWindowsPlatformTypes.h"

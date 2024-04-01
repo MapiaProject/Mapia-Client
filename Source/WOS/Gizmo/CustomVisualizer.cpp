@@ -3,7 +3,7 @@
 
 #include "Gizmo/CustomVisualizer.h"
 #include "MapLayoutViewer.h"
-//#include "Util/Ini.h"
+#include "Util/Ini.h"
 
 CustomVisualizer::CustomVisualizer()
 {
@@ -41,18 +41,18 @@ void CustomVisualizer::DrawVisualization(const UActorComponent* Component, const
 
 vector<vector<int>> CustomVisualizer::GenerateMapData(const FString* mapFilePath) {
 	auto generatedData = vector<vector<int>>();
-	//if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*mapFilePath))return generatedData;
+	if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*(*mapFilePath))) {
+		showLayout = false;
+		return generatedData;
+	}
 
-	//Ini ini = Ini(mapFilePath);
-	//FString data = ini[TEXT("map")].Get<FString>("data");
-	FString data = TEXT("00000000000000000000000000000000000000003000002222221111111111111");
-	//FString size = ini[TEXT("info")].Get<FString>("size");
-	//FString xData, zData;
-	//size.Split(TEXT(","), &xData, &zData);
-	//xSize = FCString::Atoi(*xData);
-	xSize = 13;
-	//zSize = FCString::Atoi(*zData);
-	zSize = 5;
+	Ini ini = Ini(*mapFilePath);
+	FString data = ini[TEXT("map")].Get<FString>("data");
+	FString size = ini[TEXT("info")].Get<FString>("size");
+	FString xData, zData;
+	size.Split(TEXT(","), &xData, &zData);
+	xSize = FCString::Atoi(*xData);
+	zSize = FCString::Atoi(*zData);
 
 	generatedData.clear();
 	for (int z = 0;z < zSize;z++) {
