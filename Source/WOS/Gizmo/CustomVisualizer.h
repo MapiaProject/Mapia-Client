@@ -24,12 +24,12 @@ private:
 	const FColor portalColor = FColor::Cyan;
 	const FColor worldborderColor = FColor::Red;
 
-	FString filePath = "ignore";
+	FString fileName = "ignore";
 	bool showLayout = true;
 	vector<vector<int>> mapData;
 	int xSize;
 	int zSize;
 
-	vector<vector<int>> GenerateMapData(const FString* mapFilePath);
+	vector<vector<int>> GenerateMapData(const FString* mapName);
 	FColor GetTileColor(int tileID);
 };

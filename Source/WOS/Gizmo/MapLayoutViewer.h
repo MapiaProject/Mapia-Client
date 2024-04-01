@@ -14,7 +14,7 @@ class WOS_API UMapLayoutViewer : public UActorComponent
 
 public:
 	UPROPERTY(EditAnywhere)
-	FString mapFileilePath;
+	FString mapName;
 	UPROPERTY(EditAnywhere)
 	bool showLayout = true;
 

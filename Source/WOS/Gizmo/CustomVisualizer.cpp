@@ -18,11 +18,11 @@ void CustomVisualizer::DrawVisualization(const UActorComponent* Component, const
 	const UMapLayoutViewer* mapLayoutViewer = Cast<UMapLayoutViewer>(Component);
 	if (mapLayoutViewer)
 	{
-		if (mapLayoutViewer->mapFileilePath != filePath) {
-			filePath = mapLayoutViewer->mapFileilePath;
-			mapData = GenerateMapData(&filePath);
-		}
 		showLayout = mapLayoutViewer->showLayout;
+		if (mapLayoutViewer->mapName != fileName) {
+			fileName = mapLayoutViewer->mapName;
+			mapData = GenerateMapData(&fileName);
+		}
 	}
 
 	if (showLayout) {
@@ -39,14 +39,16 @@ void CustomVisualizer::DrawVisualization(const UActorComponent* Component, const
 	}
 }
 
-vector<vector<int>> CustomVisualizer::GenerateMapData(const FString* mapFilePath) {
+vector<vector<int>> CustomVisualizer::GenerateMapData(const FString* mapName) {
 	auto generatedData = vector<vector<int>>();
-	if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*(*mapFilePath))) {
+	/*if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*(*mapFilePath))) {
 		showLayout = false;
+		xSize = 0;
+		zSize = 0;
 		return generatedData;
-	}
+	}*/
 
-	Ini ini = Ini(*mapFilePath);
+	Ini ini = Ini(TEXT("C:\\GitHub\\WOS-Client\\Source\\WOS\\Network\\generated\\") + *mapName + TEXT(".ini"));
 	FString data = ini[TEXT("map")].Get<FString>("data");
 	FString size = ini[TEXT("info")].Get<FString>("size");
 	FString xData, zData;
