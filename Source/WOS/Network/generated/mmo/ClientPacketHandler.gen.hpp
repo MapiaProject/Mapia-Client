@@ -47,8 +47,6 @@ namespace mmo
 				return BIND_HANDLER(EnterGameRes, buffer);
 			case SPAWN:
 				return BIND_HANDLER(Spawn, buffer);
-			case ENTER_MAP_RES:
-				return BIND_HANDLER(EnterMapRes, buffer);
             default:
                 break;
             }
@@ -63,7 +61,6 @@ namespace mmo
         }
 		static bool EnterGameResPacketHandler(TSharedPtr<Session> session, TSharedPtr<EnterGameRes> packet);
 		static bool SpawnPacketHandler(TSharedPtr<Session> session, TSharedPtr<Spawn> packet);
-		static bool EnterMapResPacketHandler(TSharedPtr<Session> session, TSharedPtr<EnterMapRes> packet);
 	};
 }
 }

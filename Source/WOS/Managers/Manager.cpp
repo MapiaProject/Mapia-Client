@@ -91,12 +91,17 @@ void UManager::HandleEnterGame(gen::mmo::EnterGameRes* Packet)
 		gen::mmo::EnterMapReq EnterMap;
 		EnterMap.uid = NetworkObject->GetUUID().value();
 		EnterMap.mapName = TEXT("MainMap");
+		gen::mmo::Vector2 Pos;
+		Pos.x = -1;
+		Pos.y = -1;
+		EnterMap.position = Pos;
 		NetworkObject->Send(ServerType::MMO, &EnterMap);
 	}
 }
 
-void UManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
+void UManager::HandleSpawn(gen::mmo::Spawn* Packet)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Emerald, TEXT("SPAWN!"));
 }
 
 TObjectPtr<UNetwork> UManager::Net(const UWorld* World)

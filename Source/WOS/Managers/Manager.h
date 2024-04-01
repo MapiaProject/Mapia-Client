@@ -45,7 +45,7 @@ public:
 	void HandleRegister(gen::account::RegisterRes* Packet);
 
 	void HandleEnterGame(gen::mmo::EnterGameRes* Packet);
-	void HandleEnterMap(gen::mmo::EnterMapRes* Packet);
+	void HandleSpawn(gen::mmo::Spawn* Packet);
 public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());
 	static TObjectPtr<UUISystem> UI(const UWorld* World = GEngine->GameViewport->GetWorld());

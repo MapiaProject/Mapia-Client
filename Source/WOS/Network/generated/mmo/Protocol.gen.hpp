@@ -65,26 +65,27 @@ namespace mmo {
         virtual void Read() override
         {
             Packet::Read();
-            *this >> uid >> mapName;
+            *this >> uid >> mapName >> position;
         }
         virtual void Write() override
         {
-            *this << uid << mapName;
+            *this << uid << mapName << position;
             Finish();
         }
     public:
         String uid;
 		String mapName;
+		Vector2 position;
 	
     };
     
     inline Packet& operator>>(Packet& pk, EnterMapReq& enterMapReq) {
-        pk >> enterMapReq.uid >> enterMapReq.mapName;
+        pk >> enterMapReq.uid >> enterMapReq.mapName >> enterMapReq.position;
         return pk;
     }
 
     inline Packet& operator<<(Packet& pk, const EnterMapReq& enterMapReq) {
-        pk << enterMapReq.uid << enterMapReq.mapName;
+        pk << enterMapReq.uid << enterMapReq.mapName << enterMapReq.position;
         return pk;
     }
 
@@ -134,59 +135,26 @@ namespace mmo {
         virtual void Read() override
         {
             Packet::Read();
-            *this >> players;
+            *this >> isMine >> players;
         }
         virtual void Write() override
         {
-            *this << players;
+            *this << isMine << players;
             Finish();
         }
     public:
-        std::vector<PlayerInfo> players;
+        bool isMine;
+		std::vector<PlayerInfo> players;
 	
     };
     
     inline Packet& operator>>(Packet& pk, Spawn& spawn) {
-        pk >> spawn.players;
+        pk >> spawn.isMine >> spawn.players;
         return pk;
     }
 
     inline Packet& operator<<(Packet& pk, const Spawn& spawn) {
-        pk << spawn.players;
-        return pk;
-    }
-
-	class EnterMapRes
-            : public Packet {
-    public:
-        EnterMapRes() : Packet(static_cast<unsigned short>(PacketId::ENTER_MAP_RES)) {
-        }
-        ~EnterMapRes() {
-    
-        }
-    protected:
-        virtual void Read() override
-        {
-            Packet::Read();
-            *this >> success;
-        }
-        virtual void Write() override
-        {
-            *this << success;
-            Finish();
-        }
-    public:
-        bool success;
-	
-    };
-    
-    inline Packet& operator>>(Packet& pk, EnterMapRes& enterMapRes) {
-        pk >> enterMapRes.success;
-        return pk;
-    }
-
-    inline Packet& operator<<(Packet& pk, const EnterMapRes& enterMapRes) {
-        pk << enterMapRes.success;
+        pk << spawn.isMine << spawn.players;
         return pk;
     }
 
