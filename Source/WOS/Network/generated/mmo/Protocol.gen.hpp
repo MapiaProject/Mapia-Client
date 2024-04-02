@@ -89,6 +89,76 @@ namespace mmo {
         return pk;
     }
 
+	class Move
+            : public Packet {
+    public:
+        Move() : Packet(static_cast<unsigned short>(PacketId::MOVE)) {
+        }
+        ~Move() {
+    
+        }
+    protected:
+        virtual void Read() override
+        {
+            Packet::Read();
+            *this >> dir;
+        }
+        virtual void Write() override
+        {
+            *this << dir;
+            Finish();
+        }
+    public:
+        Vector2 dir;
+	
+    };
+    
+    inline Packet& operator>>(Packet& pk, Move& move) {
+        pk >> move.dir;
+        return pk;
+    }
+
+    inline Packet& operator<<(Packet& pk, const Move& move) {
+        pk << move.dir;
+        return pk;
+    }
+
+	class Chat
+            : public Packet {
+    public:
+        Chat() : Packet(static_cast<unsigned short>(PacketId::CHAT)) {
+        }
+        ~Chat() {
+    
+        }
+    protected:
+        virtual void Read() override
+        {
+            Packet::Read();
+            *this >> reinterpret_cast<uint16&>(type) >> targetUid >> message;
+        }
+        virtual void Write() override
+        {
+            *this << (type) << targetUid << message;
+            Finish();
+        }
+    public:
+        EChatType type;
+		String targetUid;
+		String message;
+	
+    };
+    
+    inline Packet& operator>>(Packet& pk, Chat& chat) {
+        pk >> reinterpret_cast<uint16&>(chat.type) >> chat.targetUid >> chat.message;
+        return pk;
+    }
+
+    inline Packet& operator<<(Packet& pk, const Chat& chat) {
+        pk << (chat.type) << chat.targetUid << chat.message;
+        return pk;
+    }
+
 	class EnterGameRes
             : public Packet {
     public:
@@ -155,6 +225,75 @@ namespace mmo {
 
     inline Packet& operator<<(Packet& pk, const Spawn& spawn) {
         pk << spawn.isMine << spawn.players;
+        return pk;
+    }
+
+	class NotifyMove
+            : public Packet {
+    public:
+        NotifyMove() : Packet(static_cast<unsigned short>(PacketId::NOTIFY_MOVE)) {
+        }
+        ~NotifyMove() {
+    
+        }
+    protected:
+        virtual void Read() override
+        {
+            Packet::Read();
+            *this >> position;
+        }
+        virtual void Write() override
+        {
+            *this << position;
+            Finish();
+        }
+    public:
+        Vector2 position;
+	
+    };
+    
+    inline Packet& operator>>(Packet& pk, NotifyMove& notifyMove) {
+        pk >> notifyMove.position;
+        return pk;
+    }
+
+    inline Packet& operator<<(Packet& pk, const NotifyMove& notifyMove) {
+        pk << notifyMove.position;
+        return pk;
+    }
+
+	class NotifyChat
+            : public Packet {
+    public:
+        NotifyChat() : Packet(static_cast<unsigned short>(PacketId::NOTIFY_CHAT)) {
+        }
+        ~NotifyChat() {
+    
+        }
+    protected:
+        virtual void Read() override
+        {
+            Packet::Read();
+            *this >> senderId >> message;
+        }
+        virtual void Write() override
+        {
+            *this << senderId << message;
+            Finish();
+        }
+    public:
+        String senderId;
+		String message;
+	
+    };
+    
+    inline Packet& operator>>(Packet& pk, NotifyChat& notifyChat) {
+        pk >> notifyChat.senderId >> notifyChat.message;
+        return pk;
+    }
+
+    inline Packet& operator<<(Packet& pk, const NotifyChat& notifyChat) {
+        pk << notifyChat.senderId << notifyChat.message;
         return pk;
     }
 

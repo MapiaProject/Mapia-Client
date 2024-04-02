@@ -14,3 +14,13 @@ bool mmo::PacketHandler::SpawnPacketHandler(TSharedPtr<Session> session, TShared
 	UManager::Get()->HandleSpawn(packet.Get());
 	return false;
 }
+
+bool mmo::PacketHandler::NotifyMovePacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyMove> packet)
+{
+	return false;
+}
+
+bool mmo::PacketHandler::NotifyChatPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyChat> packet)
+{
+	return false;
+}

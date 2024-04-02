@@ -8,8 +8,12 @@ namespace mmo {
         NONE = 0,
 		ENTER_GAME_REQ = 1,
 		ENTER_MAP_REQ = 2,
-		ENTER_GAME_RES = 3,
-		SPAWN = 4    
+		MOVE = 3,
+		CHAT = 4,
+		ENTER_GAME_RES = 5,
+		SPAWN = 6,
+		NOTIFY_MOVE = 7,
+		NOTIFY_CHAT = 8    
 	};
 
 }

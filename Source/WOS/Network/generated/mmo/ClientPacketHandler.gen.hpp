@@ -47,6 +47,10 @@ namespace mmo
 				return BIND_HANDLER(EnterGameRes, buffer);
 			case SPAWN:
 				return BIND_HANDLER(Spawn, buffer);
+			case NOTIFY_MOVE:
+				return BIND_HANDLER(NotifyMove, buffer);
+			case NOTIFY_CHAT:
+				return BIND_HANDLER(NotifyChat, buffer);
             default:
                 break;
             }
@@ -61,6 +65,8 @@ namespace mmo
         }
 		static bool EnterGameResPacketHandler(TSharedPtr<Session> session, TSharedPtr<EnterGameRes> packet);
 		static bool SpawnPacketHandler(TSharedPtr<Session> session, TSharedPtr<Spawn> packet);
+		static bool NotifyMovePacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyMove> packet);
+		static bool NotifyChatPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyChat> packet);
 	};
 }
 }

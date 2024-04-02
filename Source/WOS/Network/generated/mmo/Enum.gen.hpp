@@ -23,6 +23,11 @@ namespace mmo {
         Player,
 		Monster
     };
+	enum EChatType : uint16 {
+        Direct,
+		Party,
+		All
+    };
 }
 }
 #pragma warning(pop)
