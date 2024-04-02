@@ -2,12 +2,14 @@
 
 #include "generated/mmo/ClientPacketHandler.gen.hpp"
 #include "Managers/Manager.h"
+#include "Managers/Network.h"
 
 void FMMOSession::OnConnected()
 {
 	FSession::OnConnected();
 
 	gen::mmo::EnterGameReq Req;
+	Req.uid = UManager::Net()->GetUUID().value();
 	Send(&Req);
 }
 
