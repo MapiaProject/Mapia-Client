@@ -7,10 +7,13 @@ namespace mmo {
     enum PacketId : uint16 {
         NONE = 0,
 		ENTER_GAME_REQ = 1,
-		ROOM_EVENT_REQ = 2,
-		NOTIFY_ROOM_LIST = 3,
-		ROOM_EVENT_RES = 4,
-		NOTIFY_PLAYER_LIST = 5    
+		ENTER_MAP_REQ = 2,
+		MOVE = 3,
+		CHAT = 4,
+		ENTER_GAME_RES = 5,
+		SPAWN = 6,
+		NOTIFY_MOVE = 7,
+		NOTIFY_CHAT = 8    
 	};
 
 }

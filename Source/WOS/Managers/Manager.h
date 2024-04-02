@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Define.h"
 #include "generated/account/Protocol.gen.hpp"
+#include "generated/mmo/ClientPacketHandler.gen.hpp"
 #include "Session/Session.h"
 #include "Manager.generated.h"
 
@@ -42,6 +43,9 @@ public:
 public:
 	void HandleLogin(gen::account::LoginRes* Packet) const;
 	void HandleRegister(gen::account::RegisterRes* Packet);
+
+	void HandleEnterGame(gen::mmo::EnterGameRes* Packet);
+	void HandleSpawn(gen::mmo::Spawn* Packet);
 public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());
 	static TObjectPtr<UUISystem> UI(const UWorld* World = GEngine->GameViewport->GetWorld());
@@ -49,12 +53,8 @@ public:
 	static UManager* Get(const UWorld* World = GEngine->GameViewport->GetWorld());
 	void Initialize();
 private:
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<UNetwork> NetworkClass;
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<UUISystem> UISystemClass;
-	UPROPERTY()
-	TObjectPtr<UNetwork> NetworkObject;
-	UPROPERTY()
-	TObjectPtr<UUISystem> UISystemObject;
+	UPROPERTY(EditAnywhere) TSubclassOf<UNetwork> NetworkClass;
+	UPROPERTY(EditAnywhere) TSubclassOf<UUISystem> UISystemClass;
+	UPROPERTY() TObjectPtr<UNetwork> NetworkObject;
+	UPROPERTY() TObjectPtr<UUISystem> UISystemObject;
 };	

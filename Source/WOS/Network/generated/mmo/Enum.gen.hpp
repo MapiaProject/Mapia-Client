@@ -19,10 +19,14 @@
 
 namespace gen {
 namespace mmo {
-    enum ERoomEvent : uint16 {
-        CREATE,
-		ENTER,
-		LEAVE
+    enum EEntityType : uint16 {
+        Player,
+		Monster
+    };
+	enum EChatType : uint16 {
+        Direct,
+		Party,
+		All
     };
 }
 }

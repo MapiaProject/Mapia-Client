@@ -1,19 +1,26 @@
 ﻿#include "generated/mmo/ClientPacketHandler.gen.hpp"
-	
+#include "Managers/Manager.h"
+
 using namespace gen;
 
-bool mmo::PacketHandler::NotifyRoomListPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyRoomList> packet)
+bool mmo::PacketHandler::EnterGameResPacketHandler(TSharedPtr<Session> session, TSharedPtr<EnterGameRes> packet)
+{
+	UManager::Get()->HandleEnterGame(packet.Get());
+	return false;
+}
+
+bool mmo::PacketHandler::SpawnPacketHandler(TSharedPtr<Session> session, TSharedPtr<Spawn> packet)
+{
+	UManager::Get()->HandleSpawn(packet.Get());
+	return false;
+}
+
+bool mmo::PacketHandler::NotifyMovePacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyMove> packet)
 {
 	return false;
 }
 
-bool mmo::PacketHandler::RoomEventResPacketHandler(TSharedPtr<Session> session, TSharedPtr<RoomEventRes> packet)
+bool mmo::PacketHandler::NotifyChatPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyChat> packet)
 {
-	
-	return false;
-}
-bool mmo::PacketHandler::NotifyPlayerListPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyPlayerList> packet)
-{
-	
 	return false;
 }

@@ -4,6 +4,8 @@
 #include "Manager.h"
 
 #include "UISystem.h"
+#include "WOSGameModeBase.h"
+#include "Blueprint/UserWidget.h"
 #include "generated/mmo/ClientPacketHandler.gen.hpp"
 #include "Kismet/GameplayStatics.h"
 #include "Network/Session/Session.h"
@@ -43,7 +45,8 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 	auto World = GetWorld();
 	if (Packet->success)
 	{
-		UISystemObject->ShowPopup(World, TEXT("알림"), TEXT("로그인 성공."));
+		auto GameMode = Cast<AWOSGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+		GameMode->CurrentWidget->RemoveFromParent();
 		
 		NetworkObject->SetUUID(Packet->uuid);
 		ConnectToServer(ServerType::MMO, [](TSharedPtr<net::Socket> Socket)
@@ -60,7 +63,7 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 			UI()->ShowPopup(World, TEXT("알림"), TEXT("이미 접속하고 있는 유저가 있습니다."));
 			break;
 		case gen::account::INVALID:
-			UI(GetWorld())->ShowPopup(World, TEXT("알림"), TEXT("닉네임이나 비밀번호가 잘못되었습니다."));
+			UI()->ShowPopup(World, TEXT("알림"), TEXT("닉네임이나 비밀번호가 잘못되었습니다."));
 			break;
 		default:
 			break;;
@@ -78,7 +81,27 @@ void UManager::HandleRegister(gen::account::RegisterRes* Packet)
 	else
 	{
 		UI()->ShowPopup(World, TEXT("알림"), TEXT("이미 존재하는 닉네임입니다."));
-	}	
+	}
+}
+
+void UManager::HandleEnterGame(gen::mmo::EnterGameRes* Packet)
+{
+	if (NetworkObject->GetUUID().has_value())
+	{
+		gen::mmo::EnterMapReq EnterMap;
+		EnterMap.uid = NetworkObject->GetUUID().value();
+		EnterMap.mapName = TEXT("MainMap");
+		gen::mmo::Vector2 Pos;
+		Pos.x = -1;
+		Pos.y = -1;
+		EnterMap.position = Pos;
+		NetworkObject->Send(ServerType::MMO, &EnterMap);
+	}
+}
+
+void UManager::HandleSpawn(gen::mmo::Spawn* Packet)
+{
+
 }
 
 TObjectPtr<UNetwork> UManager::Net(const UWorld* World)

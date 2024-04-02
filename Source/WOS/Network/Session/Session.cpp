@@ -1,6 +1,6 @@
 ﻿#include "Session.h"
 #include "Packet.h"
-#include "..\NetWorker.h"
+#include "NetWorker.h"
 
 FSession::FSession(TSharedPtr<net::Socket> socket) : Socket(socket)
 {

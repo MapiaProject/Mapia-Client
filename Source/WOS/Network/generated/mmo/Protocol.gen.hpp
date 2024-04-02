@@ -31,162 +31,269 @@ namespace mmo {
         virtual void Read() override
         {
             Packet::Read();
-            
+            *this >> uid;
         }
         virtual void Write() override
         {
-            
+            *this << uid;
             Finish();
         }
     public:
-        
+        String uid;
+	
     };
     
     inline Packet& operator>>(Packet& pk, EnterGameReq& enterGameReq) {
-        
+        pk >> enterGameReq.uid;
         return pk;
     }
 
     inline Packet& operator<<(Packet& pk, const EnterGameReq& enterGameReq) {
-        
+        pk << enterGameReq.uid;
         return pk;
     }
 
-	class RoomEventReq
+	class EnterMapReq
             : public Packet {
     public:
-        RoomEventReq() : Packet(static_cast<unsigned short>(PacketId::ROOM_EVENT_REQ)) {
+        EnterMapReq() : Packet(static_cast<unsigned short>(PacketId::ENTER_MAP_REQ)) {
         }
-        ~RoomEventReq() {
+        ~EnterMapReq() {
     
         }
     protected:
         virtual void Read() override
         {
             Packet::Read();
-            *this >> room >> reinterpret_cast<uint16&>(event);
+            *this >> uid >> mapName >> position;
         }
         virtual void Write() override
         {
-            *this << room << (event);
+            *this << uid << mapName << position;
             Finish();
         }
     public:
-        Room room;
-		ERoomEvent event;
+        String uid;
+		String mapName;
+		Vector2 position;
 	
     };
     
-    inline Packet& operator>>(Packet& pk, RoomEventReq& roomEventReq) {
-        pk >> roomEventReq.room >> reinterpret_cast<uint16&>(roomEventReq.event);
+    inline Packet& operator>>(Packet& pk, EnterMapReq& enterMapReq) {
+        pk >> enterMapReq.uid >> enterMapReq.mapName >> enterMapReq.position;
         return pk;
     }
 
-    inline Packet& operator<<(Packet& pk, const RoomEventReq& roomEventReq) {
-        pk << roomEventReq.room << (roomEventReq.event);
+    inline Packet& operator<<(Packet& pk, const EnterMapReq& enterMapReq) {
+        pk << enterMapReq.uid << enterMapReq.mapName << enterMapReq.position;
         return pk;
     }
 
-	class NotifyRoomList
+	class Move
             : public Packet {
     public:
-        NotifyRoomList() : Packet(static_cast<unsigned short>(PacketId::NOTIFY_ROOM_LIST)) {
+        Move() : Packet(static_cast<unsigned short>(PacketId::MOVE)) {
         }
-        ~NotifyRoomList() {
+        ~Move() {
     
         }
     protected:
         virtual void Read() override
         {
             Packet::Read();
-            *this >> roomList;
+            *this >> dir;
         }
         virtual void Write() override
         {
-            *this << roomList;
+            *this << dir;
             Finish();
         }
     public:
-        std::vector<Room> roomList;
+        Vector2 dir;
 	
     };
     
-    inline Packet& operator>>(Packet& pk, NotifyRoomList& notifyRoomList) {
-        pk >> notifyRoomList.roomList;
+    inline Packet& operator>>(Packet& pk, Move& move) {
+        pk >> move.dir;
         return pk;
     }
 
-    inline Packet& operator<<(Packet& pk, const NotifyRoomList& notifyRoomList) {
-        pk << notifyRoomList.roomList;
+    inline Packet& operator<<(Packet& pk, const Move& move) {
+        pk << move.dir;
         return pk;
     }
 
-	class RoomEventRes
+	class Chat
             : public Packet {
     public:
-        RoomEventRes() : Packet(static_cast<unsigned short>(PacketId::ROOM_EVENT_RES)) {
+        Chat() : Packet(static_cast<unsigned short>(PacketId::CHAT)) {
         }
-        ~RoomEventRes() {
+        ~Chat() {
     
         }
     protected:
         virtual void Read() override
         {
             Packet::Read();
-            *this >> reinterpret_cast<uint16&>(event) >> success;
+            *this >> reinterpret_cast<uint16&>(type) >> targetUid >> message;
         }
         virtual void Write() override
         {
-            *this << (event) << success;
+            *this << (type) << targetUid << message;
             Finish();
         }
     public:
-        ERoomEvent event;
-		bool success;
+        EChatType type;
+		String targetUid;
+		String message;
 	
     };
     
-    inline Packet& operator>>(Packet& pk, RoomEventRes& roomEventRes) {
-        pk >> reinterpret_cast<uint16&>(roomEventRes.event) >> roomEventRes.success;
+    inline Packet& operator>>(Packet& pk, Chat& chat) {
+        pk >> reinterpret_cast<uint16&>(chat.type) >> chat.targetUid >> chat.message;
         return pk;
     }
 
-    inline Packet& operator<<(Packet& pk, const RoomEventRes& roomEventRes) {
-        pk << (roomEventRes.event) << roomEventRes.success;
+    inline Packet& operator<<(Packet& pk, const Chat& chat) {
+        pk << (chat.type) << chat.targetUid << chat.message;
         return pk;
     }
 
-	class NotifyPlayerList
+	class EnterGameRes
             : public Packet {
     public:
-        NotifyPlayerList() : Packet(static_cast<unsigned short>(PacketId::NOTIFY_PLAYER_LIST)) {
+        EnterGameRes() : Packet(static_cast<unsigned short>(PacketId::ENTER_GAME_RES)) {
         }
-        ~NotifyPlayerList() {
+        ~EnterGameRes() {
     
         }
     protected:
         virtual void Read() override
         {
             Packet::Read();
-            *this >> playerList;
+            *this >> success;
         }
         virtual void Write() override
         {
-            *this << playerList;
+            *this << success;
             Finish();
         }
     public:
-        std::vector<PlayerInfo> playerList;
+        bool success;
 	
     };
     
-    inline Packet& operator>>(Packet& pk, NotifyPlayerList& notifyPlayerList) {
-        pk >> notifyPlayerList.playerList;
+    inline Packet& operator>>(Packet& pk, EnterGameRes& enterGameRes) {
+        pk >> enterGameRes.success;
         return pk;
     }
 
-    inline Packet& operator<<(Packet& pk, const NotifyPlayerList& notifyPlayerList) {
-        pk << notifyPlayerList.playerList;
+    inline Packet& operator<<(Packet& pk, const EnterGameRes& enterGameRes) {
+        pk << enterGameRes.success;
+        return pk;
+    }
+
+	class Spawn
+            : public Packet {
+    public:
+        Spawn() : Packet(static_cast<unsigned short>(PacketId::SPAWN)) {
+        }
+        ~Spawn() {
+    
+        }
+    protected:
+        virtual void Read() override
+        {
+            Packet::Read();
+            *this >> isMine >> players;
+        }
+        virtual void Write() override
+        {
+            *this << isMine << players;
+            Finish();
+        }
+    public:
+        bool isMine;
+		std::vector<PlayerInfo> players;
+	
+    };
+    
+    inline Packet& operator>>(Packet& pk, Spawn& spawn) {
+        pk >> spawn.isMine >> spawn.players;
+        return pk;
+    }
+
+    inline Packet& operator<<(Packet& pk, const Spawn& spawn) {
+        pk << spawn.isMine << spawn.players;
+        return pk;
+    }
+
+	class NotifyMove
+            : public Packet {
+    public:
+        NotifyMove() : Packet(static_cast<unsigned short>(PacketId::NOTIFY_MOVE)) {
+        }
+        ~NotifyMove() {
+    
+        }
+    protected:
+        virtual void Read() override
+        {
+            Packet::Read();
+            *this >> position;
+        }
+        virtual void Write() override
+        {
+            *this << position;
+            Finish();
+        }
+    public:
+        Vector2 position;
+	
+    };
+    
+    inline Packet& operator>>(Packet& pk, NotifyMove& notifyMove) {
+        pk >> notifyMove.position;
+        return pk;
+    }
+
+    inline Packet& operator<<(Packet& pk, const NotifyMove& notifyMove) {
+        pk << notifyMove.position;
+        return pk;
+    }
+
+	class NotifyChat
+            : public Packet {
+    public:
+        NotifyChat() : Packet(static_cast<unsigned short>(PacketId::NOTIFY_CHAT)) {
+        }
+        ~NotifyChat() {
+    
+        }
+    protected:
+        virtual void Read() override
+        {
+            Packet::Read();
+            *this >> senderId >> message;
+        }
+        virtual void Write() override
+        {
+            *this << senderId << message;
+            Finish();
+        }
+    public:
+        String senderId;
+		String message;
+	
+    };
+    
+    inline Packet& operator>>(Packet& pk, NotifyChat& notifyChat) {
+        pk >> notifyChat.senderId >> notifyChat.message;
+        return pk;
+    }
+
+    inline Packet& operator<<(Packet& pk, const NotifyChat& notifyChat) {
+        pk << notifyChat.senderId << notifyChat.message;
         return pk;
     }
 

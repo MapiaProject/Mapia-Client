@@ -19,39 +19,74 @@
 #include "Enum.gen.hpp"
 namespace gen {
 namespace mmo {
-    class Room
+    class Vector2
             : public Packet {
     public:
-        Room() : Packet(static_cast<unsigned short>(PacketId::NONE)) {
+        Vector2() : Packet(static_cast<unsigned short>(PacketId::NONE)) {
         }
-        ~Room() {
+        ~Vector2() {
     
         }
     protected:
         virtual void Read() override
         {
             Packet::Read();
-            *this >> id >> name >> userCount;
+            *this >> x >> y;
         }
         virtual void Write() override
         {
-            *this << id << name << userCount;
+            *this << x << y;
             Finish();
         }
     public:
-        uint32 id;
-		String name;
-		uint8 userCount;
+        float x;
+		float y;
 	
     };
     
-    inline Packet& operator>>(Packet& pk, Room& room) {
-        pk >> room.id >> room.name >> room.userCount;
+    inline Packet& operator>>(Packet& pk, Vector2& vector2) {
+        pk >> vector2.x >> vector2.y;
         return pk;
     }
 
-    inline Packet& operator<<(Packet& pk, const Room& room) {
-        pk << room.id << room.name << room.userCount;
+    inline Packet& operator<<(Packet& pk, const Vector2& vector2) {
+        pk << vector2.x << vector2.y;
+        return pk;
+    }
+
+	class Vector3
+            : public Packet {
+    public:
+        Vector3() : Packet(static_cast<unsigned short>(PacketId::NONE)) {
+        }
+        ~Vector3() {
+    
+        }
+    protected:
+        virtual void Read() override
+        {
+            Packet::Read();
+            *this >> x >> y >> z;
+        }
+        virtual void Write() override
+        {
+            *this << x << y << z;
+            Finish();
+        }
+    public:
+        float x;
+		float y;
+		float z;
+	
+    };
+    
+    inline Packet& operator>>(Packet& pk, Vector3& vector3) {
+        pk >> vector3.x >> vector3.y >> vector3.z;
+        return pk;
+    }
+
+    inline Packet& operator<<(Packet& pk, const Vector3& vector3) {
+        pk << vector3.x << vector3.y << vector3.z;
         return pk;
     }
 
@@ -67,26 +102,27 @@ namespace mmo {
         virtual void Read() override
         {
             Packet::Read();
-            *this >> id >> name;
+            *this >> objectId >> position >> name;
         }
         virtual void Write() override
         {
-            *this << id << name;
+            *this << objectId << position << name;
             Finish();
         }
     public:
-        uint32 id;
+        uint64 objectId;
+		Vector2 position;
 		String name;
 	
     };
     
     inline Packet& operator>>(Packet& pk, PlayerInfo& playerInfo) {
-        pk >> playerInfo.id >> playerInfo.name;
+        pk >> playerInfo.objectId >> playerInfo.position >> playerInfo.name;
         return pk;
     }
 
     inline Packet& operator<<(Packet& pk, const PlayerInfo& playerInfo) {
-        pk << playerInfo.id << playerInfo.name;
+        pk << playerInfo.objectId << playerInfo.position << playerInfo.name;
         return pk;
     }
 
