@@ -20,7 +20,7 @@ void CustomVisualizer::DrawVisualization(const UActorComponent* Component, const
 	if (mapLayoutViewer)
 	{
 		showLayout = mapLayoutViewer->showLayout;
-		FString path = TEXT("C:\\GitHub\\WOS-Client\\Source\\WOS\\Network\\generated\\") + mapLayoutViewer->mapName + TEXT(".ini");
+		FString path = TEXT("C:\\GitHub\\WOS-Client\\Source\\WOS\\Network\\generated\\mapData\\") + mapLayoutViewer->mapName + TEXT(".ini");
 		//파일이 없을경우 기즈모 숨기기
 		if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*path)) {
 			showLayout = false;
