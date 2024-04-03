@@ -9,9 +9,9 @@ public class WOS : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp20;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG"});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "Netcpp" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "Netcpp" , "UnrealEd", "ComponentVisualizers" });
 
 		PublicIncludePaths.AddRange(new string[]
 		{
