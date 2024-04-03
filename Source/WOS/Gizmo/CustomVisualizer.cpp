@@ -34,7 +34,7 @@ void CustomVisualizer::DrawVisualization(const UActorComponent* Component, const
 			//맵 데이터가 달라졌을 경우에만 정보 추출
 			if (mapDataTxt != data) {
 				mapDataTxt = data;
-				
+
 				//맵 사이즈 추출
 				FString size = ini[TEXT("info")].Get<FString>("size");
 				FString xData, zData;
@@ -57,12 +57,12 @@ void CustomVisualizer::DrawVisualization(const UActorComponent* Component, const
 
 	//선택된 액터와 관계없이 기즈모 출력
 	if (showLayout) {
-		DrawWireBox(PDI, FBox(FVector::Zero(), FVector(boxSpacing.X * xSize, 0, boxSpacing.Z * zSize)), worldborderColor, 1);
+		DrawWireBox(PDI, FBox(FVector(-50, -50, 0), FVector(boxSpacing.X * xSize - 50, -50, boxSpacing.Z * zSize)), worldborderColor, 1);
 		for (int z = 0;z < mapData.size();z++) {
 			for (int x = 0;x < mapData[z].size();x++) {
 				if (mapData[z][x] != 0) {
 					int zPos = (mapData.size() - 1 - z) * boxSpacing.Z;
-					FVector boxPos = FVector(x * boxSpacing.X, 0, zPos);
+					FVector boxPos = FVector(x * boxSpacing.X - 50, -50, zPos);
 					DrawWireBox(PDI, FBox(boxPos, boxPos + boxSize), GetTileColor(mapData[z][x]), 1);
 				}
 			}
