@@ -2,6 +2,7 @@
 
 
 #include "PlayerCharacter.h"
+#include "Engine.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -29,6 +30,16 @@ void APlayerCharacter::Tick(float DeltaTime)
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
+void APlayerCharacter::Move(float Axis) {
+	UE_LOG(LogTemp, Log, TEXT("Axis : %f"), Axis);
+}
+
+void APlayerCharacter::Jump() {
+	UE_LOG(LogTemp, Log, TEXT("Jump"));
+}
+
+void APlayerCharacter::Attack() {
+	UE_LOG(LogTemp, Log, TEXT("Attack"));
+}
