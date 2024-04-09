@@ -135,27 +135,27 @@ namespace mmo {
         virtual void Read() override
         {
             Packet::Read();
-            *this >> reinterpret_cast<uint16&>(type) >> targetUid >> message;
+            *this >> reinterpret_cast<uint16&>(type) >> targetId >> message;
         }
         virtual void Write() override
         {
-            *this << (type) << targetUid << message;
+            *this << (type) << targetId << message;
             Finish();
         }
     public:
         EChatType type;
-		String targetUid;
+		uint64 targetId;
 		String message;
 	
     };
     
     inline Packet& operator>>(Packet& pk, Chat& chat) {
-        pk >> reinterpret_cast<uint16&>(chat.type) >> chat.targetUid >> chat.message;
+        pk >> reinterpret_cast<uint16&>(chat.type) >> chat.targetId >> chat.message;
         return pk;
     }
 
     inline Packet& operator<<(Packet& pk, const Chat& chat) {
-        pk << (chat.type) << chat.targetUid << chat.message;
+        pk << (chat.type) << chat.targetId << chat.message;
         return pk;
     }
 
@@ -274,26 +274,26 @@ namespace mmo {
         virtual void Read() override
         {
             Packet::Read();
-            *this >> senderId >> message;
+            *this >> senderName >> message;
         }
         virtual void Write() override
         {
-            *this << senderId << message;
+            *this << senderName << message;
             Finish();
         }
     public:
-        String senderId;
+        String senderName;
 		String message;
 	
     };
     
     inline Packet& operator>>(Packet& pk, NotifyChat& notifyChat) {
-        pk >> notifyChat.senderId >> notifyChat.message;
+        pk >> notifyChat.senderName >> notifyChat.message;
         return pk;
     }
 
     inline Packet& operator<<(Packet& pk, const NotifyChat& notifyChat) {
-        pk << notifyChat.senderId << notifyChat.message;
+        pk << notifyChat.senderName << notifyChat.message;
         return pk;
     }
 

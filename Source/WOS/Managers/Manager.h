@@ -24,16 +24,17 @@ if (!name##Object)												\
 
 class UNetwork;
 class UUISystem;
+class UNetObjectManager;
 class UWidget;
 
 /**
- * 
+ *
  */
 UCLASS()
 class WOS_API UManager : public UGameInstance
 {
 	GENERATED_BODY()
-	using SessionFactoryFunc = TFunction<TSharedPtr<FSession>(TSharedPtr<net::Socket>)>;
+		using SessionFactoryFunc = TFunction<TSharedPtr<FSession>(TSharedPtr<net::Socket>)>;
 public:
 	UManager();
 	virtual ~UManager() override;
@@ -55,6 +56,8 @@ public:
 private:
 	UPROPERTY(EditAnywhere) TSubclassOf<UNetwork> NetworkClass;
 	UPROPERTY(EditAnywhere) TSubclassOf<UUISystem> UISystemClass;
+	UPROPERTY(EditAnywhere) TSubclassOf<UNetObjectManager> NetObjectManagerClass;
 	UPROPERTY() TObjectPtr<UNetwork> NetworkObject;
 	UPROPERTY() TObjectPtr<UUISystem> UISystemObject;
-};	
+	UPROPERTY() TObjectPtr<UNetObjectManager> NetObjectManagerObject;
+};

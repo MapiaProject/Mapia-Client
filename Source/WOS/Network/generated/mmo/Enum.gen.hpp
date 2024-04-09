@@ -25,7 +25,7 @@ namespace mmo {
     };
 	enum EChatType : uint16 {
         Direct,
-		Party,
+		Local,
 		All
     };
 }

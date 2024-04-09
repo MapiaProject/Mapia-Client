@@ -11,11 +11,15 @@
 #include "Network/Session/Session.h"
 #include "Managers/Network.h"
 #include "Session/MMOSession.h"
+#include "GameActor/PlayerCharacter.h"
+#include "Managers/NetObjectManager.h"
+#include "NetUtility.h"
 
 UManager::UManager() : NetworkObject(nullptr)
 {
 	NetworkClass = UNetwork::StaticClass();
 	UISystemClass = UUISystem::StaticClass();
+	NetObjectManagerClass = UNetObjectManager::StaticClass();
 }
 
 UManager::~UManager()
@@ -47,13 +51,13 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 	{
 		auto GameMode = Cast<AWOSGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 		GameMode->CurrentWidget->RemoveFromParent();
-		
+
 		NetworkObject->SetUUID(Packet->uuid);
 		ConnectToServer(ServerType::MMO, [](TSharedPtr<net::Socket> Socket)
-		{
-			auto Session = MakeShared<FMMOSession>(Socket);
-			return Session;
-		});
+			{
+				auto Session = MakeShared<FMMOSession>(Socket);
+				return Session;
+			});
 	}
 	else
 	{
@@ -101,6 +105,16 @@ void UManager::HandleEnterGame(gen::mmo::EnterGameRes* Packet)
 
 void UManager::HandleSpawn(gen::mmo::Spawn* Packet)
 {
+	UE_LOG(LogTemp, Log, TEXT("count : %d"), Packet->players.size());
+	if (Packet->isMine) {
+		UE_LOG(LogTemp, Log, TEXT("true"));
+	}
+	else {
+		UE_LOG(LogTemp, Log, TEXT("false"));
+	}
+	for (const auto& Player : Packet->players) {
+		NetObjectManagerObject->HandleSpawnPlayer(Player.objectId, NetUtility::MakeVector(Player.position), Player.name, Packet->isMine);
+	}
 
 }
 
@@ -137,5 +151,6 @@ void UManager::Initialize()
 {
 	INIT_MANAGER(Network);
 	INIT_MANAGER(UISystem);
+	INIT_MANAGER(NetObjectManager);
 }
 
