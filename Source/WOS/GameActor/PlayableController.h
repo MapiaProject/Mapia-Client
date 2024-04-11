@@ -4,23 +4,29 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "LocalPlayerController.generated.h"
+#include "PlayableController.generated.h"
 
 /**
  *
  */
 UCLASS()
-class WOS_API ALocalPlayerController : public APlayerController
+class WOS_API APlayableController : public APlayerController
 {
+
 	GENERATED_BODY()
 
 public:
+	APlayableController();
+
 	virtual void SetupInputComponent()override;
+	virtual void Tick(float DeltaTime)override;
 
 	void MoveHandler(float Axis);
 	void JumpHandler();
 	void AttackHandler();
 
 private:
+#define SEND_POSITION_INTERVAL 0.2f
 	float LastMoveInput;
+	float LastSendPositionTime;
 };
