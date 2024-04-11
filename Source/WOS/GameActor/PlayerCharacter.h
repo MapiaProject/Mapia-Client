@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "NetObject.h"
+#include "Packet.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
-class WOS_API APlayerCharacter : public ACharacter
+class WOS_API APlayerCharacter : public ACharacter, public NetObject
 {
 	GENERATED_BODY()
 
@@ -19,11 +21,17 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void RecievePacket(const Packet* ReadingPacket);
+
+	void SetName(FString SettedName);
+
+private:
+	FString Name;
 };
