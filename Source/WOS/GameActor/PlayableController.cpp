@@ -24,7 +24,6 @@ void APlayableController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	float time = GetWorld()->GetTimeSeconds();
 
-	constexpr float sendPositionInterval = 0.2f;
 	if (time > LastSendPositionTime + sendPositionInterval) {
 		LastSendPositionTime = time;
 

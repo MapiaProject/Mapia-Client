@@ -26,6 +26,8 @@ public:
 	void AttackHandler();
 
 private:
+ 	static constexpr float sendPositionInterval = 0.2f;
+
 	float LastMoveInput;
 	float LastSendPositionTime;
 };
