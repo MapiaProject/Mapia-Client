@@ -26,7 +26,6 @@ public:
 	void AttackHandler();
 
 private:
-#define SEND_POSITION_INTERVAL 0.2f
 	float LastMoveInput;
 	float LastSendPositionTime;
 };

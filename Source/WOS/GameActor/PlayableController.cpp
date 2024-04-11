@@ -23,7 +23,9 @@ void APlayableController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	float time = GetWorld()->GetTimeSeconds();
-	if (time > LastSendPositionTime + SEND_POSITION_INTERVAL) {
+
+	constexpr float sendPositionInterval = 0.2f;
+	if (time > LastSendPositionTime + sendPositionInterval) {
 		LastSendPositionTime = time;
 
 		gen::mmo::Move MovePacket;
