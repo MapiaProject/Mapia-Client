@@ -94,7 +94,7 @@ void UManager::HandleEnterGame(gen::mmo::EnterGameRes* Packet)
 	{
 		gen::mmo::EnterMapReq EnterMap;
 		EnterMap.uid = NetworkObject->GetUUID().value();
-		EnterMap.mapName = TEXT("MainMap");
+		EnterMap.mapName = TEXT("Village");
 		gen::mmo::Vector2 Pos;
 		Pos.x = -1;
 		Pos.y = -1;

@@ -9,6 +9,11 @@ bool mmo::PacketHandler::EnterGameResPacketHandler(TSharedPtr<Session> session, 
 	return false;
 }
 
+bool mmo::PacketHandler::LeaveMapPacketHandler(TSharedPtr<Session> session, TSharedPtr<LeaveMap> packet)
+{
+	return false;
+}
+
 bool mmo::PacketHandler::SpawnPacketHandler(TSharedPtr<Session> session, TSharedPtr<Spawn> packet)
 {
 	UManager::Get()->HandleSpawn(packet.Get());
