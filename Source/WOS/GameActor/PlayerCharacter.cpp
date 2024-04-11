@@ -7,7 +7,7 @@
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 }
@@ -16,7 +16,7 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
@@ -42,4 +42,12 @@ void APlayerCharacter::Jump() {
 
 void APlayerCharacter::Attack() {
 	UE_LOG(LogTemp, Log, TEXT("Attack"));
+}
+
+void APlayerCharacter::SetName(FString SettedName) {
+	Name = SettedName;
+}
+
+void APlayerCharacter::RecievePacket(const Packet* ReadingPacket) {
+
 }
