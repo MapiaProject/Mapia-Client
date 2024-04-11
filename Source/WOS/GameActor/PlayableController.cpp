@@ -12,6 +12,8 @@ APlayableController::APlayableController() {
 }
 
 void APlayableController::SetupInputComponent() {
+	Super::SetupInputComponent();
+
 	InputComponent->BindAxis(TEXT("Move"), this, &APlayableController::MoveHandler);
 	InputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &APlayableController::JumpHandler);
 	InputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &APlayableController::AttackHandler);
