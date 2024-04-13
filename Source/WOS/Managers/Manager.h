@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Define.h"
+#include "Chaos/AABB.h"
 #include "generated/account/Protocol.gen.hpp"
 #include "generated/mmo/ClientPacketHandler.gen.hpp"
 #include "Session/Session.h"
@@ -47,6 +48,8 @@ public:
 
 	void HandleEnterGame(gen::mmo::EnterGameRes* Packet);
 	void HandleSpawn(gen::mmo::Spawn* Packet);
+	void HandleEnterMap(gen::mmo::EnterMapRes* Packet);
+
 public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());
 	static TObjectPtr<UUISystem> UI(const UWorld* World = GEngine->GameViewport->GetWorld());
