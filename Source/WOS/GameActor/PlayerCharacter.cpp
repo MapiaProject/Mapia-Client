@@ -44,7 +44,7 @@ void APlayerCharacter::Attack() {
 	UE_LOG(LogTemp, Log, TEXT("Attack"));
 }
 
-void APlayerCharacter::SetName(FString SettedName) {
+void APlayerCharacter::SetName(FStringView SettedName) {
 	Name = SettedName;
 }
 

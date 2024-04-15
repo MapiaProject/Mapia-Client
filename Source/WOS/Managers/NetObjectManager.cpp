@@ -9,12 +9,17 @@ void UNetObjectManager::HandleSpawnPlayer(uint64 ObjectId, FVector Position, FSt
 	auto* World = GetWorld();
 	auto Rotation = FRotator(0, 0, 0);
 	auto* Actor = World->SpawnActor(APlayerCharacter::StaticClass(), &Position, &Rotation);
-	auto* Player = Cast<APlayerCharacter>(Actor);
-	NetObjects[ObjectId] = Player;
-	Player->SetName(Name);
-	
-	if (bIsMine) {
-		Player->Controller = UGameplayStatics::GetPlayerController(World, 0);
+	if (Actor == nullptr) {
+		UE_LOG(LogTemp, Log, TEXT("Spawned Player is null"));
+	}
+	else {
+		auto* Player = Cast<APlayerCharacter>(Actor);
+		NetObjects[ObjectId] = Player;
+		Player->SetName(Name);
+
+		if (bIsMine) {
+			Player->Controller = UGameplayStatics::GetPlayerController(World, 0);
+		}
 	}
 }
 

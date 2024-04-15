@@ -34,7 +34,7 @@ public:
 	void Jump();
 	void Attack();
 
-	void SetName(FString SettedName);
+	void SetName(FStringView SettedName);
 
 private:
 	FString Name;
