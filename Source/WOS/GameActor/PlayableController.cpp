@@ -43,10 +43,15 @@ void APlayableController::Tick(float DeltaTime)
 	if (time > LastSendPositionTime + sendPositionInterval) {
 		LastSendPositionTime = time;
 
-		gen::mmo::Move MovePacket;
-		MovePacket.dir.x = LastMoveInput;
-		UManager::Net()->Send(ServerType::MMO, &MovePacket);
+		SendMovePacket(LastMoveInput, 0);
 	}
+}
+
+void APlayableController::SendMovePacket(float X, float Y) {
+	gen::mmo::Move MovePacket;
+	MovePacket.dir.x = X;
+	MovePacket.dir.y = Y;
+	UManager::Net()->Send(ServerType::MMO, &MovePacket);
 }
 
 void APlayableController::MoveHandler(const FInputActionValue& Value) {
@@ -57,9 +62,7 @@ void APlayableController::MoveHandler(const FInputActionValue& Value) {
 
 		LastSendPositionTime = GetWorld()->GetTimeSeconds();
 
-		gen::mmo::Move MovePacket;
-		MovePacket.dir.x = Axis;
-		UManager::Net()->Send(ServerType::MMO, &MovePacket);
+		SendMovePacket(Axis, 0);
 	}
 }
 

@@ -42,4 +42,6 @@ private:
 
 	float LastMoveInput;
 	float LastSendPositionTime;
+
+	void SendMovePacket(float X, float Y);
 };

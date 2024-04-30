@@ -18,7 +18,8 @@ void UNetObjectManager::HandleSpawnPlayer(uint64 ObjectId, FVector Position, FSt
 		Player->SetName(Name);
 
 		if (bIsMine) {
-			Player->Controller = UGameplayStatics::GetPlayerController(World, 0);
+			auto Controller = UGameplayStatics::GetPlayerController(World, 0);
+			Player->Controller = Controller;
 		}
 	}
 }
