@@ -32,22 +32,14 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void APlayerCharacter::Move(float Axis) {
-	UE_LOG(LogTemp, Log, TEXT("Axis : %f"), Axis);
-}
-
-void APlayerCharacter::Jump() {
-	UE_LOG(LogTemp, Log, TEXT("Jump"));
-}
-
-void APlayerCharacter::Attack() {
-	UE_LOG(LogTemp, Log, TEXT("Attack"));
-}
-
 void APlayerCharacter::SetName(FStringView SettedName) {
 	Name = SettedName;
 }
 
 void APlayerCharacter::RecievePacket(const Packet* ReadingPacket) {
+	MovePacketHandler(*(gen::mmo::Move*)ReadingPacket);
+}
+
+void APlayerCharacter::MovePacketHandler(gen::mmo::Move MovePacket) {
 
 }

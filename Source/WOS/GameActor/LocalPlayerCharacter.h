@@ -3,24 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerController.h"
+#include "GameActor/PlayerCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "PlayableController.generated.h"
+#include "LocalPlayerCharacter.generated.h"
 
 /**
- *
+ * 
  */
 UCLASS()
-class WOS_API APlayableController : public APlayerController
+class WOS_API ALocalPlayerCharacter : public APlayerCharacter
 {
-
 	GENERATED_BODY()
-
-public:
-	APlayableController();
-
-	virtual void SetupInputComponent()override;
+	
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)override;
 	virtual void BeginPlay()override;
 	virtual void Tick(float DeltaTime)override;
 
@@ -29,16 +25,16 @@ public:
 	void AttackHandler();
 
 	UPROPERTY(EditAnywhere, Category = Input)
-	UInputMappingContext* InputMappingContext;
+		UInputMappingContext* InputMappingContext;
 	UPROPERTY(EditAnywhere, Category = Input)
-	UInputAction* MoveAction;
+		UInputAction* MoveAction;
 	UPROPERTY(EditAnywhere, Category = Input)
-	UInputAction* JumpAction;
+		UInputAction* JumpAction;
 	UPROPERTY(EditAnywhere, Category = Input)
-	UInputAction* AttackAction;
+		UInputAction* AttackAction;
 
 private:
- 	static constexpr float sendPositionInterval = 0.2f;
+	static constexpr float sendPositionInterval = 0.2f;
 
 	float LastMoveInput;
 	float LastSendPositionTime;

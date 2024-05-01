@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "NetObject.h"
 #include "Packet.h"
+#include "Network/generated/mmo/Protocol.gen.hpp"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -30,9 +31,7 @@ public:
   
 	virtual void RecievePacket(const Packet* ReadingPacket);
   
-	void Move(float Axis);
-	void Jump();
-	void Attack();
+	virtual void MovePacketHandler(gen::mmo::Move MovePacket);
 
 	void SetName(FStringView SettedName);
 

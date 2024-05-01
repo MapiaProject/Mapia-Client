@@ -11,7 +11,8 @@ void UNetObjectManager::HandleSpawnPlayer(uint64 ObjectId, FVector Position, FSt
 	auto Rotation = FRotator(0, 0, 0);
 	APlayerCharacter* Player;
 	if (bIsMine) {
-		auto* Actor = World->SpawnActor(ALocalPlayerCharacter::StaticClass(), &Position, &Rotation);
+		auto PlayerBP = LoadObject<UBlueprint>(NULL, TEXT("/Engine/EngineMaterials/DefaultWhiteGrid.DefaultWhiteGrid"), NULL, LOAD_None, NULL);
+		auto* Actor = World->SpawnActor(PlayerBP->StaticClass(), &Position, &Rotation);
 		Player = Cast<ALocalPlayerCharacter>(Actor);
 
 		auto Controller = UGameplayStatics::GetPlayerController(World, 0);
