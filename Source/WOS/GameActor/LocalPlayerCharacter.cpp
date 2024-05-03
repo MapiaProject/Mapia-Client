@@ -15,7 +15,17 @@ void ALocalPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALocalPlayerCharacter::MoveHandler);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ALocalPlayerCharacter::MoveHandler);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ALocalPlayerCharacter::JumpHandler);
-	InputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &ALocalPlayerCharacter::AttackHandler);
+	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ALocalPlayerCharacter::AttackHandler);
+
+	auto ControllerPtr = Cast<APlayerController>(GetController());
+	if (ControllerPtr != nullptr) {
+		if (auto SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(ControllerPtr->GetLocalPlayer())) {
+			SubSystem->AddMappingContext(InputMappingContext, 0);
+		}
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("LocalPlayerCharacter Can't Found PlayerController"));
+	}
 
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -23,12 +33,6 @@ void ALocalPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 void ALocalPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	auto ControllerPtr = Cast<APlayerController>(Controller);
-	if (Controller != nullptr) {
-		if (auto SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(ControllerPtr->GetLocalPlayer())) {
-			SubSystem->AddMappingContext(InputMappingContext, 0);
-		}
-	}
 }
 
 void ALocalPlayerCharacter::Tick(float DeltaTime)
@@ -60,12 +64,12 @@ void ALocalPlayerCharacter::SendMovePacket(float X, float Y) {
 	MovePacket.dir.x = X;
 	MovePacket.dir.y = Y;
 	UManager::Net()->Send(ServerType::MMO, &MovePacket);
-
-	UE_LOG(LogTemp, Log, TEXT("(%f, %f)"),X,Y);
 }
 
 void ALocalPlayerCharacter::JumpHandler() {
+
 }
 
 void ALocalPlayerCharacter::AttackHandler() {
+
 }

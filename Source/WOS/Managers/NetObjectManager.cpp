@@ -26,8 +26,9 @@ void UNetObjectManager::HandleSpawnPlayer(uint64 ObjectId, FVector Position, FSt
 
 		Player = Cast<ALocalPlayerCharacter>(Actor);
 
-		auto Controller = UGameplayStatics::GetPlayerController(World, 0); 
+		auto Controller = UGameplayStatics::GetPlayerController(World, 0);
 		Player->Controller = Controller;
+		Controller->Possess(Player);
 	}
 	else {
 		auto* Actor = World->SpawnActor(APlayerCharacter::StaticClass(), &Position, &Rotation);
