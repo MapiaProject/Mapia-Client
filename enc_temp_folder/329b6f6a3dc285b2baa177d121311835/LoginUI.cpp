@@ -13,6 +13,14 @@
 void ULoginUI::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	auto Controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (Controller)
+	{
+		Controller->bShowMouseCursor = true;
+		Controller->bEnableClickEvents = true;
+		Controller->bEnableMouseOverEvents = true;
+	}
 	
 	LoginButton->OnClicked.AddDynamic(this, &ULoginUI::OnClickLogin);
 	RegisterButton->OnClicked.AddDynamic(this, &ULoginUI::OnClickRegister);
