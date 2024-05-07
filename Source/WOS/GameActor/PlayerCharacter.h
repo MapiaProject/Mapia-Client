@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "NetObject.h"
 #include "Packet.h"
+#include "Network/generated/mmo/Protocol.gen.hpp"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -27,10 +28,12 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+  
 	virtual void RecievePacket(const Packet* ReadingPacket);
+  
+	virtual void MovePacketHandler(gen::mmo::Move MovePacket);
 
-	void SetName(FString SettedName);
+	void SetName(FStringView SettedName);
 
 private:
 	FString Name;

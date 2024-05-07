@@ -118,6 +118,18 @@ void UManager::HandleSpawn(gen::mmo::Spawn* Packet)
 
 }
 
+void UManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
+{
+	if (Packet->success)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("Enter map success"));
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Can't enter map"));
+	}
+}
+
 TObjectPtr<UNetwork> UManager::Net(const UWorld* World)
 {
 	return Get(World)->NetworkObject;

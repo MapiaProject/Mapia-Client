@@ -19,8 +19,10 @@ class WOS_API UNetObjectManager : public UManagerBase
 	GENERATED_BODY()
 
 public:
+	UNetObjectManager();
 	void HandleSpawnPlayer(uint64 ObjectId, FVector Position, FString Name, bool bIsMine = false);
 	void HandleNetObjectPacket(uint64 ObjectId, const Packet* RecievedPacket);
 private:
 	map<uint64, NetObject*> NetObjects;
+	TSubclassOf<ACharacter> PlayerClass;
 };

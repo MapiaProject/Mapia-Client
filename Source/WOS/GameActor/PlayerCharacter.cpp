@@ -2,6 +2,7 @@
 
 
 #include "PlayerCharacter.h"
+#include "Engine.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -29,13 +30,16 @@ void APlayerCharacter::Tick(float DeltaTime)
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
-void APlayerCharacter::SetName(FString SettedName) {
+void APlayerCharacter::SetName(FStringView SettedName) {
 	Name = SettedName;
 }
 
 void APlayerCharacter::RecievePacket(const Packet* ReadingPacket) {
+	MovePacketHandler(*(gen::mmo::Move*)ReadingPacket);
+}
+
+void APlayerCharacter::MovePacketHandler(gen::mmo::Move MovePacket) {
 
 }
