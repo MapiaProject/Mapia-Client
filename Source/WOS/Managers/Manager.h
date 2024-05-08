@@ -53,6 +53,7 @@ public:
 public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());
 	static TObjectPtr<UUISystem> UI(const UWorld* World = GEngine->GameViewport->GetWorld());
+	static TObjectPtr<UNetObjectManager> Object(const UWorld* World = GEngine->GameViewport->GetWorld());
 
 	static UManager* Get(const UWorld* World = GEngine->GameViewport->GetWorld());
 	void Initialize();

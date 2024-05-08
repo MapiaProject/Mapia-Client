@@ -140,6 +140,11 @@ TObjectPtr<UUISystem> UManager::UI(const UWorld* World)
 	return Get(World)->UISystemObject;
 }
 
+TObjectPtr<UNetObjectManager> UManager::Object(const UWorld* World)
+{
+	return Get(World)->NetObjectManagerObject;
+}
+
 UManager* UManager::Get(const UWorld* World)
 {
 	if (World == nullptr)

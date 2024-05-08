@@ -37,9 +37,9 @@ void APlayerCharacter::SetName(FStringView SettedName) {
 }
 
 void APlayerCharacter::RecievePacket(const Packet* ReadingPacket) {
-	MovePacketHandler(*(gen::mmo::Move*)ReadingPacket);
+	MovePacketHandler(static_cast<const gen::mmo::Move*>(ReadingPacket));
 }
 
-void APlayerCharacter::MovePacketHandler(gen::mmo::Move MovePacket) {
+void APlayerCharacter::MovePacketHandler(const gen::mmo::Move* MovePacket) {
 
 }

@@ -30,8 +30,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
   
 	virtual void RecievePacket(const Packet* ReadingPacket);
-  
-	virtual void MovePacketHandler(gen::mmo::Move MovePacket);
+
+	virtual void MovePacketHandler(const gen::mmo::Move* MovePacket);
 
 	void SetName(FStringView SettedName);
 

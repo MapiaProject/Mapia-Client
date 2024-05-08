@@ -1,4 +1,5 @@
 ﻿#include "generated/mmo/ClientPacketHandler.gen.hpp"
+#include "Managers/NetObjectManager.h"
 #include "Managers/Manager.h"
 
 using namespace gen;
