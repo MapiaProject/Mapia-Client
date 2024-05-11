@@ -29,8 +29,6 @@ public:
 		TObjectPtr<UPaperFlipbook> Attack1Animation;
 	UPROPERTY(EditAnywhere, Category = Animation)
 		TObjectPtr<UPaperFlipbook> Attack2Animation;
-	UPROPERTY(EditAnywhere, Category = Animation)
-		TObjectPtr<UPaperFlipbook> DieAnimation;
 	
 
 	// Sets default values for this character's properties

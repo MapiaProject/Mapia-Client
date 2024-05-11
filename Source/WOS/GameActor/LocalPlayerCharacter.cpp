@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "GameActor/LocalPlayerCharacter.h"
 #include "GameFramework/PlayerController.h"
 #include "Managers/Manager.h"
 #include "Managers/Network.h"
-#include "GameActor/LocalPlayerCharacter.h"
 #include "Engine/LocalPlayer.h"
 
 void ALocalPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) {
