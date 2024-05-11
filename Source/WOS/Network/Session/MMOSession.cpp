@@ -9,7 +9,7 @@ void FMMOSession::OnConnected()
 	FSession::OnConnected();
 
 	gen::mmo::EnterGameReq Req;
-	Req.uid = UManager::Net()->GetUUID().value();
+	Req.name = UManager::Net()->GetUUID().value();
 	Send(&Req);
 }
 

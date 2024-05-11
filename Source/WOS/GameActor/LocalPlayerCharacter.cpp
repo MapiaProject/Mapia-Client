@@ -40,6 +40,9 @@ void ALocalPlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	float time = GetWorld()->GetTimeSeconds();
 
+	auto p = GetActorLocation();
+	SetActorLocation(p + FVector(DeltaTime * LastMoveInput, 0, 0));
+
 	if (time > LastSendPositionTime + sendPositionInterval) {
 		LastSendPositionTime = time;
 
