@@ -32,6 +32,8 @@ class WOS_API ALocalPlayerCharacter : public APlayerCharacter
 		UInputAction* JumpAction;
 	UPROPERTY(EditAnywhere, Category = Input)
 		UInputAction* AttackAction;
+	UPROPERTY(EditAnywhere, Category = Move)
+		float MoveSpeed;
 
 private:
 	static constexpr float sendPositionInterval = 0.2f;

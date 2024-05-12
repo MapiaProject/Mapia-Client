@@ -41,7 +41,7 @@ void ALocalPlayerCharacter::Tick(float DeltaTime)
 	float time = GetWorld()->GetTimeSeconds();
 
 	auto p = GetActorLocation();
-	SetActorLocation(p + FVector(DeltaTime * LastMoveInput, 0, 0));
+	SetActorLocation(p + FVector(DeltaTime * LastMoveInput * MoveSpeed / 0.2f, 0, 0));
 
 	if (time > LastSendPositionTime + sendPositionInterval) {
 		LastSendPositionTime = time;
