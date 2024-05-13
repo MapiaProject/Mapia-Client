@@ -35,3 +35,13 @@ bool mmo::PacketHandler::NotifyChatPacketHandler(TSharedPtr<Session> session, TS
 {
 	return false;
 }
+
+bool gen::mmo::PacketHandler::SpawnMonsterPacketHandler(TSharedPtr<Session> session, TSharedPtr<SpawnMonster> packet)
+{
+	return false;
+}
+
+bool gen::mmo::PacketHandler::NotifyDamagedPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyDamaged> packet)
+{
+	return false;
+}

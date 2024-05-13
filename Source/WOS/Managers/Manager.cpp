@@ -93,12 +93,12 @@ void UManager::HandleEnterGame(gen::mmo::EnterGameRes* Packet)
 	if (NetworkObject->GetUUID().has_value())
 	{
 		gen::mmo::EnterMapReq EnterMap;
-		EnterMap.uid = NetworkObject->GetUUID().value();
+		//EnterMap.name = NetworkObject->GetUUID().value();
 		EnterMap.mapName = TEXT("Village");
 		gen::mmo::Vector2 Pos;
 		Pos.x = -1;
 		Pos.y = -1;
-		EnterMap.position = Pos;
+		//EnterMap.position = Pos;
 		NetworkObject->Send(ServerType::MMO, &EnterMap);
 	}
 }
@@ -113,7 +113,7 @@ void UManager::HandleSpawn(gen::mmo::Spawn* Packet)
 		UE_LOG(LogTemp, Log, TEXT("false"));
 	}
 	for (const auto& Player : Packet->players) {
-		NetObjectManagerObject->HandleSpawnPlayer(Player.objectId, NetUtility::MakeVector(Player.position), Player.name, Packet->isMine);
+		NetObjectManagerObject->HandleSpawnPlayer(Player.objectInfo.objectId, NetUtility::MakeVector(Player.objectInfo.position), Player.name, Packet->isMine);
 	}
 
 }

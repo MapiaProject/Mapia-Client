@@ -1,10 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "GameActor/LocalPlayerCharacter.h"
 #include "GameFramework/PlayerController.h"
+#include "PaperFlipbookComponent.h"
 #include "Managers/Manager.h"
 #include "Managers/Network.h"
-#include "GameActor/LocalPlayerCharacter.h"
 #include "Engine/LocalPlayer.h"
 
 void ALocalPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) {
@@ -33,12 +34,16 @@ void ALocalPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 void ALocalPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	SpriteOriginScale = GetSprite()->GetComponentScale();
 }
 
 void ALocalPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	float time = GetWorld()->GetTimeSeconds();
+
+	auto p = GetActorLocation();
+	SetActorLocation(p + FVector(DeltaTime * LastMoveInput * MoveSpeed / 0.2f, 0, 0));
 
 	if (time > LastSendPositionTime + sendPositionInterval) {
 		LastSendPositionTime = time;
@@ -54,6 +59,14 @@ void ALocalPlayerCharacter::MoveHandler(const FInputActionValue& Value) {
 		LastMoveInput = Axis;
 
 		LastSendPositionTime = GetWorld()->GetTimeSeconds();
+
+		if (LastMoveInput != 0) {
+			GetSprite()->SetWorldScale3D(FVector(SpriteOriginScale.X * LastMoveInput, SpriteOriginScale.Y, SpriteOriginScale.Z));
+			GetSprite()->SetFlipbook(WalkAnimation);
+		}
+		else {
+			GetSprite()->SetFlipbook(IdleAnimation);
+		}
 
 		SendMovePacket(Axis, 0);
 	}

@@ -6,15 +6,33 @@
 #include "GameFramework/Character.h"
 #include "NetObject.h"
 #include "Packet.h"
+#include "PaperCharacter.h"
+#include "PaperFlipbook.h"
 #include "Network/generated/mmo/Protocol.gen.hpp"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
-class WOS_API APlayerCharacter : public ACharacter, public NetObject
+class WOS_API APlayerCharacter : public APaperCharacter, public NetObject
 {
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere, Category = Animation)
+		TObjectPtr<UPaperFlipbook> IdleAnimation;
+	UPROPERTY(EditAnywhere, Category = Animation)
+		TObjectPtr<UPaperFlipbook> WalkAnimation;
+	UPROPERTY(EditAnywhere, Category = Animation)
+		TObjectPtr<UPaperFlipbook> DashAnimation;
+	UPROPERTY(EditAnywhere, Category = Animation)
+		TObjectPtr<UPaperFlipbook> JumpAnimation;
+	UPROPERTY(EditAnywhere, Category = Animation)
+		TObjectPtr<UPaperFlipbook> Attack1Animation;
+	UPROPERTY(EditAnywhere, Category = Animation)
+		TObjectPtr<UPaperFlipbook> Attack2Animation;
+	UPROPERTY(EditAnywhere, Category = Animation)
+		TObjectPtr<UPaperFlipbook> DieAnimation;
+	
+
 	// Sets default values for this character's properties
 	APlayerCharacter();
 

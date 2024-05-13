@@ -12,4 +12,11 @@ class WOS_API NetObject
 {
 public:
 	virtual void RecievePacket(const Packet* ReadingPacket) = 0;
+	virtual void TakeDamage(int Damage);
+	int GetNetObjectId();
+
+private:
+	int NetObjectId;
+
+	friend class UNetObjectManager;
 };
