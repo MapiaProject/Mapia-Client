@@ -40,6 +40,7 @@ private:
 
 	float LastMoveInput;
 	float LastSendPositionTime;
+	FVector SpriteOriginScale;
 
 	void SendMovePacket(float X, float Y);
 };

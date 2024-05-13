@@ -3,6 +3,7 @@
 
 #include "GameActor/LocalPlayerCharacter.h"
 #include "GameFramework/PlayerController.h"
+#include "PaperFlipbookComponent.h"
 #include "Managers/Manager.h"
 #include "Managers/Network.h"
 #include "Engine/LocalPlayer.h"
@@ -33,6 +34,7 @@ void ALocalPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 void ALocalPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	SpriteOriginScale = GetSprite()->GetComponentScale();
 }
 
 void ALocalPlayerCharacter::Tick(float DeltaTime)
@@ -57,6 +59,14 @@ void ALocalPlayerCharacter::MoveHandler(const FInputActionValue& Value) {
 		LastMoveInput = Axis;
 
 		LastSendPositionTime = GetWorld()->GetTimeSeconds();
+
+		if (LastMoveInput != 0) {
+			GetSprite()->SetWorldScale3D(FVector(SpriteOriginScale.X * LastMoveInput, SpriteOriginScale.Y, SpriteOriginScale.Z));
+			GetSprite()->SetFlipbook(WalkAnimation);
+		}
+		else {
+			GetSprite()->SetFlipbook(IdleAnimation);
+		}
 
 		SendMovePacket(Axis, 0);
 	}
