@@ -1,23 +1,16 @@
 #include "Packet.h"
 #include <winsock2.h>
 
-#define htonll(x)   ((((uint64_t)htonl(x)) << 32) + htonl(x >> 32))
-#define ntohll(x)   ((((uint64_t)ntohl(x)) << 32) + ntohl(x >> 32))
-
-Packet::Packet(unsigned short id, int reserve) : m_buffer(4, 0), m_id(0), m_size(0) {
+Packet::Packet(uint16 id, PacketType type, int reserve) : m_buffer(2, 0), m_id(0) {
+    if (type == RPC)
+        id = 0x8000 | id;
+    
     m_buffer.reserve(reserve);
-    for (int i = sizeof(unsigned short) - 1; i >= 0; --i)
-        m_buffer[sizeof(unsigned short) - i - 1] = id >> 8 * i & 0xFF;
+    memcpy(m_buffer.data(), &id, sizeof(uint16));
 }
 
 std::vector<char>& Packet::Data() {
     return m_buffer;
-}
-
-void Packet::Finish() {
-    auto size = static_cast<unsigned short>(m_buffer.size() - 4);
-    for (int i = sizeof(size) - 1; i >= 0; --i)
-        m_buffer[sizeof(unsigned short) - i + 1] = size >> 8 * i & 0xFF;
 }
 
 void Packet::Parse(std::span<char> buffer) {
@@ -26,7 +19,7 @@ void Packet::Parse(std::span<char> buffer) {
 }
 
 void Packet::Read() {
-    *this >> m_id >> m_size;
+    *this >> m_id;
 }
 
 Packet& Packet::operator<<(unsigned char Data) {
@@ -35,26 +28,30 @@ Packet& Packet::operator<<(unsigned char Data) {
 }
 
 Packet& Packet::operator<<(unsigned short Data) {
-    for(int i = sizeof(Data)-1; i >= 0; --i)
-        m_buffer.push_back((Data>>8*i)&0xFF);
+    char buffer[sizeof(Data)] = "";
+    memcpy(buffer, &Data, sizeof(Data));
+    m_buffer.insert(m_buffer.end(), buffer, buffer + sizeof(Data));
     return *this;
 }
 
 Packet& Packet::operator<<(unsigned int Data) {
-    for(int i = sizeof(Data)-1; i >= 0; --i)
-        m_buffer.push_back((Data>>8*i)&0xFF);
+    char buffer[sizeof(Data)] = "";
+    memcpy(buffer, &Data, sizeof(Data));
+    m_buffer.insert(m_buffer.end(), buffer, buffer + sizeof(Data));
     return *this;
 }
 
 Packet& Packet::operator<<(unsigned long Data) {
-    for(int i = sizeof(Data)-1; i >= 0; --i)
-        m_buffer.push_back((Data>>8*i)&0xFF);
+    char buffer[sizeof(Data)] = "";
+    memcpy(buffer, &Data, sizeof(Data));
+    m_buffer.insert(m_buffer.end(), buffer, buffer + sizeof(Data));
     return *this;
 }
 
 Packet& Packet::operator<<(unsigned long long Data) {
-    for(int i = sizeof(Data)-1; i >= 0; --i)
-        m_buffer.push_back((Data >>8*i)&0xFF);
+    char buffer[sizeof(Data)] = "";
+    memcpy(buffer, &Data, sizeof(Data));
+    m_buffer.insert(m_buffer.end(), buffer, buffer + sizeof(Data));
     return *this;
 }
 
@@ -68,40 +65,44 @@ Packet& Packet::operator<<(char Data) {
 }
 
 Packet& Packet::operator<<(short Data) {
-    for(int i = sizeof(Data)-1; i >= 0; --i)
-        m_buffer.push_back((Data>>8*i)&0xFF);
+    char buffer[sizeof(Data)] = "";
+    memcpy(buffer, &Data, sizeof(Data));
+    m_buffer.insert(m_buffer.end(), buffer, buffer + sizeof(Data));
     return *this;
 }
 
 Packet& Packet::operator<<(int Data) {
-    for(int i = sizeof(Data)-1; i >= 0; --i)
-        m_buffer.push_back((Data>>8*i)&0xFF);
+    char buffer[sizeof(Data)] = "";
+    memcpy(buffer, &Data, sizeof(Data));
+    m_buffer.insert(m_buffer.end(), buffer, buffer + sizeof(Data));
     return *this;
 }
 
 Packet& Packet::operator<<(long Data) {
-    for(int i = sizeof(Data)-1; i >= 0; --i)
-        m_buffer.push_back((Data>>8*i)&0xFF);
+    char buffer[sizeof(Data)] = "";
+    memcpy(buffer, &Data, sizeof(Data));
+    m_buffer.insert(m_buffer.end(), buffer, buffer + sizeof(Data));
     return *this;
 }
 
 Packet& Packet::operator<<(long long Data) {
-    for (int i = sizeof(Data) - 1; i >= 0; --i)
-        m_buffer.push_back((Data>>8*i)&0xFF);
+    char buffer[sizeof(Data)] = "";
+    memcpy(buffer, &Data, sizeof(Data));
+    m_buffer.insert(m_buffer.end(), buffer, buffer + sizeof(Data));
     return *this;
 }
 
 Packet& Packet::operator<<(float Data) {
-    char buffer[sizeof(float)] = "";
-    std::memcpy(buffer, &Data, sizeof(float));
-    m_buffer.insert(m_buffer.end(), buffer, buffer+sizeof(float));
+    char buffer[sizeof(Data)] = "";
+    memcpy(buffer, &Data, sizeof(Data));
+    m_buffer.insert(m_buffer.end(), buffer, buffer + sizeof(Data));
     return *this;
 }
 
 Packet& Packet::operator<<(double Data) {
-    char buffer[sizeof(double)] = "";
-    std::memcpy(buffer, &Data, sizeof(double));
-    m_buffer.insert(m_buffer.end(), buffer, buffer+sizeof(double));
+    char buffer[sizeof(Data)] = "";
+    memcpy(buffer, &Data, sizeof(Data));
+    m_buffer.insert(m_buffer.end(), buffer, buffer + sizeof(Data));
     return *this;
 }
 
@@ -124,8 +125,6 @@ Packet& Packet::operator>>(unsigned short& Data)
 {
     std::memcpy(&Data, m_buffer.data(), sizeof(Data));
     m_buffer.erase(m_buffer.begin(), m_buffer.begin() + sizeof(Data));
-
-    Data = ntohs(Data);
     return *this;
 }
 
@@ -133,8 +132,6 @@ Packet& Packet::operator>>(unsigned int& Data)
 {
     std::memcpy(&Data, m_buffer.data(), sizeof(Data));
     m_buffer.erase(m_buffer.begin(), m_buffer.begin() + sizeof(Data));
-    Data = static_cast<unsigned int>(ntohl(static_cast<u_long>(Data)));
-    Data = ntohl(Data);
     return *this;
 }
 
@@ -142,7 +139,6 @@ Packet& Packet::operator>>(unsigned long& Data)
 {
     std::memcpy(&Data, m_buffer.data(), sizeof(Data));
     m_buffer.erase(m_buffer.begin(), m_buffer.begin() + sizeof(Data));
-    Data = ntohl(Data);
     return *this;
 }
 
@@ -150,7 +146,6 @@ Packet& Packet::operator>>(unsigned long long& Data)
 {
     std::memcpy(&Data, m_buffer.data(), sizeof(Data));
     m_buffer.erase(m_buffer.begin(), m_buffer.begin() + sizeof(Data));
-    Data = ntohll(Data);
     return *this;
 }
 

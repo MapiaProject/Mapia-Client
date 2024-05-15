@@ -10,13 +10,11 @@
  */
 class WOS_API NetObject
 {
+	friend class UNetObjectManager;
 public:
 	virtual void RecievePacket(const Packet* ReadingPacket) = 0;
 	virtual void TakeDamage(int Damage);
-	int GetNetObjectId();
-
+	FORCEINLINE uint64 GetId() const { return ObjectId; };
 private:
-	int NetObjectId;
-
-	friend class UNetObjectManager;
+	uint64 ObjectId;
 };

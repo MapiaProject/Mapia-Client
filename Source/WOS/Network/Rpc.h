@@ -1,33 +1,82 @@
 ﻿#pragma once
+
+#include "CoreMinimal.h"
 #include "Packet.h"
+#include "GameActor/NetObject.h"
 
-#define RPC(className, FuncName, ...)
+#define RPC_FUNCTION(Class, Func) uint16 _RPC##Func() { static uint16 RpcId = RpcView::Register(this, &Class::Func); return RpcId; }
+#define CALL_RPC(Class, Func, Target, ...) RpcView::Execute<Class>(_RPC##Func(), Target, __VA_ARGS__)
 
+enum class RpcTarget : uint16
+{
+	All,
+	Other
+};
 
-template<typename... Args>
+template<class T, class... Args> requires std::is_base_of_v<NetObject, T>
 class Rpc : public Packet
 {
 public:
-	Rpc(Args&&... RpcParam)
+	Rpc(T* OwnerPtr, void(T::*RpcMethod)(Args...), uint16 Id) : Packet(Id, RPC), Owner(OwnerPtr)
 	{
-		std::string head = "RPC";
-		Data().resize(3);
-		std::copy(head.begin(), head.end()-1, Data().begin());
+		RpcFunc = std::bind(RpcMethod, Owner);
+	}
+public:
+	void Read(std::span<char> Buffer)
+	{
+		SetBuffer(Buffer);
+		Packet::Read();
 
-		((*this << std::forward<Args>(RpcParam)), ...);
+		*this >> reinterpret_cast<uint16&>(Target);
+		std::apply([this](Args&... ArgsList)
+		{
+			((*this  >> ArgsList), ...);
+		}, Params);
+		std::apply(RpcFunc, Params);
 	}
-	virtual void Read() override
+	void Write(Args... ArgsList)
 	{
+		*this << static_cast<uint16>(Target);
+		((*this << ArgsList), ...);
 	}
+public:
+	void SetTarget(RpcTarget NotifyTarget) { this->Target = NotifyTarget; }
+	void SetBuffer(std::span<char> Buffer) { Data() = std::vector(Buffer.begin(), Buffer.end()); };
+private:
+	RpcTarget Target;
+	T* Owner;
+	std::tuple<Args...> Params;
+	std::function<void(Args...)> RpcFunc;
 };
 
-
-class RpcSystem
+class RpcView
 {
-	using RpcProc = TFunction<void(Rpc<>)>;
 public:
-	static void Register(FStringView FuncName, RpcProc ProcFunc);
-	static void Execute(Rpc<> Rpc);
+	template<class T, class... Args>
+	static uint16 Register(T* Owner, void(T::*RpcFunc)(Args...))
+	{
+		auto RpcObj = new Rpc<T, Args...>(Owner, RpcFunc, ++RpcId);
+		auto ReadFunc = std::bind(&Rpc<T, Args...>::Read, RpcObj, std::placeholders::_1);
+		RpcFuncTable.Emplace(RpcId, { static_cast<void*>(RpcObj), ReadFunc });
+
+		return RpcId;
+	}
+
+	template<class T, class... Args>
+	static Packet* Execute(uint16 RpcFuncId, RpcTarget Target, Args&&... ArgsList)
+	{
+		auto RpcObj = static_cast<Rpc<T, Args...>*>(RpcFuncTable[RpcFuncId].first);
+		RpcObj->SetTarget(Target);
+		RpcObj->Write(Forward<Args>(ArgsList)...);
+		return RpcObj;
+	}
+
+	static void RecvRPC(std::span<char> buffer, uint16 Id)
+	{
+		auto Read = RpcFuncTable[0x7FFF & Id].second;
+		Read(buffer);
+	}
 private:
-	static TMap<FString, RpcProc> RpcFuncTable;
+	static TMap<uint16, std::pair<void*, std::function<void(std::span<char>)>>> RpcFuncTable;
+	static uint16 RpcId;
 };

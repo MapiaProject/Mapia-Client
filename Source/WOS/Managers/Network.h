@@ -6,15 +6,7 @@
 
 #include "CoreMinimal.h"
 #include "Define.h"
-
 #include "ManagerBase.h"
-#include "Chaos/AABB.h"
-#include "Chaos/AABB.h"
-#include "Chaos/AABB.h"
-#include "Chaos/AABB.h"
-#include "Chaos/AABB.h"
-#include "Chaos/AABB.h"
-
 #include "net/Socket.hpp"
 #include "Network.generated.h"
 

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Define.h"
-#include "Chaos/AABB.h"
 #include "generated/account/Protocol.gen.hpp"
 #include "generated/mmo/ClientPacketHandler.gen.hpp"
 #include "Session/Session.h"

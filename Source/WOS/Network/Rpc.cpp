@@ -1,16 +1,4 @@
 ﻿#include "Rpc.h"
 
-TMap<FString, RpcSystem::RpcProc> RpcSystem::RpcFuncTable;
-
-void RpcSystem::Register(FStringView FuncName, RpcProc ProcFunc)
-{
-	RpcFuncTable[FuncName.GetData()] = ProcFunc;
-}
-
-void RpcSystem::Execute(Rpc<> Rpc)
-{
-	FString FuncName;
-	Rpc >> FuncName;
-
-	RpcFuncTable[FuncName](Rpc);
-}
+TMap<uint16, std::pair<void*, std::function<void(std::span<char>)>>> RpcView::RpcFuncTable;
+uint16 RpcView::RpcId = 0;

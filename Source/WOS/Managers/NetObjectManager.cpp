@@ -36,7 +36,7 @@ void UNetObjectManager::HandleSpawnPlayer(uint64 ObjectId, FVector Position, FSt
 	}
 	Player->SetName(Name);
 	NetObjects[ObjectId] = Player;
-	Player->NetObjectId = ObjectId;
+	Player->ObjectId = ObjectId;
 }
 
 void UNetObjectManager::HandleNetObjectPacket(uint64 ObjectId, const Packet* RecievedPacket) {
