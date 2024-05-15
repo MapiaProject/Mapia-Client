@@ -6,6 +6,7 @@
 #include "GameActor/NetObject.h"
 
 #define RPC(Func) _RPC##Func()
+#define USE_RPC(Func) RpcView::Add(RPC(Func), this)
 #define RPC_FUNCTION(Class, Func) uint16 RPC(Func) { static uint16 RpcId = RpcView::Register(&Class::Func); return RpcId; }
 
 enum class RpcTarget : uint16

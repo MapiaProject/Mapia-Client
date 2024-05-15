@@ -36,7 +36,7 @@ void ALocalPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	SpriteOriginScale = GetSprite()->GetComponentScale();
 	
-	RpcView::Add(RPC(TestRPC), this);
+	USE_RPC(TestRPC);
 	RpcView::Execute<ALocalPlayerCharacter>(RPC(TestRPC), RpcTarget::All);
 }
 
