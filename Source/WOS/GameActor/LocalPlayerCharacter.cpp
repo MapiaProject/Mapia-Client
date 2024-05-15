@@ -35,9 +35,9 @@ void ALocalPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	SpriteOriginScale = GetSprite()->GetComponentScale();
-
-	auto testRpcId = BIND_RPC(ALocalPlayerCharacter, TestRPC);
-	testRpcId->Call<ALocalPlayerCharacter>(RpcTarget::All);
+	
+	RpcView::Add(RPC(TestRPC), this);
+	RpcView::Execute<ALocalPlayerCharacter>(RPC(TestRPC), RpcTarget::All);
 }
 
 void ALocalPlayerCharacter::Tick(float DeltaTime)

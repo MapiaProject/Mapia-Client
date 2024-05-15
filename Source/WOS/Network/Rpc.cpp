@@ -2,7 +2,7 @@
 #include "Managers/Manager.h"
 #include "Managers/Network.h"
 
-TMap<uint16, std::pair<void*, std::function<void(std::span<char>)>>> RpcView::RpcFuncTable;
+TMap<uint16, RpcView::RpcInterface> RpcView::RpcFuncTable;
 uint16 RpcView::RpcId = 0;
 
 void RpcView::SendRpc(Packet* RpcPacket)
