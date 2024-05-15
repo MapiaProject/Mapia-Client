@@ -6,6 +6,7 @@
 #include "GameActor/PlayerCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Rpc.h"
 #include "LocalPlayerCharacter.generated.h"
 
 /**
@@ -35,6 +36,9 @@ class WOS_API ALocalPlayerCharacter : public APlayerCharacter
 	UPROPERTY(EditAnywhere, Category = Move)
 		float MoveSpeed;
 
+private:
+	RPC_FUNCTION(ALocalPlayerCharacter, TestRPC)
+	void TestRPC();
 private:
 	static constexpr float sendPositionInterval = 0.2f;
 

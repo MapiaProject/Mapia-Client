@@ -1,11 +1,12 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+
 #include "Packet.h"
 #include "GameActor/NetObject.h"
 
-#define RPC_FUNCTION(Class, Func) uint16 _RPC##Func() { static uint16 RpcId = RpcView::Register(this, &Class::Func); return RpcId; }
-#define CALL_RPC(Class, Func, Target, ...) RpcView::Execute<Class>(_RPC##Func(), Target, __VA_ARGS__)
+#define RPC_FUNCTION(Class, Func) TUniquePtr<RpcObject> _RPC##Func() { return RpcView::Register(this, &Class::Func); }
+#define BIND_RPC(Class, Func) _RPC##Func();
 
 enum class RpcTarget : uint16
 {
@@ -49,26 +50,28 @@ private:
 	std::function<void(Args...)> RpcFunc;
 };
 
+class RpcObject;
+
 class RpcView
 {
 public:
 	template<class T, class... Args>
-	static uint16 Register(T* Owner, void(T::*RpcFunc)(Args...))
+	static TUniquePtr<RpcObject> Register(T* Owner, void(T::*RpcFunc)(Args...))
 	{
 		auto RpcObj = new Rpc<T, Args...>(Owner, RpcFunc, ++RpcId);
 		auto ReadFunc = std::bind(&Rpc<T, Args...>::Read, RpcObj, std::placeholders::_1);
 		RpcFuncTable.Emplace(RpcId, { static_cast<void*>(RpcObj), ReadFunc });
 
-		return RpcId;
+		return MakeUnique<RpcObject>(RpcId);
 	}
 
 	template<class T, class... Args>
-	static Packet* Execute(uint16 RpcFuncId, RpcTarget Target, Args&&... ArgsList)
+	static void Execute(uint16 RpcFuncId, RpcTarget Target, Args&&... ArgsList)
 	{
 		auto RpcObj = static_cast<Rpc<T, Args...>*>(RpcFuncTable[RpcFuncId].first);
 		RpcObj->SetTarget(Target);
 		RpcObj->Write(Forward<Args>(ArgsList)...);
-		return RpcObj;
+		SendRpc(RpcObj);
 	}
 
 	static void RecvRPC(std::span<char> buffer, uint16 Id)
@@ -77,6 +80,22 @@ public:
 		Read(buffer);
 	}
 private:
+	static void SendRpc(Packet* RpcPacket);
+private:
 	static TMap<uint16, std::pair<void*, std::function<void(std::span<char>)>>> RpcFuncTable;
 	static uint16 RpcId;
+};
+
+class RpcObject
+{
+public:
+	RpcObject(uint16 Id) : RpcId(Id) {}
+
+	template<class T, class... Args>
+	void Call(RpcTarget Target, Args&&... ArgsList)
+	{
+		RpcView::Execute<T>(RpcId, Target, ArgsList...);
+	}
+private:
+	uint16 RpcId;
 };

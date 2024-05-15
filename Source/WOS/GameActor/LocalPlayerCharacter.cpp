@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GameActor/LocalPlayerCharacter.h"
+#include "GameActor/LocalPlayerCharacter.h"	
 #include "GameFramework/PlayerController.h"
 #include "PaperFlipbookComponent.h"
+#include "Engine/LocalPlayer.h"
 #include "Managers/Manager.h"
 #include "Managers/Network.h"
-#include "Engine/LocalPlayer.h"
 
 void ALocalPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -35,6 +35,9 @@ void ALocalPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	SpriteOriginScale = GetSprite()->GetComponentScale();
+
+	auto testRpcId = BIND_RPC(ALocalPlayerCharacter, TestRPC);
+	testRpcId->Call<ALocalPlayerCharacter>(RpcTarget::All);
 }
 
 void ALocalPlayerCharacter::Tick(float DeltaTime)
@@ -70,6 +73,11 @@ void ALocalPlayerCharacter::MoveHandler(const FInputActionValue& Value) {
 
 		SendMovePacket(Axis, 0);
 	}
+}
+
+void ALocalPlayerCharacter::TestRPC()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Cyan, TEXT("RPC"));
 }
 
 void ALocalPlayerCharacter::SendMovePacket(float X, float Y) {
