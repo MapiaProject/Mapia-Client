@@ -4,10 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Managers/ManagerBase.h"
-#include "GameActor/PlayerCharacter.h"
 #include "GameActor/NetObject.h"
-#include <map>
-using namespace std;
 #include "NetObjectManager.generated.h"
 
 /**
@@ -23,6 +20,6 @@ public:
 	void HandleSpawnPlayer(uint64 ObjectId, FVector Position, FString Name, bool bIsMine = false);
 	void HandleNetObjectPacket(uint64 ObjectId, const Packet* RecievedPacket);
 private:
-	map<uint64, NetObject*> NetObjects;
+	TMap<uint64, NetObject*> NetObjects;
 	TSubclassOf<ACharacter> PlayerClass;
 };

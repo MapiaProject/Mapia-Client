@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GameActor/LocalPlayerCharacter.h"
+#include "GameActor/LocalPlayerCharacter.h"	
 #include "GameFramework/PlayerController.h"
 #include "PaperFlipbookComponent.h"
+#include "Engine/LocalPlayer.h"
 #include "Managers/Manager.h"
 #include "Managers/Network.h"
-#include "Engine/LocalPlayer.h"
 
 void ALocalPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);

@@ -9,13 +9,13 @@ bool account::PacketHandler::LoginResPacketHandler(TSharedPtr<Session> session, 
 	return false;
 }
 
-bool gen::account::PacketHandler::LogoutResPacketHandler(TSharedPtr<Session> session, TSharedPtr<LogoutRes> packet)
-{
-	return false;
-}
-
 bool account::PacketHandler::RegisterResPacketHandler(TSharedPtr<Session> session, TSharedPtr<RegisterRes> packet)
 {
 	UManager::Get()->HandleRegister(packet.Get());
+	return false;
+}
+
+bool account::PacketHandler::CheckNicknameResPacketHandler(TSharedPtr<Session> session, TSharedPtr<CheckNicknameRes> packet)
+{
 	return false;
 }

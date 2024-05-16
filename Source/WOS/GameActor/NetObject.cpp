@@ -9,11 +9,6 @@ void NetObject::TakeDamage(int Damage)
 {
 	gen::mmo::AddDamageReq DamagePacket;
 	DamagePacket.damageInfo.damage = Damage;
-	DamagePacket.damageInfo.objectId = GetNetObjectId();
+	DamagePacket.damageInfo.objectId = GetId();
 	UManager::Net()->Send(ServerType::MMO, &DamagePacket);
-}
-
-int NetObject::GetNetObjectId()
-{
-	return NetObjectId;
 }

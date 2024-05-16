@@ -4,10 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Define.h"
-#include "Chaos/AABB.h"
 #include "generated/account/Protocol.gen.hpp"
 #include "generated/mmo/ClientPacketHandler.gen.hpp"
-#include "Session/Session.h"
+#include "net/Socket.hpp"
 #include "Manager.generated.h"
 
 #define INIT_MANAGER(name)\
@@ -35,7 +34,7 @@ UCLASS()
 class WOS_API UManager : public UGameInstance
 {
 	GENERATED_BODY()
-		using SessionFactoryFunc = TFunction<TSharedPtr<FSession>(TSharedPtr<net::Socket>)>;
+	using SessionFactoryFunc = TFunction<TSharedPtr<class FSession>(TSharedPtr<net::Socket>)>;
 public:
 	UManager();
 	virtual ~UManager() override;
@@ -53,6 +52,7 @@ public:
 public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());
 	static TObjectPtr<UUISystem> UI(const UWorld* World = GEngine->GameViewport->GetWorld());
+	static TObjectPtr<UNetObjectManager> Object(const UWorld* World = GEngine->GameViewport->GetWorld());
 
 	static UManager* Get(const UWorld* World = GEngine->GameViewport->GetWorld());
 	void Initialize();

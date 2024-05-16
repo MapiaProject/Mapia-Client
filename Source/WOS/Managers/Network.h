@@ -6,23 +6,15 @@
 
 #include "CoreMinimal.h"
 #include "Define.h"
-
 #include "ManagerBase.h"
-#include "Chaos/AABB.h"
-#include "Chaos/AABB.h"
-#include "Chaos/AABB.h"
-#include "Chaos/AABB.h"
-#include "Chaos/AABB.h"
-#include "Chaos/AABB.h"
-
-#include "net/Socket.hpp"
+#include "net/netcpp.hpp"
 #include "Network.generated.h"
 
 class FSession;
-class ANetworkCharacter;
 /**
  * 
  */
+
 UCLASS()
 class WOS_API UNetwork : public UManagerBase
 {
