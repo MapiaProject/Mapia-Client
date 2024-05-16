@@ -51,6 +51,7 @@ public:
 	void ReadParameter(Args&... ArgsList)
 	{
 		((*this >> ArgsList), ...);
+		Reset();
 	}
 public:
 	void SetTarget(RpcTarget NotifyTarget) { this->Target = NotifyTarget; }

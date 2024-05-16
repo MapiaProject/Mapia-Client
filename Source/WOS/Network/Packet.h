@@ -89,6 +89,8 @@ public:
         return pk;
     }
     std::vector<char>& Data();
+
+    void Reset();
 private:
     std::vector<char> m_buffer;
     unsigned short m_id;
