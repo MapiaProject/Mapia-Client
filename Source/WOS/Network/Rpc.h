@@ -22,7 +22,7 @@ template<class T, class... Args> requires std::is_base_of_v<NetObject, T>
 class Rpc : Packet
 {
 public:
-	Rpc(void(T::*RpcFunc)(Args...), uint16 Id) : Packet(Id, RPC), RpcFunc(RpcFunc)
+	Rpc(void(T::*RpcFunc)(bool, Args...), uint16 Id) : Packet(Id, RPC), RpcFunc(RpcFunc)
 	{
 	}
 public:
@@ -31,32 +31,36 @@ public:
 		SetBuffer(Buffer);
 		Packet::Read();
 
+		uint64 Caller;
+		*this >> reinterpret_cast<uint16&>(Target) >> Caller;
+
 		std::tuple<Args...> Params;
 		std::apply(bind(&Rpc::ReadParameter, this), Params);
 		for (const auto& Object : Objects)
 		{
 			if (Object != nullptr)
-				std::apply(bind(RpcFunc, Object), Params);
+				std::apply(bind(RpcFunc, Object, CallerId == Caller), Params);
 			else Objects.Remove(Object);
 		}
 	}
 	void WriteParameter(Args... ArgsList)
 	{
-		*this << static_cast<uint16>(Target);
+		*this << static_cast<uint16>(Target) << CallerId;
 		((*this << ArgsList), ...);
 	}
 	void ReadParameter(Args&... ArgsList)
 	{
-		*this >> reinterpret_cast<uint16&>(Target);
 		((*this >> ArgsList), ...);
 	}
 public:
 	void SetTarget(RpcTarget NotifyTarget) { this->Target = NotifyTarget; }
 	void SetBuffer(std::span<char> Buffer) { Data() = std::vector(Buffer.begin(), Buffer.end()); }
 	void Add(void* Ptr) { Objects.AddUnique(static_cast<T*>(Ptr)); }
+	void SetCaller(uint16 Id) { CallerId = Id; }
 private:
+	uint64 CallerId;
 	RpcTarget Target;
-	void(T::*RpcFunc)(Args...);
+	void(T::*RpcFunc)(bool, Args...);
 	TArray<T*> Objects;
 };
 
@@ -70,7 +74,7 @@ class RpcView
 	};
 public:
 	template<class T, class... Args>
-	static uint16 Register(void(T::*RpcFunc)(Args...))
+	static uint16 Register(void(T::*RpcFunc)(bool, Args...))
 	{
 		auto RpcObject = new Rpc<T, Args...>(RpcFunc, ++RpcId);
 		RpcInterface Interface
@@ -85,10 +89,11 @@ public:
 	}
 	
 	template<class T, class... Args>
-	static void Execute(void(T::*)(Args...), T* Owner, uint16 Id, RpcTarget Target, Args... ArgsList)
+	static void Execute(void(T::*)(bool, Args...), T* Owner, uint16 Id, RpcTarget Target, Args... ArgsList)
 	{
 		auto RpcObj = static_cast<Rpc<T, Args...>*>(RpcFuncTable[Id].Owner);
 		RpcObj->SetTarget(Target);
+		RpcObj->SetCaller(Owner->GetId());
 		RpcObj->WriteParameter(Forward<Args>(ArgsList)...);
 		RpcObj->Add(Owner);
 		SendRpc(reinterpret_cast<Packet*>(RpcObj));

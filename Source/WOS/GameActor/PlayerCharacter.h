@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
 #include "NetObject.h"
 #include "Packet.h"
 #include "PaperCharacter.h"
@@ -15,7 +14,6 @@ UCLASS()
 class WOS_API APlayerCharacter : public APaperCharacter, public NetObject
 {
 	GENERATED_BODY()
-
 public:
 	UPROPERTY(EditAnywhere, Category = Animation)
 		TObjectPtr<UPaperFlipbook> IdleAnimation;
@@ -52,7 +50,6 @@ public:
 	virtual void MovePacketHandler(gen::mmo::Move MovePacket);
 
 	void SetName(FStringView SettedName);
-
 private:
 	FString Name;
 };

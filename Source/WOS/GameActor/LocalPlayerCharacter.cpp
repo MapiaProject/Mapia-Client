@@ -35,8 +35,6 @@ void ALocalPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	SpriteOriginScale = GetSprite()->GetComponentScale();
-	
-	RpcView::CallRPC(TestRPC, RpcTarget::All, GetActorRotation());
 }
 
 void ALocalPlayerCharacter::Tick(float DeltaTime)
@@ -72,11 +70,6 @@ void ALocalPlayerCharacter::MoveHandler(const FInputActionValue& Value) {
 
 		SendMovePacket(Axis, 0);
 	}
-}
-
-void ALocalPlayerCharacter::TestRPC(FRotator Data)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Cyan, Data.ToString());
 }
 
 void ALocalPlayerCharacter::SendMovePacket(float X, float Y) {

@@ -6,7 +6,6 @@
 #include "GameActor/PlayerCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Rpc.h"
 #include "LocalPlayerCharacter.generated.h"
 
 /**
@@ -16,7 +15,7 @@ UCLASS()
 class WOS_API ALocalPlayerCharacter : public APlayerCharacter
 {
 	GENERATED_BODY()
-	
+private:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)override;
 	virtual void BeginPlay()override;
 	virtual void Tick(float DeltaTime)override;
@@ -35,10 +34,6 @@ class WOS_API ALocalPlayerCharacter : public APlayerCharacter
 		UInputAction* AttackAction;
 	UPROPERTY(EditAnywhere, Category = Move)
 		float MoveSpeed;
-
-private:
-	RPC_FUNCTION(TestRPC)
-	void TestRPC(FRotator Data);
 private:
 	static constexpr float sendPositionInterval = 0.2f;
 
