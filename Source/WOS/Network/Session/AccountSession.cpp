@@ -14,10 +14,5 @@ void FAccountSession::OnDisconnected()
 
 void FAccountSession::OnReceive(std::span<char> buffer, int32 length)
 {
-	FSession::OnReceive(buffer, length);
-	
-	const auto Handler = gen::account::PacketHandler::getHandler(buffer);
-	const TSharedPtr<FSession> SharedThis = AsShared();
-	
-	PushJob(Handler, SharedThis);
+	RECV_PACKET(account);
 }

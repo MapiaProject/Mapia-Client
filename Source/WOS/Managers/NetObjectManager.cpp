@@ -36,6 +36,7 @@ void UNetObjectManager::HandleSpawnPlayer(uint64 ObjectId, FVector Position, FSt
 		auto* Actor = World->SpawnActor(LocalPlayerClass, &Position, &Rotation);
 
 		Player = Cast<ALocalPlayerCharacter>(Actor);
+		Player->ObjectId = ObjectId;
 
 		auto Controller = UGameplayStatics::GetPlayerController(World, 0);
 		Player->Controller = Controller;
@@ -44,14 +45,14 @@ void UNetObjectManager::HandleSpawnPlayer(uint64 ObjectId, FVector Position, FSt
 	else {
 		auto* Actor = World->SpawnActor(PlayerClass, &Position, &Rotation);
 		Player = Cast<APlayerCharacter>(Actor);
+		Player->ObjectId = ObjectId;
 	}
 	Player->SetName(Name);
-	NetObjects[ObjectId] = Player;
-	Player->NetObjectId = ObjectId;
+	NetObjects.Add(ObjectId, Player);
 }
 
 void UNetObjectManager::HandleNetObjectPacket(uint64 ObjectId, const Packet* RecievedPacket) {
-	if (NetObjects.contains(ObjectId)) {
+	if (NetObjects.Contains(ObjectId)) {
 		NetObjects[ObjectId]->RecievePacket(RecievedPacket);
 	}
 }

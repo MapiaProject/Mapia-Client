@@ -1,5 +1,23 @@
 ﻿#pragma once
 #include "net/Socket.hpp"
+#include "Rpc.h"
+
+#define RECV_PACKET(name) \
+FSession::OnReceive(buffer, length); \
+\
+uint16 Id = 0;\
+memcpy(&Id, buffer.data(), 2);\
+if ((Id >> 15) & 1)\
+{\
+	RpcView::RecvRPC(buffer, Id);\
+}\
+else\
+{\
+	const auto Handler = gen::name::PacketHandler::getHandler(Id, buffer);\
+	const TSharedPtr<FSession> SharedThis = AsShared();\
+	\
+	PushJob(Handler, SharedThis);\
+}\
 
 class FSession : public TSharedFromThis<FSession>
 {

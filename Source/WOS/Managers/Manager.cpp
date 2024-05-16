@@ -13,7 +13,7 @@
 #include "Session/MMOSession.h"
 #include "GameActor/PlayerCharacter.h"
 #include "Managers/NetObjectManager.h"
-#include "NetUtility.h"
+#include "Util/NetUtility.h"
 
 UManager::UManager() : NetworkObject(nullptr)
 {
@@ -137,6 +137,11 @@ TObjectPtr<UNetwork> UManager::Net(const UWorld* World)
 TObjectPtr<UUISystem> UManager::UI(const UWorld* World)
 {
 	return Get(World)->UISystemObject;
+}
+
+TObjectPtr<UNetObjectManager> UManager::Object(const UWorld* World)
+{
+	return Get(World)->NetObjectManagerObject;
 }
 
 UManager* UManager::Get(const UWorld* World)

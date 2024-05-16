@@ -15,7 +15,7 @@ bool account::PacketHandler::RegisterResPacketHandler(TSharedPtr<Session> sessio
 	return false;
 }
 
-bool gen::account::PacketHandler::CheckNicknameResPacketHandler(TSharedPtr<Session> session, TSharedPtr<CheckNicknameRes> packet)
+bool account::PacketHandler::CheckNicknameResPacketHandler(TSharedPtr<Session> session, TSharedPtr<CheckNicknameRes> packet)
 {
 	return false;
 }
