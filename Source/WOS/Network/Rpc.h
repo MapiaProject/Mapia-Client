@@ -15,11 +15,33 @@ enum class RpcTarget : uint16
 	Other
 };
 
+template <int>
+struct variadic_placeholder {};
+
+namespace std {
+	template <int N>
+	struct is_placeholder<variadic_placeholder<N>>
+		: integral_constant<int, N + 1>
+	{
+	};
+}
+
+
+template <typename Ret, typename Class, typename... Args, size_t... Is, typename... Args2>
+auto bind(std::index_sequence<Is...>, Ret (Class::*fptr)(Args...), Args2&&... args) {
+	return std::bind(fptr, std::forward<Args2>(args)..., variadic_placeholder<Is>{}...);
+}
+
+template <typename Ret, typename Class, typename... Args, typename... Args2>
+auto bind(Ret (Class::*fptr)(Args...), Args2&&... args) {
+	return bind(std::make_index_sequence<sizeof...(Args) - sizeof...(Args2) + 1>{}, fptr, std::forward<Args2>(args)...);
+}
+
 template<class T, class... Args> requires std::is_base_of_v<NetObject, T>
 class Rpc : Packet
 {
 public:
-	Rpc(void(T::*RpcFunc)(Args...), uint16 Id) : Packet(Id, RPC), Id(Id), RpcFunc(RpcFunc)
+	Rpc(void(T::*RpcFunc)(Args...), uint16 Id) : Packet(Id, RPC), RpcFunc(RpcFunc)
 	{
 	}
 public:
@@ -28,27 +50,29 @@ public:
 		SetBuffer(Buffer);
 		Packet::Read();
 
-		*this >> reinterpret_cast<uint16&>(Target);
 		std::tuple<Args...> Params;
-		std::apply([this](Args&... ArgsList)
-		{
-			((*this >> ArgsList), ...);
-		}, Params);
-
+		std::apply(bind(&Rpc::ReadParameter, this), Params);
 		for (const auto& Object : Objects)
-			std::apply(std::bind(RpcFunc, Object), Params);
+		{
+			if (Object != nullptr)
+				std::apply(bind(RpcFunc, Object), Params);
+		}
 	}
 	void WriteParameter(Args... ArgsList)
 	{
 		*this << static_cast<uint16>(Target);
 		((*this << ArgsList), ...);
 	}
+	void ReadParameter(Args&... ArgsList)
+	{
+		*this >> reinterpret_cast<uint16&>(Target);
+		((*this >> ArgsList), ...);
+	}
 public:
 	void SetTarget(RpcTarget NotifyTarget) { this->Target = NotifyTarget; }
 	void SetBuffer(std::span<char> Buffer) { Data() = std::vector(Buffer.begin(), Buffer.end()); }
 	void Add(void* Ptr) { Objects.Add(static_cast<T*>(Ptr)); }
 private:
-	uint16 Id;
 	RpcTarget Target;
 	void(T::*RpcFunc)(Args...);
 	TArray<T*> Objects;

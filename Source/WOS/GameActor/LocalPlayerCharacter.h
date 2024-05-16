@@ -38,7 +38,7 @@ class WOS_API ALocalPlayerCharacter : public APlayerCharacter
 
 private:
 	RPC_FUNCTION(ALocalPlayerCharacter, TestRPC)
-	void TestRPC();
+	void TestRPC(int Data);
 private:
 	static constexpr float sendPositionInterval = 0.2f;
 

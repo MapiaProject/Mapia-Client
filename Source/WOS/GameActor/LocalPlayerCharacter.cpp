@@ -37,7 +37,7 @@ void ALocalPlayerCharacter::BeginPlay()
 	SpriteOriginScale = GetSprite()->GetComponentScale();
 	
 	USE_RPC(TestRPC);
-	RpcView::Execute<ALocalPlayerCharacter>(RPC(TestRPC), RpcTarget::All);
+	RpcView::Execute<ALocalPlayerCharacter>(RPC(TestRPC), RpcTarget::All, 32);
 }
 
 void ALocalPlayerCharacter::Tick(float DeltaTime)
@@ -75,9 +75,9 @@ void ALocalPlayerCharacter::MoveHandler(const FInputActionValue& Value) {
 	}
 }
 
-void ALocalPlayerCharacter::TestRPC()
+void ALocalPlayerCharacter::TestRPC(int Data)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Cyan, TEXT("RPC"));
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Cyan, FString::FromInt(Data));
 }
 
 void ALocalPlayerCharacter::SendMovePacket(float X, float Y) {
