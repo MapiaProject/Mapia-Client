@@ -9,7 +9,12 @@
 
 UNetObjectManager::UNetObjectManager()
 {
-	static ConstructorHelpers::FClassFinder<ACharacter> PlayerBP(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/GameActor/BP_LocalPlayerCharacter.BP_LocalPlayerCharacter_C'"));
+	static ConstructorHelpers::FClassFinder<ACharacter> LocalPlayerBP(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/GameActor/BP_LocalPlayerCharacter.BP_LocalPlayerCharacter_C'"));
+	if (LocalPlayerBP.Succeeded())
+	{
+		LocalPlayerClass = LocalPlayerBP.Class;
+	}
+	static ConstructorHelpers::FClassFinder<ACharacter> PlayerBP(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/GameActor/BP_PlayerCharacter.BP_PlayerCharacter_C'"));
 	if (PlayerBP.Succeeded())
 	{
 		PlayerClass = PlayerBP.Class;
@@ -20,9 +25,15 @@ void UNetObjectManager::HandleSpawnPlayer(uint64 ObjectId, FVector Position, FSt
 	auto* World = GetWorld();
 	auto Rotation = FRotator(0, 0, 0);
 	APlayerCharacter* Player = nullptr;
+
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, FString::Printf(TEXT("(%f, %f)"), Position.X, Position.Z));
+
+	Position *= 100;
+
+
 	if (bIsMine) {
 
-		auto* Actor = World->SpawnActor(PlayerClass, &Position, &Rotation);
+		auto* Actor = World->SpawnActor(LocalPlayerClass, &Position, &Rotation);
 
 		Player = Cast<ALocalPlayerCharacter>(Actor);
 
@@ -31,7 +42,7 @@ void UNetObjectManager::HandleSpawnPlayer(uint64 ObjectId, FVector Position, FSt
 		Controller->Possess(Player);
 	}
 	else {
-		auto* Actor = World->SpawnActor(APlayerCharacter::StaticClass(), &Position, &Rotation);
+		auto* Actor = World->SpawnActor(PlayerClass, &Position, &Rotation);
 		Player = Cast<APlayerCharacter>(Actor);
 	}
 	Player->SetName(Name);

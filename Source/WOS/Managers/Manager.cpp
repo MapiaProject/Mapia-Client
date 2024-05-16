@@ -105,17 +105,16 @@ void UManager::HandleEnterGame(gen::mmo::EnterGameRes* Packet)
 
 void UManager::HandleSpawn(gen::mmo::Spawn* Packet)
 {
-	UE_LOG(LogTemp, Log, TEXT("count : %d"), Packet->players.size());
-	if (Packet->isMine) {
-		UE_LOG(LogTemp, Log, TEXT("true"));
-	}
-	else {
-		UE_LOG(LogTemp, Log, TEXT("false"));
-	}
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("Spawn"));
 	for (const auto& Player : Packet->players) {
+		if (Packet->isMine) {
+			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("local"));
+		}
+		else {
+			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("sync"));
+		}
 		NetObjectManagerObject->HandleSpawnPlayer(Player.objectInfo.objectId, NetUtility::MakeVector(Player.objectInfo.position), Player.name, Packet->isMine);
 	}
-
 }
 
 void UManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)

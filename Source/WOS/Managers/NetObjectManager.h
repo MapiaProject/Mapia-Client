@@ -24,5 +24,6 @@ public:
 	void HandleNetObjectPacket(uint64 ObjectId, const Packet* RecievedPacket);
 private:
 	map<uint64, NetObject*> NetObjects;
+	TSubclassOf<ACharacter> LocalPlayerClass;
 	TSubclassOf<ACharacter> PlayerClass;
 };
