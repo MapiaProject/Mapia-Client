@@ -5,6 +5,17 @@
 #include "CoreMinimal.h"
 #include "Network/Packet.h"
 
+inline Packet& operator<<(Packet& Pkt, FRotator Rotator)
+{
+	Pkt << Rotator.Pitch << Rotator.Yaw << Rotator.Roll;
+	return Pkt;
+}
+inline Packet& operator>>(Packet& Pkt, FRotator Rotator)
+{
+	Pkt >> Rotator.Pitch >> Rotator.Yaw >> Rotator.Roll;
+	return Pkt;
+}
+
 /**
  * 
  */

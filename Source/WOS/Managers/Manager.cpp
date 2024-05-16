@@ -13,7 +13,7 @@
 #include "Session/MMOSession.h"
 #include "GameActor/PlayerCharacter.h"
 #include "Managers/NetObjectManager.h"
-#include "NetUtility.h"
+#include "Util/NetUtility.h"
 
 UManager::UManager() : NetworkObject(nullptr)
 {
