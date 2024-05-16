@@ -26,7 +26,6 @@ void UNetObjectManager::HandleSpawnPlayer(uint64 ObjectId, FVector Position, FSt
 
 		Player = Cast<ALocalPlayerCharacter>(Actor);
 		Player->ObjectId = ObjectId;
-		Player->RunTest();
 
 		auto Controller = UGameplayStatics::GetPlayerController(World, 0);
 		Player->Controller = Controller;
