@@ -7,16 +7,18 @@
 #include "Kismet/GameplayStatics.h"
 #include <UObject/ConstructorHelpers.h>
 
-#define GetBPClass(ValueName,BPName,ClassType) static ConstructorHelpers::FClassFinder<ClassType> BP(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/GameActor/"#BPName"."#BPName"_C'"));\
-if (BP.Succeeded())\
-{\
-	ValueName = BP.Class;\
-}
-
 UNetObjectManager::UNetObjectManager()
 {
-	GetBPClass(LocalPlayerClass,BP_LocalPlayerCharacter,ACharacter)
-	GetBPClass(PlayerClass,BP_PlayerCharacter,ACharacter)
+	static ConstructorHelpers::FClassFinder<ACharacter> LocalPlayerBP(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/GameActor/BP_LocalPlayerCharacter.BP_LocalPlayerCharacter_C'"));
+	if (LocalPlayerBP.Succeeded())
+	{
+		LocalPlayerClass = LocalPlayerBP.Class;
+	}
+	static ConstructorHelpers::FClassFinder<ACharacter> PlayerBP(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/GameActor/BP_PlayerCharacter.BP_PlayerCharacter_C'"));
+	if (PlayerBP.Succeeded())
+	{
+		PlayerClass = PlayerBP.Class;
+	}
 }
 
 void UNetObjectManager::HandleSpawnPlayer(uint64 ObjectId, FVector Position, FString Name, bool bIsMine) {
@@ -47,16 +49,6 @@ void UNetObjectManager::HandleSpawnPlayer(uint64 ObjectId, FVector Position, FSt
 	}
 	Player->SetName(Name);
 	NetObjects.Add(ObjectId, Player);
-}
-
-void UNetObjectManager::HandleLeaveMap(uint64 ObjectId)
-{
-	NetObjects[ObjectId]->HandleLeaveMap();
-}
-
-void UNetObjectManager::HandleSpawnMonster(gen::mmo::ObjectInfo MonsterInfo, gen::mmo::EMonsterType MonsterType)
-{
-	
 }
 
 void UNetObjectManager::HandleNetObjectPacket(uint64 ObjectId, const Packet* RecievedPacket) {

@@ -22,14 +22,6 @@ if (!name##Object)												\
 	}															\
 }																\
 
-#define GetBPClass(ValueName,BPName,ClassType) static ConstructorHelpers::FClassFinder<ClassType> BP(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/GameActor/BPName.BPName_C'"));\
-if (BP.Succeeded())\
-{\
-	ValueName = BP.Class;\
-}
-
-#define BIND_MONSTER(MonsterBPName, MonsterTypeName)
-
 class UNetwork;
 class UUISystem;
 class UNetObjectManager;
@@ -56,9 +48,6 @@ public:
 	void HandleEnterGame(gen::mmo::EnterGameRes* Packet);
 	void HandleSpawn(gen::mmo::Spawn* Packet);
 	void HandleEnterMap(gen::mmo::EnterMapRes* Packet);
-	void HandleLeaveMap(gen::mmo::LeaveMap* Packet);
-
-	void HandleSpawnMonster(gen::mmo::SpawnMonster* Packet);
 
 public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());
