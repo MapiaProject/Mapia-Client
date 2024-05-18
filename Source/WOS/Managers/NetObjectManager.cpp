@@ -7,10 +7,10 @@
 #include "Kismet/GameplayStatics.h"
 #include <UObject/ConstructorHelpers.h>
 
-#define GetBPClass(ValueName,BPName,ClassType) static ConstructorHelpers::FClassFinder<ClassType> BP(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/GameActor/"#BPName"."#BPName"_C'"));\
-if (BP.Succeeded())\
+#define GetBPClass(ValueName,BPName,ClassType) static ConstructorHelpers::FClassFinder<ClassType> BPName##_BPObject(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/GameActor/"#BPName"."#BPName"_C'"));\
+if (BPName##_BPObject.Succeeded())\
 {\
-	ValueName = BP.Class;\
+	ValueName = BPName##_BPObject.Class;\
 }
 
 UNetObjectManager::UNetObjectManager()
