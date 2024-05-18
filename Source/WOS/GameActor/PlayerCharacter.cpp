@@ -38,9 +38,14 @@ void APlayerCharacter::SetName(FStringView SettedName) {
 }
 
 void APlayerCharacter::RecievePacket(const Packet* ReadingPacket) {
-	MovePacketHandler(*(gen::mmo::Move*)ReadingPacket);
+	HandleMove(*(gen::mmo::Move*)ReadingPacket);
 }
 
-void APlayerCharacter::MovePacketHandler(gen::mmo::Move MovePacket) {
+void APlayerCharacter::HandleMove(gen::mmo::Move MovePacket) {
 
+}
+
+void APlayerCharacter::HandleLeaveMap()
+{
+	Destroy();
 }
