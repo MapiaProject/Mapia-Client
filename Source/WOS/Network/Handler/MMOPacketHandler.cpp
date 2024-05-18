@@ -11,6 +11,7 @@ bool mmo::PacketHandler::EnterGameResPacketHandler(TSharedPtr<Session> session, 
 
 bool mmo::PacketHandler::LeaveMapPacketHandler(TSharedPtr<Session> session, TSharedPtr<LeaveMap> packet)
 {
+	UManager::Get()->HandleLeaveMap(packet.Get());
 	return false;
 }
 
@@ -38,6 +39,7 @@ bool mmo::PacketHandler::NotifyChatPacketHandler(TSharedPtr<Session> session, TS
 
 bool gen::mmo::PacketHandler::SpawnMonsterPacketHandler(TSharedPtr<Session> session, TSharedPtr<SpawnMonster> packet)
 {
+	UManager::Get()->HandleSpawnMonster(packet.Get());
 	return false;
 }
 

@@ -47,7 +47,8 @@ public:
   
 	virtual void RecievePacket(const Packet* ReadingPacket);
   
-	virtual void MovePacketHandler(gen::mmo::Move MovePacket);
+	virtual void HandleMove(gen::mmo::Move MovePacket);
+	virtual void HandleLeaveMap();
 
 	void SetName(FStringView SettedName);
 private:

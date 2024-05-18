@@ -129,6 +129,18 @@ void UManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 	}
 }
 
+void UManager::HandleLeaveMap(gen::mmo::LeaveMap* Packet)
+{
+	NetObjectManagerObject->HandleLeaveMap(Packet->objectId);
+}
+
+void UManager::HandleSpawnMonster(gen::mmo::SpawnMonster* Packet)
+{
+	for (const auto& MonsterInfo : Packet->monsterInfos) {
+		NetObjectManagerObject->HandleSpawnMonster(MonsterInfo, Packet->monsterType);
+	}
+}
+
 TObjectPtr<UNetwork> UManager::Net(const UWorld* World)
 {
 	return Get(World)->NetworkObject;
