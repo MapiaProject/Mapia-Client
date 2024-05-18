@@ -6,7 +6,6 @@
 #include "GameActor/PlayerCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Rpc.h"
 #include "LocalPlayerCharacter.generated.h"
 
 /**
@@ -24,8 +23,6 @@ private:
 	void MoveHandler(const FInputActionValue& Value);
 	void JumpHandler();
 	void AttackHandler();
-	RPC_FUNCTION(Test)
-	void Test(bool bIsMine);
 
 	UPROPERTY(EditAnywhere, Category = Input)
 		UInputMappingContext* InputMappingContext;

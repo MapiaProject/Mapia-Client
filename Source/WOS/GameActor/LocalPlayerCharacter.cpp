@@ -49,7 +49,6 @@ void ALocalPlayerCharacter::Tick(float DeltaTime)
 		LastSendPositionTime = time;
 
 		SendMovePacket(LastMoveInput, 0);
-		RpcView::CallRPC(Test, RpcTarget::All);
 	}
 }
 
@@ -86,9 +85,4 @@ void ALocalPlayerCharacter::JumpHandler() {
 
 void ALocalPlayerCharacter::AttackHandler() {
 
-}
-
-void ALocalPlayerCharacter::Test(bool bIsMine)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, FString::Printf(TEXT("RPC Test : %b"), bIsMine));
 }

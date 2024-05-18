@@ -26,5 +26,4 @@ public:
 private:
 	TMap<uint64, NetObject*> NetObjects;
 	TSubclassOf<ACharacter> PlayerClass;
-	TSubclassOf<ACharacter> LocalPlayerClass;
 };
