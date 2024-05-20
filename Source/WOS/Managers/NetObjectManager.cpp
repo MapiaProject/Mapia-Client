@@ -60,7 +60,7 @@ void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
 	}
 }
 
-void UNetObjectManager::HandleLeaveMap(gen::mmo::LeaveMap* Packet)
+void UNetObjectManager::HandleLeaveMap(gen::mmo::NotifyLeaveMap* Packet)
 {
 	NetObjects[Packet->objectId]->DestroyNetObject();
 }

@@ -40,13 +40,13 @@ void APlayerCharacter::SetName(FStringView SettedName) {
 
 void APlayerCharacter::RecievePacket(const Packet* ReadingPacket) {
 	switch (ReadingPacket->GetId()) {
-	case gen::mmo::PacketId::MOVE:
-		HandleMove(*static_cast<const gen::mmo::Move*>(ReadingPacket));
+	case gen::mmo::PacketId::NOTIFY_MOVE:
+		HandleMove(*static_cast<const gen::mmo::NotifyMove*>(ReadingPacket));
 		break;
 	}
 }
 
-void APlayerCharacter::HandleMove(gen::mmo::Move MovePacket) {
+void APlayerCharacter::HandleMove(gen::mmo::NotifyMove MovePacket) {
 
 }
 

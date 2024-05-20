@@ -23,7 +23,7 @@ public:
 	void HandleNetObjectPacket(uint64 ObjectId, const Packet* RecievedPacket);
 
 	void HandleSpawnPlayer(gen::mmo::Spawn* Packet);
-	void HandleLeaveMap(gen::mmo::LeaveMap* Packet);
+	void HandleLeaveMap(gen::mmo::NotifyLeaveMap* Packet);
 	void HandleSpawnMonster(gen::mmo::SpawnMonster* Packet);
 private:
 	TMap<uint64, NetObject*> NetObjects;

@@ -47,7 +47,7 @@ public:
   
 	virtual void RecievePacket(const Packet* ReadingPacket);
   
-	virtual void HandleMove(gen::mmo::Move MovePacket);
+	virtual void HandleMove(gen::mmo::NotifyMove MovePacket);
 	virtual void DestroyNetObject() override;
 
 	void SetName(FStringView SettedName);

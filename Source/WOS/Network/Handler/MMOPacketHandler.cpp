@@ -10,7 +10,7 @@ bool mmo::PacketHandler::EnterGameResPacketHandler(TSharedPtr<Session> session, 
 	return false;
 }
 
-bool mmo::PacketHandler::LeaveMapPacketHandler(TSharedPtr<Session> session, TSharedPtr<LeaveMap> packet)
+bool mmo::PacketHandler::LeaveMapPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyLeaveMap> packet)
 {
 	UManager::Object()->HandleLeaveMap(packet.Get());
 	return false;
