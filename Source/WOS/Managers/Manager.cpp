@@ -103,21 +103,6 @@ void UManager::HandleEnterGame(gen::mmo::EnterGameRes* Packet)
 	}
 }
 
-void UManager::HandleSpawn(gen::mmo::Spawn* Packet)
-{
-	UE_LOG(LogTemp, Log, TEXT("count : %d"), Packet->players.size());
-	if (Packet->isMine) {
-		UE_LOG(LogTemp, Log, TEXT("true"));
-	}
-	else {
-		UE_LOG(LogTemp, Log, TEXT("false"));
-	}
-	for (const auto& Player : Packet->players) {
-		NetObjectManagerObject->HandleSpawnPlayer(Player.objectInfo.objectId, NetUtility::MakeVector(Player.objectInfo.position), Player.name, Packet->isMine);
-	}
-
-}
-
 void UManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 {
 	if (Packet->success)
