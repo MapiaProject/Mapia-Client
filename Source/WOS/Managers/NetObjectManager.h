@@ -6,6 +6,7 @@
 #include "Managers/ManagerBase.h"
 #include "Managers/Network.h"
 #include "generated/mmo/Struct.gen.hpp"
+#include "generated/mmo/Protocol.gen.hpp"
 #include "GameActor/NetObject.h"
 #include "NetObjectManager.generated.h"
 
@@ -19,10 +20,11 @@ class WOS_API UNetObjectManager : public UManagerBase
 
 public:
 	UNetObjectManager();
-	void HandleSpawnPlayer(uint64 ObjectId, FVector Position, FString Name, bool bIsMine = false);
-	void HandleLeaveMap(uint64 ObjectId);
-	void HandleSpawnMonster(gen::mmo::ObjectInfo MonsterInfo, gen::mmo::EMonsterType MonsterType);
 	void HandleNetObjectPacket(uint64 ObjectId, const Packet* RecievedPacket);
+
+	void HandleSpawnPlayer(gen::mmo::Spawn* Packet);
+	void HandleLeaveMap(gen::mmo::LeaveMap* Packet);
+	void HandleSpawnMonster(gen::mmo::SpawnMonster* Packet);
 private:
 	TMap<uint64, NetObject*> NetObjects;
 	TSubclassOf<ACharacter> PlayerClass;

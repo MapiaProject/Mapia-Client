@@ -103,20 +103,6 @@ void UManager::HandleEnterGame(gen::mmo::EnterGameRes* Packet)
 	}
 }
 
-void UManager::HandleSpawn(gen::mmo::Spawn* Packet)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("Spawn"));
-	for (const auto& Player : Packet->players) {
-		if (Packet->isMine) {
-			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("local"));
-		}
-		else {
-			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("sync"));
-		}
-		NetObjectManagerObject->HandleSpawnPlayer(Player.objectInfo.objectId, NetUtility::MakeVector(Player.objectInfo.position), Player.name, Packet->isMine);
-	}
-}
-
 void UManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 {
 	if (Packet->success)
@@ -126,18 +112,6 @@ void UManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Can't enter map"));
-	}
-}
-
-void UManager::HandleLeaveMap(gen::mmo::LeaveMap* Packet)
-{
-	NetObjectManagerObject->HandleLeaveMap(Packet->objectId);
-}
-
-void UManager::HandleSpawnMonster(gen::mmo::SpawnMonster* Packet)
-{
-	for (const auto& MonsterInfo : Packet->monsterInfos) {
-		NetObjectManagerObject->HandleSpawnMonster(MonsterInfo, Packet->monsterType);
 	}
 }
 

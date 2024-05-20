@@ -52,13 +52,8 @@ public:
 public:
 	void HandleLogin(gen::account::LoginRes* Packet) const;
 	void HandleRegister(gen::account::RegisterRes* Packet);
-
 	void HandleEnterGame(gen::mmo::EnterGameRes* Packet);
-	void HandleSpawn(gen::mmo::Spawn* Packet);
 	void HandleEnterMap(gen::mmo::EnterMapRes* Packet);
-	void HandleLeaveMap(gen::mmo::LeaveMap* Packet);
-
-	void HandleSpawnMonster(gen::mmo::SpawnMonster* Packet);
 
 public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());

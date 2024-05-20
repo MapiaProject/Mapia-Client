@@ -27,61 +27,67 @@ UNetObjectManager::UNetObjectManager()
 	}
 }
 
-void UNetObjectManager::HandleSpawnPlayer(uint64 ObjectId, FVector Position, FString Name, bool bIsMine) {
+void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
 	auto* World = GetWorld();
 	auto Rotation = FRotator(0, 0, 0);
 	APlayerCharacter* Player = nullptr;
 
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, FString::Printf(TEXT("(%f, %f)"), Position.X, Position.Z));
-
-	Position *= 100;
-
-
-	if (bIsMine) {
-
+	if (Packet->isMine) {
+		FVector Position = NetUtility::MakeVector(Packet->players[0].objectInfo.position) * 100;
 		auto* Actor = World->SpawnActor(LocalPlayerClass, &Position, &Rotation);
 
 		Player = Cast<ALocalPlayerCharacter>(Actor);
-		Player->ObjectId = ObjectId;
+		Player->ObjectId = Packet->players[0].objectInfo.objectId;
 
 		auto Controller = UGameplayStatics::GetPlayerController(World, 0);
 		Player->Controller = Controller;
 		Controller->Possess(Player);
+
+		NetObjects.Add(Packet->players[0].objectInfo.objectId, Player);
+		Player->SetName(Packet->players[0].name);
 	}
 	else {
-		auto* Actor = World->SpawnActor(PlayerClass, &Position, &Rotation);
-		Player = Cast<APlayerCharacter>(Actor);
-		Player->ObjectId = ObjectId;
+		for (auto PlayerInfo : Packet->players) {
+			FVector Position = NetUtility::MakeVector(PlayerInfo.objectInfo.position) * 100;
+
+			auto* Actor = World->SpawnActor(PlayerClass, &Position, &Rotation);
+			Player = Cast<APlayerCharacter>(Actor);
+			Player->ObjectId = PlayerInfo.objectInfo.objectId;
+
+			NetObjects.Add(PlayerInfo.objectInfo.objectId, Player);
+			Player->SetName(PlayerInfo.name);
+		}
 	}
-	Player->SetName(Name);
-	NetObjects.Add(ObjectId, Player);
 }
 
-void UNetObjectManager::HandleLeaveMap(uint64 ObjectId)
+void UNetObjectManager::HandleLeaveMap(gen::mmo::LeaveMap* Packet)
 {
-	NetObjects[ObjectId]->HandleLeaveMap();
+	NetObjects[Packet->objectId]->DestroyNetObject();
 }
 
-void UNetObjectManager::HandleSpawnMonster(gen::mmo::ObjectInfo MonsterInfo, gen::mmo::EMonsterType MonsterType)
+void UNetObjectManager::HandleSpawnMonster(gen::mmo::SpawnMonster* Packet)
 {
-	int MonsterTypeIndex = (int)MonsterType;
+	int MonsterTypeIndex = (int)Packet->monsterType;
 	auto* World = GetWorld();
-	FVector Position = NetUtility::MakeVector(MonsterInfo.position);
-	auto Rotation = FRotator(0, 0, 0);
 
-	if (MonsterTypeIndex < MonsterActors.Num()) {
-		auto Actor = World->SpawnActor(MonsterActors[MonsterTypeIndex], &Position, &Rotation);
-		auto Monster = (NetObject*)Actor;
+	for (auto MonsterInfo : Packet->monsterInfos) {
+		FVector Position = NetUtility::MakeVector(MonsterInfo.position);
+		auto Rotation = FRotator(0, 0, 0);
 
-		if (Monster) {
-			Monster->ObjectId = MonsterInfo.objectId;
+		if (MonsterTypeIndex < MonsterActors.Num()) {
+			auto* Actor = World->SpawnActor(MonsterActors[MonsterTypeIndex], &Position, &Rotation);
+			auto Monster = reinterpret_cast<NetObject*>(Actor);
+
+			if (Monster) {
+				Monster->ObjectId = MonsterInfo.objectId;
+			}
+			else {
+				UE_LOG(LogTemp, Warning, TEXT("Spawned monster is not NetObject"));
+			}
 		}
 		else {
-			UE_LOG(LogTemp, Warning, TEXT("Spawned monster is not NetObject"));
+			UE_LOG(LogTemp, Warning, TEXT("To much monster asset"));
 		}
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("To much monster asset"));
 	}
 }
 

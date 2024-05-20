@@ -3,6 +3,7 @@
 
 #include "PlayerCharacter.h"
 #include "PaperFlipbookComponent.h"
+#include "Network/generated/mmo/Packet.gen.hpp"
 #include "Engine.h"
 
 // Sets default values
@@ -38,14 +39,18 @@ void APlayerCharacter::SetName(FStringView SettedName) {
 }
 
 void APlayerCharacter::RecievePacket(const Packet* ReadingPacket) {
-	HandleMove(*(gen::mmo::Move*)ReadingPacket);
+	switch (ReadingPacket->GetId()) {
+	case gen::mmo::PacketId::MOVE:
+		HandleMove(*static_cast<const gen::mmo::Move*>(ReadingPacket));
+		break;
+	}
 }
 
 void APlayerCharacter::HandleMove(gen::mmo::Move MovePacket) {
 
 }
 
-void APlayerCharacter::HandleLeaveMap()
+void APlayerCharacter::DestroyNetObject()
 {
 	Destroy();
 }
