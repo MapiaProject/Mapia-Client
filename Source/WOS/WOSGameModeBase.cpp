@@ -4,7 +4,6 @@
 #include "WOSGameModeBase.h"
 #include "Managers/Manager.h"
 #include "Blueprint/UserWidget.h"
-#include "generated/mmo/ClientPacketHandler.gen.hpp"
 #include "Managers/Network.h"
 #include "Session/AccountSession.h"
 #include "UObject/ConstructorHelpers.h"

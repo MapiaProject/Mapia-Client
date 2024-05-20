@@ -1,16 +1,24 @@
 #include "Packet.h"
 #include <winsock2.h>
 
-Packet::Packet(uint16 id, PacketType type, int reserve) : m_buffer(2, 0), m_id(0) {
+Packet::Packet(uint16 id, PacketType type, int reserve) : m_buffer(sizeof(uint16), 0), m_id(0)
+{
     if (type == RPC)
         id = 0x8000 | id;
-    
+
+    m_id = id;
+    Reset();
     m_buffer.reserve(reserve);
-    memcpy(m_buffer.data(), &id, sizeof(uint16));
 }
 
 std::vector<char>& Packet::Data() {
     return m_buffer;
+}
+
+void Packet::Reset()
+{
+    m_buffer.resize(sizeof(uint16));
+    memcpy(m_buffer.data(), &m_id, sizeof(uint16));
 }
 
 void Packet::Parse(std::span<char> buffer) {

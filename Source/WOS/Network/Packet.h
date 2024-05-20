@@ -77,18 +77,22 @@ protected:
     void virtual Write() {};
     void virtual Read();
 public:
+    void SetId(uint16 id) { m_id = id; }
     unsigned short GetId() const { return m_id; }
 public:
     void Parse(std::span<char> buffer);
 
     template<class T>
-    static TSharedPtr<T> ParseFrom(std::span<char> buffer)
+    static TSharedPtr<T> ParseFrom(std::span<char> buffer, uint16 id)
     {
         auto pk = MakeShared<T>();
         pk->Parse(buffer);
+        pk->SetId(id);
         return pk;
     }
     std::vector<char>& Data();
+
+    void Reset();
 private:
     std::vector<char> m_buffer;
     unsigned short m_id;
