@@ -74,8 +74,8 @@ void ALocalPlayerCharacter::MoveHandler(const FInputActionValue& Value) {
 
 void ALocalPlayerCharacter::SendMovePacket(float X, float Y) {
 	gen::mmo::Move MovePacket;
-	MovePacket.dir.x = X;
-	MovePacket.dir.y = Y;
+	MovePacket.position.x = X;
+	MovePacket.position.y = Y;
 	UManager::Net()->Send(ServerType::MMO, &MovePacket);
 }
 
