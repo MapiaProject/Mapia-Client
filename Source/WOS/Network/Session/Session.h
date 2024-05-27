@@ -13,7 +13,7 @@ if ((Id >> 15) & 1)\
 }\
 else\
 {\
-	const auto Handler = gen::name::PacketHandler::getHandler(Id, buffer);\
+	const auto Handler = gen::name::PacketHandler::GetHandler(Id, buffer);\
 	const TSharedPtr<FSession> SharedThis = AsShared();\
 	\
 	PushJob(Handler, SharedThis);\

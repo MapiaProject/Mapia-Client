@@ -26,6 +26,8 @@ public:
 	virtual void RecievePacket(const Packet* ReadingPacket) = 0;
 	virtual void TakeDamage(int Damage);
 	FORCEINLINE uint64 GetId() const { return ObjectId; };
+	virtual void DestroyNetObject() = 0;
+
 private:
 	uint64 ObjectId;
 };
