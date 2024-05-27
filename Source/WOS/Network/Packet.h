@@ -4,6 +4,8 @@
 #include <memory>
 #include <span>
 
+#include "ObjectPool.h"
+
 #ifdef __UNREAL__
 using String = FString;
 using StringView = FStringView;
@@ -85,10 +87,10 @@ public:
     template<class T>
     static TSharedPtr<T> ParseFrom(std::span<char> buffer, uint16 id)
     {
-        auto pk = MakeShared<T>();
+        auto pk = new T;
         pk->Parse(buffer);
         pk->SetId(id);
-        return pk;
+        return TSharedPtr<T>(pk);
     }
     std::vector<char>& Data();
 
