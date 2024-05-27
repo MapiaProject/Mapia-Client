@@ -104,7 +104,7 @@ void APlayerCharacter::DestroyNetObject()
 }
 
 void APlayerCharacter::MoveHandler(const FInputActionValue& Value) {
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Input"));
+
 	float Axis = Value.Get<float>();
 	if (Axis != LastMoveInput) {
 		LastMoveInput = Axis;
