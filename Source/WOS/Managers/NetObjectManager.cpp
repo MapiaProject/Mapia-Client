@@ -46,7 +46,6 @@ void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
 		NetObjects.Add(Packet->players[0].objectInfo.objectId, Player);
 		Player->SetName(Packet->players[0].name);
 		Player->SetIsmine();
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("local"));
 	}
 	else {
 		for (auto PlayerInfo : Packet->players) {
@@ -59,7 +58,6 @@ void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
 			NetObjects.Add(PlayerInfo.objectInfo.objectId, Player);
 			Player->SetName(PlayerInfo.name);
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Sync"));
 	}
 }
 
