@@ -35,7 +35,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	if (GetIsmine()) {
 		auto p = GetActorLocation();
-		SetActorLocation(p + FVector(DeltaTime * LastMoveInput * MoveSpeed / 0.2f, 0, 0));
+		SetActorLocation(p + FVector(DeltaTime * LastMoveInput * MoveSpeed / 0.2f * 100, 0, 0));
 
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
@@ -50,24 +50,29 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if (GetIsmine()) {
-		UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("SetupPlayerInputComponent"));
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
+	if (EnhancedInputComponent != nullptr) {
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveHandler);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &APlayerCharacter::MoveHandler);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &APlayerCharacter::JumpHandler);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APlayerCharacter::AttackHandler);
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("InputComponent is not EnhancedInputComponent"));
+	}
 
-		auto ControllerPtr = Cast<APlayerController>(GetController());
-		if (ControllerPtr != nullptr) {
-			if (auto SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(ControllerPtr->GetLocalPlayer())) {
-				SubSystem->AddMappingContext(InputMappingContext, 0);
-			}
-		}
-		else {
-			UE_LOG(LogTemp, Error, TEXT("LocalPlayerCharacter Can't Found PlayerController"));
+	auto ControllerPtr = Cast<APlayerController>(GetController());
+	if (ControllerPtr != nullptr) {
+		if (auto SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(ControllerPtr->GetLocalPlayer())) {
+			SubSystem->AddMappingContext(InputMappingContext, 0);
 		}
 	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("PlayerCharacter Can't Found PlayerController"));
+	}
+
 
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -104,7 +109,6 @@ void APlayerCharacter::DestroyNetObject()
 }
 
 void APlayerCharacter::MoveHandler(const FInputActionValue& Value) {
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Input"));
 	float Axis = Value.Get<float>();
 	if (Axis != LastMoveInput) {
 		LastMoveInput = Axis;
@@ -136,4 +140,9 @@ void APlayerCharacter::SendMovePacket(float X, float Y) {
 	MovePacket.position.x = X;
 	MovePacket.position.y = Y;
 	//UManager::Net()->Send(ServerType::MMO, &MovePacket);
+}
+
+TArray<NetObject> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D Scale)
+{
+	return TArray<NetObject>();
 }

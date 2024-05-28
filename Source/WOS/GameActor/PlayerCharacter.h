@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Managers/NetObjectManager.h"
+#include "rpc.h"
 #include "Network/generated/mmo/Protocol.gen.hpp"
 #include "PlayerCharacter.generated.h"
 
@@ -66,15 +67,17 @@ public:
 	void SetName(FStringView SettedName);
 	void SetIsmine();
 	bool GetIsmine();
-private:
-	FString Name;
 
+private:
 	void MoveHandler(const FInputActionValue& Value);
 	void JumpHandler();
 	void AttackHandler();
 	void SendMovePacket(float X, float Y);
 
+	TArray<NetObject> ScanHitbox(FVector2D AddedPosition, FVector2D Scale);
+
 	static constexpr float sendPositionInterval = 0.2f;
+	FString Name;
 
 	float LastMoveInput;
 	float LastSendPositionTime;
