@@ -139,7 +139,9 @@ void APlayerCharacter::SendMovePacket(float X, float Y) {
 	gen::mmo::Move MovePacket;
 	MovePacket.position.x = X;
 	MovePacket.position.y = Y;
-	//UManager::Net()->Send(ServerType::MMO, &MovePacket);
+
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Send MovePacket"));
+	UManager::Net()->Send(ServerType::MMO, &MovePacket);
 }
 
 TArray<NetObject> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D Scale)
