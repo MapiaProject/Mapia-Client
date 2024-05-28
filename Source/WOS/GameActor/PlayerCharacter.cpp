@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
+#include "Util/NetUtility.h"
 #include "Network/generated/mmo/Packet.gen.hpp"
 //#include "Engine.h"
 
@@ -32,15 +33,17 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	float time = GetWorld()->GetTimeSeconds();
+	ServerTimer += DeltaTime;
+
+	auto Position = Lerp(LastPosition, ServerPosition, ServerTimer / 0.2f) * 100;
+	SetActorLocation(FVector(Position.X, Position.Y, 0));
 
 	if (GetIsmine()) {
-		auto p = GetActorLocation();
-		SetActorLocation(p + FVector(DeltaTime * LastMoveInput * MoveSpeed / 0.2f * 100, 0, 0));
-
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 
-			SendMovePacket(LastMoveInput, 0);
+			ServerPosition.X += LastMoveInput;
+			SendMovePacket(ServerPosition.X, 0);
 		}
 	}
 }
@@ -81,6 +84,11 @@ void APlayerCharacter::SetName(FStringView SettedName) {
 	Name = SettedName;
 }
 
+void APlayerCharacter::HandleSpawn(FVector2D Position)
+{
+	ServerPosition = Position;
+}
+
 void APlayerCharacter::SetIsmine()
 {
 	bIsmine = true;
@@ -100,7 +108,9 @@ void APlayerCharacter::RecievePacket(const Packet* ReadingPacket) {
 }
 
 void APlayerCharacter::HandleMove(gen::mmo::NotifyMove MovePacket) {
-
+	LastPosition = ServerPosition;
+	ServerPosition = FVector2D(MovePacket.position.x, MovePacket.position.y);
+	ServerTimer = 0;
 }
 
 void APlayerCharacter::DestroyNetObject()
@@ -123,7 +133,8 @@ void APlayerCharacter::MoveHandler(const FInputActionValue& Value) {
 			GetSprite()->SetFlipbook(IdleAnimation);
 		}
 
-		SendMovePacket(Axis, 0);
+		ServerPosition.X += Axis;
+		SendMovePacket(ServerPosition.X, 0);
 	}
 }
 
@@ -140,8 +151,17 @@ void APlayerCharacter::SendMovePacket(float X, float Y) {
 	MovePacket.position.x = X;
 	MovePacket.position.y = Y;
 
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Send MovePacket"));
 	UManager::Net()->Send(ServerType::MMO, &MovePacket);
+}
+
+float APlayerCharacter::Lerp(float a, float b, float t)
+{
+	return a + (b - a) * t;
+}
+
+FVector2D APlayerCharacter::Lerp(FVector2D a, FVector2D b, float t)
+{
+	return FVector2D(Lerp(a.X, b.X, t), Lerp(a.Y, b.Y, t));
 }
 
 TArray<NetObject> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D Scale)

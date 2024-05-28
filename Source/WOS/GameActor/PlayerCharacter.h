@@ -65,6 +65,7 @@ public:
 	virtual void DestroyNetObject() override;
 
 	void SetName(FStringView SettedName);
+	void HandleSpawn(FVector2D Position);
 	void SetIsmine();
 	bool GetIsmine();
 
@@ -73,6 +74,8 @@ private:
 	void JumpHandler();
 	void AttackHandler();
 	void SendMovePacket(float X, float Y);
+	float Lerp(float a, float b, float t);
+	FVector2D Lerp(FVector2D a, FVector2D b, float t);
 
 	TArray<NetObject> ScanHitbox(FVector2D AddedPosition, FVector2D Scale);
 
@@ -83,4 +86,7 @@ private:
 	float LastSendPositionTime;
 	FVector SpriteOriginScale;
 	bool bIsmine;
+	FVector2D LastPosition;
+	FVector2D ServerPosition;
+	float ServerTimer;
 };
