@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Util/NetUtility.h"
 #include "Network/generated/mmo/Packet.gen.hpp"
 //#include "Engine.h"
@@ -34,6 +35,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	float time = GetWorld()->GetTimeSeconds();
 	ServerTimer += DeltaTime;
+	LastInputTimer += DeltaTime;
 
 	auto Position = Lerp(LastPosition, ServerPosition, ServerTimer / 0.2f) * 100;
 	SetActorLocation(FVector(Position.X, Position.Y, 0));
@@ -42,10 +44,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 
-			ServerPosition.X += LastMoveInput;
-			SendMovePacket(ServerPosition.X, 0);
+			SendMovePacket(ServerPosition.X + LastMoveInput, 0);
 		}
 	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("(%d, %d)"), ServerPosition.X, ServerPosition.Y));
 }
 
 // Called to bind functionality to input
@@ -53,7 +56,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("SetupPlayerInputComponent"));
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
 	if (EnhancedInputComponent != nullptr) {
@@ -86,6 +88,7 @@ void APlayerCharacter::SetName(FStringView SettedName) {
 
 void APlayerCharacter::HandleSpawn(FVector2D Position)
 {
+	LastPosition = Position;
 	ServerPosition = Position;
 }
 
@@ -100,6 +103,7 @@ bool APlayerCharacter::GetIsmine()
 }
 
 void APlayerCharacter::RecievePacket(const Packet* ReadingPacket) {
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Handle Packet"));
 	switch (ReadingPacket->GetId()) {
 	case gen::mmo::PacketId::NOTIFY_MOVE:
 		HandleMove(*static_cast<const gen::mmo::NotifyMove*>(ReadingPacket));
@@ -121,9 +125,13 @@ void APlayerCharacter::DestroyNetObject()
 void APlayerCharacter::MoveHandler(const FInputActionValue& Value) {
 	float Axis = Value.Get<float>();
 	if (Axis != LastMoveInput) {
-		LastMoveInput = Axis;
+		if (LastMoveInput == 0 && LastInputTimer > 0.2f) {
+			LastInputTimer = 0;
 
-		LastSendPositionTime = GetWorld()->GetTimeSeconds();
+			LastSendPositionTime = GetWorld()->GetTimeSeconds() - 0.2f;
+		}
+
+		LastMoveInput = Axis;
 
 		if (LastMoveInput != 0) {
 			GetSprite()->SetWorldScale3D(FVector(SpriteOriginScale.X * LastMoveInput, SpriteOriginScale.Y, SpriteOriginScale.Z));
@@ -132,9 +140,6 @@ void APlayerCharacter::MoveHandler(const FInputActionValue& Value) {
 		else {
 			GetSprite()->SetFlipbook(IdleAnimation);
 		}
-
-		ServerPosition.X += Axis;
-		SendMovePacket(ServerPosition.X, 0);
 	}
 }
 
@@ -143,7 +148,8 @@ void APlayerCharacter::JumpHandler() {
 }
 
 void APlayerCharacter::AttackHandler() {
-
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Try Scan"));
+	ScanHitbox(FVector2D(0, 0), FVector2D(500, 500));
 }
 
 void APlayerCharacter::SendMovePacket(float X, float Y) {
@@ -166,5 +172,16 @@ FVector2D APlayerCharacter::Lerp(FVector2D a, FVector2D b, float t)
 
 TArray<NetObject> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D Scale)
 {
-	return TArray<NetObject>();
+	auto Pos = FVector(AddedPosition.X, AddedPosition.Y, 0);
+	ETraceTypeQuery ObjectTypes = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_WorldDynamic);
+	TArray<AActor*> IgnoreActors;
+	TArray<FHitResult> Result;
+
+	UKismetSystemLibrary::BoxTraceMulti(GetWorld(), Pos, Pos, FVector(Scale.X, Scale.Y, 0), FRotator::ZeroRotator, ObjectTypes, false, IgnoreActors, EDrawDebugTrace::ForDuration, Result, true);
+
+	TArray <NetObject> NetObjects = TArray<NetObject>();
+
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("count : %d"), Result.Num()));
+
+	return NetObjects;
 }

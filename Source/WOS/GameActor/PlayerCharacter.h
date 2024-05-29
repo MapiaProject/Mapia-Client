@@ -87,6 +87,7 @@ private:
 	FVector SpriteOriginScale;
 	bool bIsmine;
 	FVector2D LastPosition;
+	float LastInputTimer;
 	FVector2D ServerPosition;
 	float ServerTimer;
 };
