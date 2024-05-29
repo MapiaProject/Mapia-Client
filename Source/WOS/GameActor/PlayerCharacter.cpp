@@ -47,8 +47,10 @@ void APlayerCharacter::Tick(float DeltaTime)
 			SendMovePacket(ServerPosition.X + LastMoveInput, 0);
 		}
 	}
-
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("(%d, %d)"), ServerPosition.X, ServerPosition.Y));
+	if (!GetIsmine() || LastMoveInput == 0) {
+		float dir = ServerPosition.X - LastPosition.X;
+		MoveAnimationLogic(dir);
+	}
 }
 
 // Called to bind functionality to input
@@ -59,10 +61,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
 	if (EnhancedInputComponent != nullptr) {
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveHandler);
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &APlayerCharacter::MoveHandler);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &APlayerCharacter::JumpHandler);
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APlayerCharacter::AttackHandler);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveInputHandler);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &APlayerCharacter::MoveInputHandler);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &APlayerCharacter::JumpInputHandler);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APlayerCharacter::AttackInputHandler);
 	}
 	else {
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("InputComponent is not EnhancedInputComponent"));
@@ -102,16 +104,15 @@ bool APlayerCharacter::GetIsmine()
 	return bIsmine;
 }
 
-void APlayerCharacter::RecievePacket(const Packet* ReadingPacket) {
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Handle Packet"));
+void APlayerCharacter::ReceivePacket(const Packet* ReadingPacket) {
 	switch (ReadingPacket->GetId()) {
 	case gen::mmo::PacketId::NOTIFY_MOVE:
-		HandleMove(*static_cast<const gen::mmo::NotifyMove*>(ReadingPacket));
+		ReceiveNotifyMove(*static_cast<const gen::mmo::NotifyMove*>(ReadingPacket));
 		break;
 	}
 }
 
-void APlayerCharacter::HandleMove(gen::mmo::NotifyMove MovePacket) {
+void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 	LastPosition = ServerPosition;
 	ServerPosition = FVector2D(MovePacket.position.x, MovePacket.position.y);
 	ServerTimer = 0;
@@ -122,7 +123,7 @@ void APlayerCharacter::DestroyNetObject()
 	Destroy();
 }
 
-void APlayerCharacter::MoveHandler(const FInputActionValue& Value) {
+void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 	float Axis = Value.Get<float>();
 	if (Axis != LastMoveInput) {
 		if (LastMoveInput == 0 && LastInputTimer > 0.2f) {
@@ -133,23 +134,34 @@ void APlayerCharacter::MoveHandler(const FInputActionValue& Value) {
 
 		LastMoveInput = Axis;
 
-		if (LastMoveInput != 0) {
-			GetSprite()->SetWorldScale3D(FVector(SpriteOriginScale.X * LastMoveInput, SpriteOriginScale.Y, SpriteOriginScale.Z));
+		MoveAnimationLogic(LastMoveInput);
+	}
+}
+
+void APlayerCharacter::JumpInputHandler() {
+
+}
+
+void APlayerCharacter::AttackInputHandler() {
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Try Scan"));
+	ScanHitbox(FVector2D(0, 0), FVector2D(500, 500));
+}
+
+void APlayerCharacter::MoveAnimationLogic(float Axis)
+{
+	if (Axis > 0)Axis = 1;
+	else if (Axis < 0)Axis = -1;
+
+	if (Axis != LastMoveAnimationValue) {
+		if (Axis != 0) {
+			GetSprite()->SetWorldScale3D(FVector(SpriteOriginScale.X * Axis, SpriteOriginScale.Y, SpriteOriginScale.Z));
 			GetSprite()->SetFlipbook(WalkAnimation);
 		}
 		else {
 			GetSprite()->SetFlipbook(IdleAnimation);
 		}
+		LastMoveAnimationValue = Axis;
 	}
-}
-
-void APlayerCharacter::JumpHandler() {
-
-}
-
-void APlayerCharacter::AttackHandler() {
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Try Scan"));
-	ScanHitbox(FVector2D(0, 0), FVector2D(500, 500));
 }
 
 void APlayerCharacter::SendMovePacket(float X, float Y) {

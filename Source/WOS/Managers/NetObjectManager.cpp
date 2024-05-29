@@ -95,6 +95,6 @@ void UNetObjectManager::HandleSpawnMonster(gen::mmo::SpawnMonster* Packet)
 
 void UNetObjectManager::HandleNetObjectPacket(uint64 ObjectId, const Packet* RecievedPacket) {
 	if (NetObjects.Contains(ObjectId)) {
-		NetObjects[ObjectId]->RecievePacket(RecievedPacket);
+		NetObjects[ObjectId]->ReceivePacket(RecievedPacket);
 	}
 }

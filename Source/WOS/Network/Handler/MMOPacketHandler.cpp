@@ -30,6 +30,7 @@ bool gen::mmo::PacketHandler::NotifyLeaveMapPacketHandler(TSharedPtr<Session> se
 
 bool mmo::PacketHandler::NotifyMovePacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyMove> packet)
 {
+	UManager::Object()->HandleNetObjectPacket(packet.Get()->objectId, packet.Get());
 	return false;
 }
 

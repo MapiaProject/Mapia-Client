@@ -59,9 +59,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void RecievePacket(const Packet* ReadingPacket);
+	virtual void ReceivePacket(const Packet* ReadingPacket) override;
 
-	virtual void HandleMove(gen::mmo::NotifyMove MovePacket);
+	virtual void ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket);
 	virtual void DestroyNetObject() override;
 
 	void SetName(FStringView SettedName);
@@ -70,9 +70,12 @@ public:
 	bool GetIsmine();
 
 private:
-	void MoveHandler(const FInputActionValue& Value);
-	void JumpHandler();
-	void AttackHandler();
+	void MoveInputHandler(const FInputActionValue& Value);
+	void JumpInputHandler();
+	void AttackInputHandler();
+
+	void MoveAnimationLogic(float Axis);
+
 	void SendMovePacket(float X, float Y);
 	float Lerp(float a, float b, float t);
 	FVector2D Lerp(FVector2D a, FVector2D b, float t);
@@ -88,6 +91,7 @@ private:
 	bool bIsmine;
 	FVector2D LastPosition;
 	float LastInputTimer;
+	float LastMoveAnimationValue;
 	FVector2D ServerPosition;
 	float ServerTimer;
 };
