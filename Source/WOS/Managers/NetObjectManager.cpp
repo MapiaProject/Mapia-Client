@@ -18,9 +18,9 @@ if (BPName##_BPObject.Succeeded())\
 UNetObjectManager::UNetObjectManager()
 {
 	GetBPClass(PlayerClass, BP_PlayerCharacter, ACharacter)
-	GetBPClass(LocalPlayerClass, BP_LocalPlayerCharacter, ACharacter)
+		GetBPClass(LocalPlayerClass, BP_LocalPlayerCharacter, ACharacter)
 
-	static ConstructorHelpers::FObjectFinder<UMonsterBindingData> DataAsset(TEXT("/Script/WOS.MonsterBindingData'/Game/DataAssets/MonsterBindingData.MonsterBindingData'"));
+		static ConstructorHelpers::FObjectFinder<UMonsterBindingData> DataAsset(TEXT("/Script/WOS.MonsterBindingData'/Game/DataAssets/MonsterBindingData.MonsterBindingData'"));
 	if (DataAsset.Succeeded())
 	{
 		MonsterActors = DataAsset.Object->MonsterActors;
@@ -45,6 +45,7 @@ void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
 
 		NetObjects.Add(Packet->players[0].objectInfo.objectId, Player);
 		Player->SetName(Packet->players[0].name);
+		Player->HandleSpawn(FVector2D(Packet->players[0].objectInfo.position.x, Packet->players[0].objectInfo.position.y));
 		Player->SetIsmine();
 	}
 	else {
@@ -94,6 +95,6 @@ void UNetObjectManager::HandleSpawnMonster(gen::mmo::SpawnMonster* Packet)
 
 void UNetObjectManager::HandleNetObjectPacket(uint64 ObjectId, const Packet* RecievedPacket) {
 	if (NetObjects.Contains(ObjectId)) {
-		NetObjects[ObjectId]->RecievePacket(RecievedPacket);
+		NetObjects[ObjectId]->ReceivePacket(RecievedPacket);
 	}
 }

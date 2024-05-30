@@ -59,22 +59,28 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void RecievePacket(const Packet* ReadingPacket);
+	virtual void ReceivePacket(const Packet* ReadingPacket) override;
 
-	virtual void HandleMove(gen::mmo::NotifyMove MovePacket);
+	virtual void ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket);
 	virtual void DestroyNetObject() override;
 
 	void SetName(FStringView SettedName);
+	void HandleSpawn(FVector2D Position);
 	void SetIsmine();
 	bool GetIsmine();
 
 private:
-	void MoveHandler(const FInputActionValue& Value);
-	void JumpHandler();
-	void AttackHandler();
-	void SendMovePacket(float X, float Y);
+	void MoveInputHandler(const FInputActionValue& Value);
+	void JumpInputHandler();
+	void AttackInputHandler();
 
-	TArray<NetObject> ScanHitbox(FVector2D AddedPosition, FVector2D Scale);
+	void MoveAnimationLogic(float Axis);
+
+	void SendMovePacket(float X, float Y);
+	float Lerp(float a, float b, float t);
+	FVector2D Lerp(FVector2D a, FVector2D b, float t);
+
+	TArray<AActor*> ScanHitbox(FVector2D AddedPosition, FVector2D Scale, float Dir = 0, bool IgnoreFlip = false);
 
 	static constexpr float sendPositionInterval = 0.2f;
 	FString Name;
@@ -83,4 +89,10 @@ private:
 	float LastSendPositionTime;
 	FVector SpriteOriginScale;
 	bool bIsmine;
+	FVector2D LastPosition;
+	float LastInputTimer;
+	float LastMoveAnimationValue;
+	float CurruntPlayerDir;
+	FVector2D ServerPosition;
+	float ServerTimer;
 };

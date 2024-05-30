@@ -8,6 +8,8 @@
 #include "GameFramework/PlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Util/NetUtility.h"
 #include "Network/generated/mmo/Packet.gen.hpp"
 //#include "Engine.h"
 
@@ -32,16 +34,22 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	float time = GetWorld()->GetTimeSeconds();
+	ServerTimer += DeltaTime;
+	LastInputTimer += DeltaTime;
+
+	auto Position = Lerp(LastPosition, ServerPosition, ServerTimer / 0.2f) * 100;
+	SetActorLocation(FVector(Position.X, Position.Y, 0));
 
 	if (GetIsmine()) {
-		auto p = GetActorLocation();
-		SetActorLocation(p + FVector(DeltaTime * LastMoveInput * MoveSpeed / 0.2f * 100, 0, 0));
-
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 
-			SendMovePacket(LastMoveInput, 0);
+			SendMovePacket(ServerPosition.X + LastMoveInput, 0);
 		}
+	}
+	if (!GetIsmine() || LastMoveInput == 0) {
+		float dir = ServerPosition.X - LastPosition.X;
+		MoveAnimationLogic(dir);
 	}
 }
 
@@ -50,14 +58,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("SetupPlayerInputComponent"));
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
 	if (EnhancedInputComponent != nullptr) {
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveHandler);
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &APlayerCharacter::MoveHandler);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &APlayerCharacter::JumpHandler);
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APlayerCharacter::AttackHandler);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveInputHandler);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &APlayerCharacter::MoveInputHandler);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &APlayerCharacter::JumpInputHandler);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APlayerCharacter::AttackInputHandler);
 	}
 	else {
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("InputComponent is not EnhancedInputComponent"));
@@ -81,6 +88,12 @@ void APlayerCharacter::SetName(FStringView SettedName) {
 	Name = SettedName;
 }
 
+void APlayerCharacter::HandleSpawn(FVector2D Position)
+{
+	LastPosition = Position;
+	ServerPosition = Position;
+}
+
 void APlayerCharacter::SetIsmine()
 {
 	bIsmine = true;
@@ -91,16 +104,18 @@ bool APlayerCharacter::GetIsmine()
 	return bIsmine;
 }
 
-void APlayerCharacter::RecievePacket(const Packet* ReadingPacket) {
+void APlayerCharacter::ReceivePacket(const Packet* ReadingPacket) {
 	switch (ReadingPacket->GetId()) {
 	case gen::mmo::PacketId::NOTIFY_MOVE:
-		HandleMove(*static_cast<const gen::mmo::NotifyMove*>(ReadingPacket));
+		ReceiveNotifyMove(*static_cast<const gen::mmo::NotifyMove*>(ReadingPacket));
 		break;
 	}
 }
 
-void APlayerCharacter::HandleMove(gen::mmo::NotifyMove MovePacket) {
-
+void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
+	LastPosition = ServerPosition;
+	ServerPosition = FVector2D(MovePacket.position.x, MovePacket.position.y);
+	ServerTimer = 0;
 }
 
 void APlayerCharacter::DestroyNetObject()
@@ -108,41 +123,99 @@ void APlayerCharacter::DestroyNetObject()
 	Destroy();
 }
 
-void APlayerCharacter::MoveHandler(const FInputActionValue& Value) {
+void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 	float Axis = Value.Get<float>();
 	if (Axis != LastMoveInput) {
+		if (LastMoveInput == 0 && LastInputTimer > 0.2f) {
+			LastInputTimer = 0;
+
+			LastSendPositionTime = GetWorld()->GetTimeSeconds() - 0.2f;
+		}
+
 		LastMoveInput = Axis;
 
-		LastSendPositionTime = GetWorld()->GetTimeSeconds();
+		MoveAnimationLogic(LastMoveInput);
+	}
+}
 
-		if (LastMoveInput != 0) {
-			GetSprite()->SetWorldScale3D(FVector(SpriteOriginScale.X * LastMoveInput, SpriteOriginScale.Y, SpriteOriginScale.Z));
+void APlayerCharacter::JumpInputHandler() {
+
+}
+
+void APlayerCharacter::AttackInputHandler() {
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Try Scan"));
+	ScanHitbox(FVector2D(0, 0), FVector2D(300, 600), 45);
+}
+
+void APlayerCharacter::MoveAnimationLogic(float Axis)
+{
+	if (Axis > 0)Axis = 1;
+	else if (Axis < 0)Axis = -1;
+
+	if (Axis != LastMoveAnimationValue) {
+		if (Axis != 0) {
+			GetSprite()->SetWorldScale3D(FVector(SpriteOriginScale.X * Axis, SpriteOriginScale.Y, SpriteOriginScale.Z));
 			GetSprite()->SetFlipbook(WalkAnimation);
+
+			CurruntPlayerDir = Axis;
 		}
 		else {
 			GetSprite()->SetFlipbook(IdleAnimation);
 		}
-
-		SendMovePacket(Axis, 0);
+		LastMoveAnimationValue = Axis;
 	}
-}
-
-void APlayerCharacter::JumpHandler() {
-
-}
-
-void APlayerCharacter::AttackHandler() {
-
 }
 
 void APlayerCharacter::SendMovePacket(float X, float Y) {
 	gen::mmo::Move MovePacket;
 	MovePacket.position.x = X;
 	MovePacket.position.y = Y;
-	//UManager::Net()->Send(ServerType::MMO, &MovePacket);
+
+	UManager::Net()->Send(ServerType::MMO, &MovePacket);
 }
 
-TArray<NetObject> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D Scale)
+float APlayerCharacter::Lerp(float a, float b, float t)
 {
-	return TArray<NetObject>();
+	return a + (b - a) * t;
+}
+
+FVector2D APlayerCharacter::Lerp(FVector2D a, FVector2D b, float t)
+{
+	return FVector2D(Lerp(a.X, b.X, t), Lerp(a.Y, b.Y, t));
+}
+
+TArray<AActor*> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D Scale, float Dir, bool IgnoreFlip)
+{
+	if (!IgnoreFlip) {
+		AddedPosition.X *= CurruntPlayerDir;
+		Dir *= CurruntPlayerDir;
+	}
+
+	auto Pos = GetActorLocation() + FVector(AddedPosition.X, 0, AddedPosition.Y);
+	ETraceTypeQuery ObjectTypes = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_WorldDynamic);
+	TArray<AActor*> IgnoreActors;
+	TArray<FHitResult> Results;
+
+	UKismetSystemLibrary::BoxTraceMulti(
+		GetWorld(),
+		Pos,
+		Pos,
+		FVector(Scale.X, 0, Scale.Y),
+		FRotator(Dir, 0, 0),
+		ObjectTypes,
+		false,
+		IgnoreActors,
+		EDrawDebugTrace::ForDuration,
+		Results,
+		true
+	);
+
+	TArray <AActor*> Actors = TArray<AActor*>();
+	for (auto Result : Results) {
+		if (!Actors.Contains(Result.GetActor())) {
+			Actors.Add(Result.GetActor());
+		}
+	}
+
+	return Actors;
 }
