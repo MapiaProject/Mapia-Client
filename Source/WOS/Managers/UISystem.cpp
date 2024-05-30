@@ -3,45 +3,70 @@
 
 #include "Managers/UISystem.h"
 
-#include "WOSGameModeBase.h"
-#include "Kismet/GameplayStatics.h"
-#include "UI/LoginPopup.h"
+#include "UI/InGameUI.h"
 #include "UI/InventoryUI.h"
-#include "UI/Login.h"
+#include "UI/LoginUI.h"
 #include "UI/JoinUI.h"
+#include "UI/MenuUI.h"
+#include "UI/SettingUI.h"
+#include "UI/TitleUI.h"
 
-void UUISystem::ShowWidget(WidgetType widgetType)
+#define BindWidget(WidgetObject, Type)\
+	if (!Type##WidgetObject)\
+	{\
+		Type##WidgetObject = CreateWidget<U##Type##UI>(GetWorld(), Type##Widget);\
+	}\
+	WidgetObject = Type##WidgetObject;\
+
+void UUISystem::ShowWidget(WidgetType WidgetType)
 {
 	UUserWidget* WidgetObject = nullptr;
-
-	if (widgetType == WidgetType::Title) WidgetObject = TitleWidgetObject == nullptr ? CreateWidget<UInventoryUI>(GetWorld(), TitleWidget), TitleWidgetObject = WidgetObject : TitleWidgetObject;
-	else if (widgetType == WidgetType::Login) WidgetObject = LoginWidgetObject == nullptr ? CreateWidget<UInventoryUI>(GetWorld(), LoginWidget), LoginWidgetObject = WidgetObject : LoginWidgetObject;
-	else if (widgetType == WidgetType::Join) WidgetObject = JoinWidgetObject == nullptr ? CreateWidget<UInventoryUI>(GetWorld(), JoinWidget), JoinWidgetObject = WidgetObject : JoinWidgetObject;
-	else if (widgetType == WidgetType::InGame) WidgetObject = InGameWidgetObject == nullptr ? CreateWidget<UInventoryUI>(GetWorld(), InGameWidget), InGameWidgetObject = WidgetObject : InGameWidgetObject;
-	else if (widgetType == WidgetType::Inventory) WidgetObject = InventoryWidgetObject == nullptr ? CreateWidget<UInventoryUI>(GetWorld(), InventoryWidget), InventoryWidgetObject = WidgetObject : InventoryWidgetObject;
-	else if (widgetType == WidgetType::Menu) WidgetObject = MenuWidgetObject == nullptr ? CreateWidget<UInventoryUI>(GetWorld(), MenuWidget), MenuWidgetObject = WidgetObject : MenuWidgetObject;
-	else if (widgetType == WidgetType::Setting) WidgetObject = SettingWidgetObject == nullptr ? CreateWidget<UInventoryUI>(GetWorld(), SettingWidget), SettingWidgetObject = WidgetObject : SettingWidgetObject;
+	
+	switch (WidgetType)
+	{
+	case WidgetType::Inventory:
+		BindWidget(WidgetObject, Inventory)
+		break;
+	case WidgetType::Join:
+		BindWidget(WidgetObject, Join)
+		break;
+	case WidgetType::Login:
+		BindWidget(WidgetObject, Login)
+		break;
+	case WidgetType::Menu:
+		BindWidget(WidgetObject, Menu)
+		break;
+	case WidgetType::Setting:
+		BindWidget(WidgetObject, Setting)
+		break;
+	case WidgetType::Title:
+		BindWidget(WidgetObject, Title)
+		break;
+	case WidgetType::InGame:
+		BindWidget(WidgetObject, InGame)
+		break;
+	}
 	
 	if (WidgetObject != nullptr) WidgetObject->AddToViewport();
 }
 
-void UUISystem::HideWidget(WidgetType widgetType)
+void UUISystem::HideWidget(WidgetType WidgetType)
 {
 	UUserWidget* WidgetObject = nullptr;
 	
-	if (widgetType == WidgetType::Title) WidgetObject = TitleWidgetObject;
-	else if (widgetType == WidgetType::Login) WidgetObject = LoginWidgetObject;
-	else if (widgetType == WidgetType::Join) WidgetObject = JoinWidgetObject;
-	else if (widgetType == WidgetType::InGame) WidgetObject = InGameWidgetObject;
-	else if (widgetType == WidgetType::Inventory) WidgetObject = InventoryWidgetObject;
-	else if (widgetType == WidgetType::Menu) WidgetObject = MenuWidgetObject;
-	else if (widgetType == WidgetType::Setting) WidgetObject = SettingWidgetObject;
+	if (WidgetType == WidgetType::Title) WidgetObject = TitleWidgetObject;
+	else if (WidgetType == WidgetType::Login) WidgetObject = LoginWidgetObject;
+	else if (WidgetType == WidgetType::Join) WidgetObject = JoinWidgetObject;
+	else if (WidgetType == WidgetType::InGame) WidgetObject = InGameWidgetObject;
+	else if (WidgetType == WidgetType::Inventory) WidgetObject = InventoryWidgetObject;
+	else if (WidgetType == WidgetType::Menu) WidgetObject = MenuWidgetObject;
+	else if (WidgetType == WidgetType::Setting) WidgetObject = SettingWidgetObject;
 
-	if (WidgetObject != nullptr) WidgetObject->RemoveFromViewport();
+	if (WidgetObject != nullptr) WidgetObject->RemoveFromParent();
 }
 
 void UUISystem::ExecSuccessLogin() {
-	Cast<ULogin>(LoginWidgetObject)->SuccessLogin();
+	Cast<ULoginUI>(LoginWidgetObject)->SuccessLogin();
 }
 
 void UUISystem::ExecIDCheckResult(bool result) {

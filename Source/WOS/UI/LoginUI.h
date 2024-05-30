@@ -13,23 +13,26 @@ UCLASS()
 class WOS_API ULoginUI : public UUserWidget
 {
 	GENERATED_BODY()
+	
 public:
-	virtual void NativeConstruct() override;
-	virtual void NativeDestruct() override;
-private:
+	void NativeConstruct();
 	UFUNCTION()
-	void OnClickLogin();
-	UFUNCTION()
-	void OnClickRegister();
+	void SuccessLogin() const;
 
-	void Reset();
 protected:
+	UFUNCTION()
+	void OnClickStart();
+	UFUNCTION()
+	void OnClickJoin();
+
+private:
 	UPROPERTY(meta=(BindWidget))
 	class UEditableTextBox* ID;
 	UPROPERTY(meta=(BindWidget))
-	class UEditableTextBox* Password;
+	class UEditableTextBox* PW;
 	UPROPERTY(meta=(BindWidget))
-	class UButton* RegisterButton;
-	UPROPERTY(meta=(BindWidget))
-	class UButton* LoginButton;
+	class UButton* BStart;
+	UPROPERTY(meta= (BindWidget))
+	class UButton* BJoin;
+
 };

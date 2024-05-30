@@ -15,7 +15,7 @@ class WOS_API UTitleUI : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	void NativeConstruct();
+	virtual void NativeConstruct() override;
 
 protected:
 	UFUNCTION()

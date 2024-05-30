@@ -26,6 +26,15 @@ UManager::~UManager()
 {
 }
 
+void UManager::BeginPlay()
+{
+	UI(GetWorld())->ShowWidget(WidgetType::Title);
+}
+
+void UManager::EndPlay()
+{
+}
+
 void UManager::ConnectToServer(ServerType Type, SessionFactoryFunc SessionFactory) const
 {
 	if (!NetworkObject->Connect(Type, net::Endpoint(net::IpAddress::Loopback, static_cast<uint16>(Type)), SessionFactory))

@@ -27,37 +27,43 @@ class WOS_API UUISystem : public UManagerBase
 public:
 
 	UFUNCTION()
-	void ShowWidget(WidgetType widgetType);
+	void ShowWidget(WidgetType WidgetType);
 	UFUNCTION()
-	void HideWidget(WidgetType widgetType);
+	void HideWidget(WidgetType WidgetType);
 	UFUNCTION()
 	void ExecSuccessLogin();
 	UFUNCTION()
-	void ExecIDCheckResult(bool result);
+	void ExecIDCheckResult(bool Result);
 	UFUNCTION()
 	void ExecSuccessRegist();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
-	TSubclassOf<UUserWidget> TitleWidget;
+	TSubclassOf<class UTitleUI> TitleWidget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
-	TSubclassOf<UUserWidget> LoginWidget;
+	TSubclassOf<class ULoginUI> LoginWidget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
-	TSubclassOf<UUserWidget> JoinWidget;
+	TSubclassOf<class UJoinUI> JoinWidget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
-	TSubclassOf<UUserWidget> InGameWidget;
+	TSubclassOf<class UInGameUI> InGameWidget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
-	TSubclassOf<UUserWidget> InventoryWidget;
+	TSubclassOf<class UInventoryUI> InventoryWidget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
-	TSubclassOf<UUserWidget> MenuWidget;
+	TSubclassOf<class UMenuUI> MenuWidget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
-	TSubclassOf<UUserWidget> SettingWidget;
+	TSubclassOf<class USettingUI> SettingWidget;
 
+	UPROPERTY()
 	UUserWidget* TitleWidgetObject;
+	UPROPERTY()
 	UUserWidget* LoginWidgetObject;
+	UPROPERTY()
 	UUserWidget* JoinWidgetObject;
+	UPROPERTY()
 	UUserWidget* InGameWidgetObject;
+	UPROPERTY()
 	UUserWidget* InventoryWidgetObject;
+	UPROPERTY()
 	UUserWidget* MenuWidgetObject;
+	UPROPERTY()
 	UUserWidget* SettingWidgetObject;
-
 };
