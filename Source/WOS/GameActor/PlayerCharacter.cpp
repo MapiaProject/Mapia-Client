@@ -144,7 +144,7 @@ void APlayerCharacter::JumpInputHandler() {
 
 void APlayerCharacter::AttackInputHandler() {
 	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Try Scan"));
-	ScanHitbox(FVector2D(0, 0), FVector2D(500, 500));
+	ScanHitbox(FVector2D(0, 0), FVector2D(300, 600), 45);
 }
 
 void APlayerCharacter::MoveAnimationLogic(float Axis)
@@ -188,7 +188,7 @@ TArray<AActor*> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D 
 {
 	if (!IgnoreFlip) {
 		AddedPosition.X *= CurruntPlayerDir;
-		Dir += 180;
+		Dir *= CurruntPlayerDir;
 	}
 
 	auto Pos = GetActorLocation() + FVector(AddedPosition.X, 0, AddedPosition.Y);
@@ -201,7 +201,7 @@ TArray<AActor*> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D 
 		Pos,
 		Pos,
 		FVector(Scale.X, 0, Scale.Y),
-		FRotator(0, Dir, 0),
+		FRotator(Dir, 0, 0),
 		ObjectTypes,
 		false,
 		IgnoreActors,
