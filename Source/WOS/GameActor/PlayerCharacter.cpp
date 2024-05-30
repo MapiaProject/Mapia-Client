@@ -65,6 +65,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &APlayerCharacter::MoveInputHandler);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &APlayerCharacter::JumpInputHandler);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APlayerCharacter::AttackInputHandler);
+		EnhancedInputComponent->BindAction(ParryingAction, ETriggerEvent::Started, this, &APlayerCharacter::ParryingInputHandler);
 	}
 	else {
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("InputComponent is not EnhancedInputComponent"));
@@ -142,9 +143,14 @@ void APlayerCharacter::JumpInputHandler() {
 
 }
 
-void APlayerCharacter::AttackInputHandler() {
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Try Scan"));
-	ScanHitbox(FVector2D(200, 0), FVector2D(300, 600), 45);
+void APlayerCharacter::AttackInputHandler()
+{
+
+}
+
+void APlayerCharacter::ParryingInputHandler()
+{
+
 }
 
 void APlayerCharacter::MoveAnimationLogic(float Axis)

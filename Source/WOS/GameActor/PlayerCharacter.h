@@ -42,6 +42,8 @@ public:
 		TObjectPtr<UInputAction> JumpAction;
 	UPROPERTY(EditAnywhere, Category = Input)
 		TObjectPtr<UInputAction> AttackAction;
+	UPROPERTY(EditAnywhere, Category = Input)
+		TObjectPtr<UInputAction> ParryingAction;
 	UPROPERTY(EditAnywhere, Category = Move)
 		float MoveSpeed;
 
@@ -73,6 +75,7 @@ private:
 	void MoveInputHandler(const FInputActionValue& Value);
 	void JumpInputHandler();
 	void AttackInputHandler();
+	void ParryingInputHandler();
 
 	void MoveAnimationLogic(float Axis);
 
