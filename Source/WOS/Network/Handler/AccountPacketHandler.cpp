@@ -17,5 +17,6 @@ bool account::PacketHandler::RegisterResPacketHandler(TSharedPtr<Session> sessio
 
 bool account::PacketHandler::CheckNicknameResPacketHandler(TSharedPtr<Session> session, TSharedPtr<CheckNicknameRes> packet)
 {
+	UManager::Get()->HandleCheckNickname(packet.Get());
 	return false;
 }

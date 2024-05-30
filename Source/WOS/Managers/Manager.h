@@ -52,6 +52,7 @@ public:
 public:
 	void HandleLogin(gen::account::LoginRes* Packet) const;
 	void HandleRegister(gen::account::RegisterRes* Packet);
+	void HandleCheckNickname(gen::account::CheckNicknameRes* Packet);
 	void HandleEnterGame(gen::mmo::EnterGameRes* Packet);
 	void HandleEnterMap(gen::mmo::EnterMapRes* Packet);
 

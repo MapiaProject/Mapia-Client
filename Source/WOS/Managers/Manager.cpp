@@ -58,21 +58,23 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 				auto Session = MakeShared<FMMOSession>(Socket);
 				return Session;
 			});
+
+		UI()->ExecSuccessLogin();
 	}
-	else
-	{
-		switch (Packet->cause)
-		{
-		case gen::account::EXIST:
-			UI()->ShowPopup(World, TEXT("알림"), TEXT("이미 접속하고 있는 유저가 있습니다."));
-			break;
-		case gen::account::INVALID:
-			UI()->ShowPopup(World, TEXT("알림"), TEXT("닉네임이나 비밀번호가 잘못되었습니다."));
-			break;
-		default:
-			break;;
-		}
-	}
+	//else
+	//{
+	//	switch (Packet->cause)
+	//	{
+	//	case gen::account::EXIST:
+	//		UI()->ShowPopup(World, TEXT("알림"), TEXT("이미 접속하고 있는 유저가 있습니다."));
+	//		break;
+	//	case gen::account::INVALID:
+	//		UI()->ShowPopup(World, TEXT("알림"), TEXT("닉네임이나 비밀번호가 잘못되었습니다."));
+	//		break;
+	//	default:
+	//		break;;
+	//	}
+	//}
 }
 
 void UManager::HandleRegister(gen::account::RegisterRes* Packet)
@@ -80,12 +82,16 @@ void UManager::HandleRegister(gen::account::RegisterRes* Packet)
 	auto World = GetWorld();
 	if (Packet->success)
 	{
-		UI()->ShowPopup(World, TEXT("알림"), TEXT("회원등록에 성공했습니다."));
+		UI()->ExecSuccessRegist();
 	}
-	else
-	{
-		UI()->ShowPopup(World, TEXT("알림"), TEXT("이미 존재하는 닉네임입니다."));
-	}
+	//else
+	//{
+	//	UI()->ShowPopup(World, TEXT("알림"), TEXT("이미 존재하는 닉네임입니다."));
+	//}
+}
+
+void UManager::HandleCheckNickname(gen::account::CheckNicknameRes* Packet) {
+	UI()->ExecIDCheckResult(Packet->exists);
 }
 
 void UManager::HandleEnterGame(gen::mmo::EnterGameRes* Packet)
