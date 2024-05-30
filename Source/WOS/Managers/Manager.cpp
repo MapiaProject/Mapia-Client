@@ -59,7 +59,7 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 				return Session;
 			});
 
-		UI()->ExecSuccessLogin();
+		UI(World)->ExecSuccessLogin();
 	}
 	//else
 	//{
@@ -82,7 +82,7 @@ void UManager::HandleRegister(gen::account::RegisterRes* Packet)
 	auto World = GetWorld();
 	if (Packet->success)
 	{
-		UI()->ExecSuccessRegist();
+		UI(World)->ExecSuccessRegist();
 	}
 	//else
 	//{
@@ -91,7 +91,7 @@ void UManager::HandleRegister(gen::account::RegisterRes* Packet)
 }
 
 void UManager::HandleCheckNickname(gen::account::CheckNicknameRes* Packet) {
-	UI()->ExecIDCheckResult(Packet->exists);
+	UI(GetWorld())->ExecIDCheckResult(Packet->exists);
 }
 
 void UManager::HandleEnterGame(gen::mmo::EnterGameRes* Packet)
