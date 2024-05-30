@@ -8,11 +8,11 @@
 #include "Managers/UISystem.h"
 
 void UInGameUI::ShowInventory() {
-	UManager::UI()->ShowWidget(WidgetType::Inventory);
+	UManager::UI(GetWorld())->ShowWidget(WidgetType::Inventory);
 }
 
 void UInGameUI::ShowMenu() {
-	UManager::UI()->ShowWidget(WidgetType::Menu);
+	UManager::UI(GetWorld())->ShowWidget(WidgetType::Menu);
 }
 
 void UInGameUI::ShowHP(float MaxHP, float CurHP) {

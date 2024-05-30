@@ -3,7 +3,7 @@
 
 #include "Managers/NetObjectManager.h"
 #include "GameFramework/Character.h"
-#include "GameActor/LocalPlayerCharacter.h"
+#include "GameActor/PlayerCharacter.h"
 #include "MonsterBindingData.h"
 #include "Kismet/GameplayStatics.h"
 #include <UObject/ConstructorHelpers.h>
@@ -17,10 +17,10 @@ if (BPName##_BPObject.Succeeded())\
 
 UNetObjectManager::UNetObjectManager()
 {
+	GetBPClass(PlayerClass, BP_PlayerCharacter, ACharacter)
 	GetBPClass(LocalPlayerClass, BP_LocalPlayerCharacter, ACharacter)
-		GetBPClass(PlayerClass, BP_PlayerCharacter, ACharacter)
 
-		static ConstructorHelpers::FObjectFinder<UMonsterBindingData> DataAsset(TEXT("/Script/WOS.MonsterBindingData'/Game/DataAssets/MonsterBindingData.MonsterBindingData'"));
+	static ConstructorHelpers::FObjectFinder<UMonsterBindingData> DataAsset(TEXT("/Script/WOS.MonsterBindingData'/Game/DataAssets/MonsterBindingData.MonsterBindingData'"));
 	if (DataAsset.Succeeded())
 	{
 		MonsterActors = DataAsset.Object->MonsterActors;
@@ -36,7 +36,7 @@ void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
 		FVector Position = NetUtility::MakeVector(Packet->players[0].objectInfo.position) * 100;
 		auto* Actor = World->SpawnActor(LocalPlayerClass, &Position, &Rotation);
 
-		Player = Cast<ALocalPlayerCharacter>(Actor);
+		Player = Cast<APlayerCharacter>(Actor);
 		Player->ObjectId = Packet->players[0].objectInfo.objectId;
 
 		auto Controller = UGameplayStatics::GetPlayerController(World, 0);
@@ -45,6 +45,7 @@ void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
 
 		NetObjects.Add(Packet->players[0].objectInfo.objectId, Player);
 		Player->SetName(Packet->players[0].name);
+		Player->SetIsmine();
 	}
 	else {
 		for (auto PlayerInfo : Packet->players) {

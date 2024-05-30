@@ -14,6 +14,6 @@ void UTitleUI::NativeConstruct() {
 
 void UTitleUI::OnClickStart() {
 
-	UManager::UI()->ShowWidget(WidgetType::Login);
-	UManager::UI()->HideWidget(WidgetType::Title);
+	UManager::UI(GetWorld())->ShowWidget(WidgetType::Login);
+	UManager::UI(GetWorld())->HideWidget(WidgetType::Title);
 }

@@ -27,10 +27,10 @@ void ULogin::OnClickStart() {
 }
 
 void ULogin::SuccessLogin() {
-	UManager::UI()->ShowWidget(WidgetType::InGame);
-	UManager::UI()->HideWidget(WidgetType::Login);
+	UManager::UI(GetWorld())->ShowWidget(WidgetType::InGame);
+	UManager::UI(GetWorld())->HideWidget(WidgetType::Login);
 }
 
 void ULogin::OnClickJoin() {
-	UManager::UI()->ShowWidget(WidgetType::Join);
+	UManager::UI(GetWorld())->ShowWidget(WidgetType::Join);
 }

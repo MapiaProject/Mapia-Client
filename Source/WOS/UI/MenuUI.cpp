@@ -18,15 +18,15 @@ void UMenuUI::NativeConstruct() {
 }
 
 void UMenuUI::OnClickSetting() {
-	UManager::UI()->ShowWidget(WidgetType::Setting);
+	UManager::UI(GetWorld())->ShowWidget(WidgetType::Setting);
 }
 
 void UMenuUI::OnClickLogout() {
 	gen::account::LogoutReq req;
 	UManager::Net()->Send(ServerType::Account, &req);
 
-	UManager::UI()->ShowWidget(WidgetType::Title);
-	UManager::UI()->HideWidget(WidgetType::Setting);
+	UManager::UI(GetWorld())->ShowWidget(WidgetType::Title);
+	UManager::UI(GetWorld())->HideWidget(WidgetType::Setting);
 }
 
 void UMenuUI::OnClickLeave() {
