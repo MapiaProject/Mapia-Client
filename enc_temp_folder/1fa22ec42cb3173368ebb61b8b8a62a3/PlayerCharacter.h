@@ -92,7 +92,6 @@ private:
 	FVector2D LastPosition;
 	float LastInputTimer;
 	float LastMoveAnimationValue;
-	float CurruntPlayerDir;
 	FVector2D ServerPosition;
 	float ServerTimer;
 };

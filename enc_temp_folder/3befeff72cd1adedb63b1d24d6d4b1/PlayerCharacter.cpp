@@ -156,8 +156,6 @@ void APlayerCharacter::MoveAnimationLogic(float Axis)
 		if (Axis != 0) {
 			GetSprite()->SetWorldScale3D(FVector(SpriteOriginScale.X * Axis, SpriteOriginScale.Y, SpriteOriginScale.Z));
 			GetSprite()->SetFlipbook(WalkAnimation);
-
-			CurruntPlayerDir = Axis;
 		}
 		else {
 			GetSprite()->SetFlipbook(IdleAnimation);
@@ -186,11 +184,6 @@ FVector2D APlayerCharacter::Lerp(FVector2D a, FVector2D b, float t)
 
 TArray<AActor*> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D Scale, float Dir, bool IgnoreFlip)
 {
-	if (!IgnoreFlip) {
-		AddedPosition.X *= CurruntPlayerDir;
-		Dir += 180;
-	}
-
 	auto Pos = GetActorLocation() + FVector(AddedPosition.X, 0, AddedPosition.Y);
 	ETraceTypeQuery ObjectTypes = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_WorldDynamic);
 	TArray<AActor*> IgnoreActors;
@@ -201,7 +194,7 @@ TArray<AActor*> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D 
 		Pos,
 		Pos,
 		FVector(Scale.X, 0, Scale.Y),
-		FRotator(0, Dir, 0),
+		FRotator::ZeroRotator,
 		ObjectTypes,
 		false,
 		IgnoreActors,
