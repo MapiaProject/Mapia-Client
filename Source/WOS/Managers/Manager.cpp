@@ -58,9 +58,6 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 	auto World = GetWorld();
 	if (Packet->success)
 	{
-		auto GameMode = Cast<AWOSGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-		GameMode->CurrentWidget->RemoveFromParent();
-
 		NetworkObject->SetUUID(Packet->uuid);
 		ConnectToServer(ServerType::MMO, [](TSharedPtr<net::Socket> Socket)
 			{
@@ -70,20 +67,6 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 
 		UI(World)->ExecSuccessLogin();
 	}
-	//else
-	//{
-	//	switch (Packet->cause)
-	//	{
-	//	case gen::account::EXIST:
-	//		UI()->ShowPopup(World, TEXT("알림"), TEXT("이미 접속하고 있는 유저가 있습니다."));
-	//		break;
-	//	case gen::account::INVALID:
-	//		UI()->ShowPopup(World, TEXT("알림"), TEXT("닉네임이나 비밀번호가 잘못되었습니다."));
-	//		break;
-	//	default:
-	//		break;;
-	//	}
-	//}
 }
 
 void UManager::HandleRegister(gen::account::RegisterRes* Packet)
@@ -93,10 +76,6 @@ void UManager::HandleRegister(gen::account::RegisterRes* Packet)
 	{
 		UI(World)->ExecSuccessRegist();
 	}
-	//else
-	//{
-	//	UI()->ShowPopup(World, TEXT("알림"), TEXT("이미 존재하는 닉네임입니다."));
-	//}
 }
 
 void UManager::HandleCheckNickname(gen::account::CheckNicknameRes* Packet) {

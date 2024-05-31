@@ -7,7 +7,7 @@ FSession::OnReceive(buffer, length); \
 \
 uint16 Id = 0;\
 memcpy(&Id, buffer.data(), 2);\
-if ((Id >> 15) & 1)\
+if (Packet::IsRpcId(Id))\
 {\
 	RpcView::RecvRPC(buffer, Id);\
 }\

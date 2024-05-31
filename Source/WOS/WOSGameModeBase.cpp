@@ -10,22 +10,8 @@
 
 AWOSGameModeBase::AWOSGameModeBase() : Super(), CurrentWidget(nullptr)
 {
-	/*PrimaryActorTick.bStartWithTickEnabled = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 	PrimaryActorTick.bCanEverTick = true;
-	
-	static ConstructorHelpers::FClassFinder<UUserWidget> FoundLobbyUIClass(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprints/UI/WBP_LoginUI.WBP_LoginUI_C'"));
-	if (FoundLobbyUIClass.Succeeded())
-	{
-		LobbyUIClass = FoundLobbyUIClass.Class;
-		CurrentWidget = CreateWidget(GetWorld(), LobbyUIClass);
-		if (CurrentWidget) CurrentWidget->AddToViewport();
-	}
-
-	static ConstructorHelpers::FClassFinder<UUserWidget> FoundLoginPopup(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprints/UI/WBP_LoginPopup.WBP_LoginPopup_C'"));
-	if (FoundLoginPopup.Succeeded())
-	{
-		LoginPopup = FoundLoginPopup.Class;
-	}*/
 }
 
 AWOSGameModeBase::~AWOSGameModeBase()

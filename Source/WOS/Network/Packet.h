@@ -92,6 +92,8 @@ public:
         pk->SetId(id);
         return TSharedPtr<T>(pk);
     }
+    static bool IsRpcId(uint16 id);
+
     std::vector<char>& Data();
 
     void Reset();
