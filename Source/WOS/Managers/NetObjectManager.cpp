@@ -5,6 +5,8 @@
 #include "GameFramework/Character.h"
 #include "GameActor/PlayerCharacter.h"
 #include "MonsterBindingData.h"
+#include "Util/Ini.h"
+#include "Manager.h"
 #include "Kismet/GameplayStatics.h"
 #include <UObject/ConstructorHelpers.h>
 #include <Util/NetUtility.h>
@@ -24,6 +26,43 @@ UNetObjectManager::UNetObjectManager()
 	if (DataAsset.Succeeded())
 	{
 		MonsterActors = DataAsset.Object->MonsterActors;
+	}
+}
+
+void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
+{
+	if (Packet->success)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("Enter map success"));
+		CurrentMapName = LastRequstMapName;
+		FString path = TEXT("C:\\GitHub\\WOS-Client\\Source\\WOS\\Network\\generated\\mapData\\") + CurrentMapName + TEXT(".ini");
+
+		Ini ini = Ini(path);
+		FString data = ini[TEXT("map")].Get<FString>("data");
+		TArray<TArray<int>> mapData;
+		int xSize, zSize;
+
+		//맵 사이즈 추출
+		FString size = ini[TEXT("info")].Get<FString>("size");
+		FString xData, zData;
+		size.Split(TEXT(","), &xData, &zData);
+		xSize = FCString::Atoi(*xData);
+		zSize = FCString::Atoi(*zData);
+
+		//맵 배열 생성
+		mapData.Reset(0);
+		for (int z = 0;z < zSize;z++) {
+			mapData.Add(TArray<int>());
+			for (int x = 0;x < xSize;x++) {
+				TCHAR c = data[z * xSize + x];
+				mapData[z].Add(FCString::Atoi(&c));
+			}
+
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Can't enter map"));
 	}
 }
 
@@ -97,4 +136,26 @@ void UNetObjectManager::HandleNetObjectPacket(uint64 ObjectId, const Packet* Rec
 	if (NetObjects.Contains(ObjectId)) {
 		NetObjects[ObjectId]->ReceivePacket(RecievedPacket);
 	}
+}
+
+void UNetObjectManager::RequestEnterMap(FString MapName)
+{
+	gen::mmo::EnterMapReq EnterMap;
+	EnterMap.mapName = MapName;
+	gen::mmo::Vector2 Pos;
+	Pos.x = -1;
+	Pos.y = -1;
+	UManager::Net()->Send(ServerType::MMO, &EnterMap);
+
+	LastRequstMapName = MapName;
+}
+
+String UNetObjectManager::GetCurrentMapName()
+{
+	return CurrentMapName;
+}
+
+TArray<TArray<int>>* UNetObjectManager::GetCurrentMapData()
+{
+	return &CurrentMapData;
 }

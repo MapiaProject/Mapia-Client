@@ -36,9 +36,33 @@ void APlayerCharacter::Tick(float DeltaTime)
 	float time = GetWorld()->GetTimeSeconds();
 	ServerTimer += DeltaTime;
 	LastInputTimer += DeltaTime;
+	JumpAnimationTimer += DeltaTime;
 
-	auto Position = Lerp(LastPosition, ServerPosition, ServerTimer / 0.2f) * 100;
-	SetActorLocation(FVector(Position.X, Position.Y, 0));
+	float jumpAnimationTime = 0.2f;
+	float z;
+	if (IsJumping) {
+		z = Lerp(Lerp(JumpAnimationStartZ, JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime), JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime);
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("%f"), z));
+
+		if (JumpAnimationTimer > jumpAnimationTime) {
+			IsJumping = false;
+			IsFalling = true;
+			JumpAnimationTimer = 0;
+		}
+	}
+	else if (IsFalling) {
+		z = Lerp(Lerp(JumpAnimationTop, JumpAnimationBottom, JumpAnimationTimer / jumpAnimationTime), JumpAnimationBottom, JumpAnimationTimer / jumpAnimationTime);
+
+		if (JumpAnimationTimer > jumpAnimationTime) {
+			IsFalling = false;
+		}
+	}
+	else {
+		z = JumpAnimationBottom;
+	}
+
+	auto Position = Lerp(LastPosition.X, ServerPosition.X, ServerTimer / 0.2f) * 100;
+	SetActorLocation(FVector(Position, 0, z));
 
 	if (GetIsmine()) {
 		if (time > LastSendPositionTime + sendPositionInterval) {
@@ -140,7 +164,7 @@ void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 }
 
 void APlayerCharacter::JumpInputHandler() {
-
+	JumpAnimationLogic(ServerPosition.Y + 3, ServerPosition.Y);
 }
 
 void APlayerCharacter::AttackInputHandler()
@@ -170,6 +194,16 @@ void APlayerCharacter::MoveAnimationLogic(float Axis)
 		}
 		LastMoveAnimationValue = Axis;
 	}
+}
+
+void APlayerCharacter::JumpAnimationLogic(int Top, int Bottom)
+{
+	IsJumping = true;
+	IsFalling = false;
+	JumpAnimationStartZ = GetActorLocation().Y;
+	JumpAnimationTop = Top * 100;
+	JumpAnimationBottom = Bottom * 100;
+	JumpAnimationTimer = 0;
 }
 
 void APlayerCharacter::SendMovePacket(float X, float Y) {
