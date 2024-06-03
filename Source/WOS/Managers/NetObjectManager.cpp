@@ -35,7 +35,8 @@ void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("Enter map success"));
 		CurrentMapName = LastRequstMapName;
-		FString path = TEXT("C:\\GitHub\\WOS-Client\\Source\\WOS\\Network\\generated\\mapData\\") + CurrentMapName + TEXT(".ini");
+
+		FString path = FPaths::ProjectDir() +TEXT("Source\\WOS\\Network\\generated\\mapData\\") + CurrentMapName + TEXT(".ini");
 
 		Ini ini = Ini(path);
 		FString data = ini[TEXT("map")].Get<FString>("data");
