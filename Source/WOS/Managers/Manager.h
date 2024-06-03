@@ -47,14 +47,19 @@ public:
 	UManager();
 	virtual ~UManager() override;
 public:
+	UFUNCTION(BlueprintCallable)
+	void BeginPlay();
+	UFUNCTION(BlueprintCallable)
+	void EndPlay();
+public:
 	void ConnectToServer(ServerType Type, SessionFactoryFunc SessionFactory) const;
 	void HandlePacket() const;
 public:
 	void HandleLogin(gen::account::LoginRes* Packet) const;
 	void HandleRegister(gen::account::RegisterRes* Packet);
+	void HandleCheckNickname(gen::account::CheckNicknameRes* Packet);
 	void HandleEnterGame(gen::mmo::EnterGameRes* Packet);
 	void HandleEnterMap(gen::mmo::EnterMapRes* Packet);
-
 public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());
 	static TObjectPtr<UUISystem> UI(const UWorld* World = GEngine->GameViewport->GetWorld());

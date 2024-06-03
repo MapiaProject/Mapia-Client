@@ -14,5 +14,5 @@ void FAccountSession::OnDisconnected()
 
 void FAccountSession::OnReceive(std::span<char> buffer, int32 length)
 {
-	RECV_PACKET(account);
+	RECV_PACKET(account)
 }

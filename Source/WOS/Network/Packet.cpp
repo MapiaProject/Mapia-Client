@@ -11,6 +11,11 @@ Packet::Packet(uint16 id, PacketType type, int reserve) : m_buffer(sizeof(uint16
     m_buffer.reserve(reserve);
 }
 
+bool Packet::IsRpcId(uint16 id)
+{
+    return (0x8000 & id) != 0;
+}
+
 std::vector<char>& Packet::Data() {
     return m_buffer;
 }

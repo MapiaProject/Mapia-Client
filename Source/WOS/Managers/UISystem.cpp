@@ -3,17 +3,76 @@
 
 #include "Managers/UISystem.h"
 
-#include "WOSGameModeBase.h"
-#include "Kismet/GameplayStatics.h"
-#include "UI/LoginPopup.h"
+#include "UI/InGameUI.h"
+#include "UI/InventoryUI.h"
+#include "UI/LoginUI.h"
+#include "UI/JoinUI.h"
+#include "UI/MenuUI.h"
+#include "UI/SettingUI.h"
+#include "UI/TitleUI.h"
 
-void UUISystem::ShowPopup(UWorld* World, FString Title, FString Content)
+#define BindWidget(WidgetObject, Type)\
+	if (!Type##WidgetObject)\
+	{\
+		Type##WidgetObject = CreateWidget<U##Type##UI>(GetWorld(), Type##Widget);\
+	}\
+	WidgetObject = Type##WidgetObject;\
+
+void UUISystem::ShowWidget(WidgetType WidgetType)
 {
-	const auto WOSGameMode = Cast<AWOSGameModeBase>(UGameplayStatics::GetGameMode(World));
-	if (auto Popup = Cast<ULoginPopup>(CreateWidget(World, WOSGameMode->LoginPopup)))
+	UUserWidget* WidgetObject = nullptr;
+	
+	switch (WidgetType)
 	{
-		Popup->AddToViewport();
-		Popup->SetTitle(FText::FromString(Title));
-		Popup->SetContent(FText::FromString(Content));
+	case WidgetType::Inventory:
+		BindWidget(WidgetObject, Inventory)
+		break;
+	case WidgetType::Join:
+		BindWidget(WidgetObject, Join)
+		break;
+	case WidgetType::Login:
+		BindWidget(WidgetObject, Login)
+		break;
+	case WidgetType::Menu:
+		BindWidget(WidgetObject, Menu)
+		break;
+	case WidgetType::Setting:
+		BindWidget(WidgetObject, Setting)
+		break;
+	case WidgetType::Title:
+		BindWidget(WidgetObject, Title)
+		break;
+	case WidgetType::InGame:
+		BindWidget(WidgetObject, InGame)
+		break;
 	}
+	
+	if (WidgetObject != nullptr) WidgetObject->AddToViewport();
+}
+
+void UUISystem::HideWidget(WidgetType WidgetType)
+{
+	UUserWidget* WidgetObject = nullptr;
+	
+	if (WidgetType == WidgetType::Title) WidgetObject = TitleWidgetObject;
+	else if (WidgetType == WidgetType::Login) WidgetObject = LoginWidgetObject;
+	else if (WidgetType == WidgetType::Join) WidgetObject = JoinWidgetObject;
+	else if (WidgetType == WidgetType::InGame) WidgetObject = InGameWidgetObject;
+	else if (WidgetType == WidgetType::Inventory) WidgetObject = InventoryWidgetObject;
+	else if (WidgetType == WidgetType::Menu) WidgetObject = MenuWidgetObject;
+	else if (WidgetType == WidgetType::Setting) WidgetObject = SettingWidgetObject;
+
+	if (WidgetObject != nullptr) WidgetObject->RemoveFromParent();
+}
+
+void UUISystem::ExecSuccessLogin() {
+	Cast<ULoginUI>(LoginWidgetObject)->SuccessLogin();
+}
+
+void UUISystem::ExecIDCheckResult(bool result) {
+	Cast<UJoinUI>(JoinWidgetObject)->IDCheckResult(result);
+}
+
+void UUISystem::ExecSuccessRegist() {
+	Cast<UJoinUI>(JoinWidgetObject)->SuccessRegist();
 }
