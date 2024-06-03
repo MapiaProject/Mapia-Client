@@ -4,11 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Managers/ManagerBase.h"
-#include "Managers/Network.h"
-#include "generated/mmo/Struct.gen.hpp"
-#include "generated/mmo/Protocol.gen.hpp"
-#include "GameActor/NetObject.h"
 #include "NetObjectManager.generated.h"
+
+namespace gen::mmo
+{
+	class SpawnMonster;
+	class NotifyLeaveMap;
+	class Spawn;
+	class EnterMapRes;
+}
+
+class Packet;
+class NetObject;
 
 /**
  *
@@ -25,6 +32,8 @@ public:
 	void HandleSpawnPlayer(gen::mmo::Spawn* Packet);
 	void HandleLeaveMap(gen::mmo::NotifyLeaveMap* Packet);
 	void HandleSpawnMonster(gen::mmo::SpawnMonster* Packet);
+
+	NetObject* GetObjectById(uint64 Id);
 private:
 	TMap<uint64, NetObject*> NetObjects;
 	TSubclassOf<ACharacter> PlayerClass;

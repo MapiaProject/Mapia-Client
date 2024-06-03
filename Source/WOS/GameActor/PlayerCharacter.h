@@ -75,6 +75,14 @@ private:
 	void AttackInputHandler();
 
 	void MoveAnimationLogic(float Axis);
+	RPC_FUNCTION(JumpAnimationLogic)
+	void JumpAnimationLogic(bool bIsMine, int Top, int Bottom);
+	float JumpAnimationStartZ;
+	float JumpAnimationTop;
+	float JumpAnimationBottom;
+	float JumpAnimationTimer;
+	bool IsJumping;
+	bool IsFalling;
 
 	void SendMovePacket(float X, float Y);
 	float Lerp(float a, float b, float t);

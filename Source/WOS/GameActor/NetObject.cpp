@@ -2,6 +2,8 @@
 
 
 #include "GameActor/NetObject.h"
+
+#include "generated/mmo/Protocol.gen.hpp"
 #include "Managers/Network.h"
 #include "Managers/Manager.h"
 

@@ -4,9 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Define.h"
-#include "generated/account/Protocol.gen.hpp"
-#include "generated/mmo/ClientPacketHandler.gen.hpp"
-#include "net/Socket.hpp"
 #include "Manager.generated.h"
 
 #define INIT_MANAGER(name)\
@@ -29,6 +26,24 @@ if (BP.Succeeded())\
 }
 
 #define BIND_MONSTER(MonsterBPName, MonsterTypeName)
+
+namespace gen::mmo
+{
+	class EnterMapRes;
+	class EnterGameRes;
+}
+
+namespace gen::account
+{
+	class CheckNicknameRes;
+	class RegisterRes;
+	class LoginRes;
+}
+
+namespace net
+{
+	class Socket;
+}
 
 class UNetwork;
 class UUISystem;

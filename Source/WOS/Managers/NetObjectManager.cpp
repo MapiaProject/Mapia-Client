@@ -9,6 +9,11 @@
 #include <UObject/ConstructorHelpers.h>
 #include <Util/NetUtility.h>
 
+#include "Network.h"
+
+#ifdef GetBPClass
+#undef GetBPClass
+#endif
 #define GetBPClass(ValueName,BPName,ClassType) static ConstructorHelpers::FClassFinder<ClassType> BPName##_BPObject(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/GameActor/"#BPName"."#BPName"_C'"));\
 if (BPName##_BPObject.Succeeded())\
 {\
@@ -91,6 +96,11 @@ void UNetObjectManager::HandleSpawnMonster(gen::mmo::SpawnMonster* Packet)
 			UE_LOG(LogTemp, Warning, TEXT("To much monster asset"));
 		}
 	}
+}
+
+NetObject* UNetObjectManager::GetObjectById(uint64 Id)
+{
+	return NetObjects[Id];
 }
 
 void UNetObjectManager::HandleNetObjectPacket(uint64 ObjectId, const Packet* RecievedPacket) {
