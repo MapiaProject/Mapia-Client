@@ -121,12 +121,12 @@ void APlayerCharacter::HandleSpawn(FVector2D Position)
 
 void APlayerCharacter::SetIsmine()
 {
-	bIsmine = true;
+	bNetObjectIsmine = true;
 }
 
 bool APlayerCharacter::GetIsmine()
 {
-	return bIsmine;
+	return bNetObjectIsmine;
 }
 
 void APlayerCharacter::ReceivePacket(const Packet* ReadingPacket) {
@@ -164,7 +164,11 @@ void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 }
 
 void APlayerCharacter::JumpInputHandler() {
-	JumpAnimationLogic(ServerPosition.Y + 3, ServerPosition.Y);
+
+	int Top = ServerPosition.Y + 3;
+	int Bottom = ServerPosition.Y;
+	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::Other, Top, Bottom);
+	JumpAnimationLogic(true, ServerPosition.Y + 3, ServerPosition.Y);
 }
 
 void APlayerCharacter::AttackInputHandler()
@@ -196,7 +200,7 @@ void APlayerCharacter::MoveAnimationLogic(float Axis)
 	}
 }
 
-void APlayerCharacter::JumpAnimationLogic(int Top, int Bottom)
+void APlayerCharacter::JumpAnimationLogic(bool bIsMine, int Top, int Bottom)
 {
 	IsJumping = true;
 	IsFalling = false;

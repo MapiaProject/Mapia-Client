@@ -78,7 +78,8 @@ private:
 	void ParryingInputHandler();
 
 	void MoveAnimationLogic(float Axis);
-	void JumpAnimationLogic(int Top, int Bottom);
+	RPC_FUNCTION(JumpAnimationLogic)
+		void JumpAnimationLogic(bool bIsMine, int Top, int Bottom);
 	float JumpAnimationStartZ;
 	float JumpAnimationTop;
 	float JumpAnimationBottom;
@@ -98,7 +99,7 @@ private:
 	float LastMoveInput;
 	float LastSendPositionTime;
 	FVector SpriteOriginScale;
-	bool bIsmine;
+	bool bNetObjectIsmine;
 	FVector2D LastPosition;
 	float LastInputTimer;
 	float LastMoveAnimationValue;
