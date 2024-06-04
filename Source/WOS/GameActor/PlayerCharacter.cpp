@@ -6,18 +6,17 @@
 #include "Managers/Manager.h"
 #include "Managers/Network.h"
 #include "GameFramework/PlayerController.h"
-#include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Util/NetUtility.h"
 #include "Network/generated/mmo/Packet.gen.hpp"
-//#include "Engine.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	RPC(JumpAnimationLogic);
 }
 
 // Called when the game starts or when spawned
