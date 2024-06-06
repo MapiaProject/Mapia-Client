@@ -65,6 +65,11 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 
 		UI(World)->ExecSuccessLogin();
 	}
+	else {
+		int cause = Packet->cause;
+
+		UI(World)->ExecFailedLogin(cause);
+	}
 }
 
 void UManager::HandleRegister(gen::account::RegisterRes* Packet)

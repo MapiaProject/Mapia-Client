@@ -8,7 +8,7 @@
 
 void UTitleUI::NativeConstruct() {
 	Super::NativeConstruct();
-
+	
 	BStart->OnClicked.AddDynamic(this, &UTitleUI::OnClickStart);
 }
 

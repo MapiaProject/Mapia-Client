@@ -6,10 +6,12 @@
 #include "UI/InGameUI.h"
 #include "UI/InventoryUI.h"
 #include "UI/LoginUI.h"
+#include "UI/LoginFailUI.h"
 #include "UI/JoinUI.h"
 #include "UI/MenuUI.h"
 #include "UI/SettingUI.h"
 #include "UI/TitleUI.h"
+#include "generated/account/Protocol.gen.hpp"
 
 #define BindWidget(WidgetObject, Type)\
 	if (!Type##WidgetObject)\
@@ -32,6 +34,9 @@ void UUISystem::ShowWidget(WidgetType WidgetType)
 		break;
 	case WidgetType::Login:
 		BindWidget(WidgetObject, Login)
+		break;
+	case WidgetType::LoginFail:
+		BindWidget(WidgetObject, LoginFail)
 		break;
 	case WidgetType::Menu:
 		BindWidget(WidgetObject, Menu)
@@ -56,6 +61,7 @@ void UUISystem::HideWidget(WidgetType WidgetType)
 	
 	if (WidgetType == WidgetType::Title) WidgetObject = TitleWidgetObject;
 	else if (WidgetType == WidgetType::Login) WidgetObject = LoginWidgetObject;
+	else if (WidgetType == WidgetType::LoginFail) WidgetObject = LoginFailWidgetObject;
 	else if (WidgetType == WidgetType::Join) WidgetObject = JoinWidgetObject;
 	else if (WidgetType == WidgetType::InGame) WidgetObject = InGameWidgetObject;
 	else if (WidgetType == WidgetType::Inventory) WidgetObject = InventoryWidgetObject;
@@ -67,6 +73,11 @@ void UUISystem::HideWidget(WidgetType WidgetType)
 
 void UUISystem::ExecSuccessLogin() {
 	Cast<ULoginUI>(LoginWidgetObject)->SuccessLogin();
+}
+
+void UUISystem::ExecFailedLogin(int cause) {
+	ShowWidget(WidgetType::LoginFail);
+	Cast<ULoginFailUI>(LoginFailWidgetObject)->SetCause(cause);
 }
 
 void UUISystem::ExecIDCheckResult(bool result) {

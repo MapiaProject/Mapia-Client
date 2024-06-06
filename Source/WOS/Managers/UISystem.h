@@ -10,6 +10,7 @@ UENUM(BlueprintType)
 enum class WidgetType : uint8 {
 	Title      UMETA(DisplayName = "Title"),
 	Login      UMETA(DisplayName = "Login"),
+	LoginFail  UMETA(DisplayName = "LoginFail"),
 	Join       UMETA(DisplayName = "Join"),
 	InGame     UMETA(DisplayName = "InGame"),
 	Inventory  UMETA(DisplayName = "Inventory"),
@@ -24,6 +25,7 @@ UCLASS()
 class WOS_API UUISystem : public UManagerBase
 {
 	GENERATED_BODY()
+
 public:
 
 	UFUNCTION()
@@ -33,6 +35,8 @@ public:
 	UFUNCTION()
 	void ExecSuccessLogin();
 	UFUNCTION()
+	void ExecFailedLogin(int cause);
+	UFUNCTION()
 	void ExecIDCheckResult(bool Result);
 	UFUNCTION()
 	void ExecSuccessRegist();
@@ -41,6 +45,8 @@ public:
 	TSubclassOf<class UTitleUI> TitleWidget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
 	TSubclassOf<class ULoginUI> LoginWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ULoginFailUI> LoginFailWidget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
 	TSubclassOf<class UJoinUI> JoinWidget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
@@ -56,6 +62,8 @@ public:
 	UUserWidget* TitleWidgetObject;
 	UPROPERTY()
 	UUserWidget* LoginWidgetObject;
+	UPROPERTY()
+	UUserWidget* LoginFailWidgetObject;
 	UPROPERTY()
 	UUserWidget* JoinWidgetObject;
 	UPROPERTY()
