@@ -43,9 +43,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		z = Lerp(Lerp(JumpAnimationStartZ, JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime), JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime);
 
 		if (JumpAnimationTimer > jumpAnimationTime) {
-			IsJumping = false;
-			IsFalling = true;
-			JumpAnimationTimer = 0;
+			FallAnimationLogic(JumpAnimationBottom / 100);
 		}
 	}
 	else if (IsFalling) {
@@ -141,7 +139,7 @@ void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 	ServerTimer = 0;
 
 	LocalPositionY = ServerPosition.Y;
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("%d, %d"), (int)ServerPosition.X, (int)ServerPosition.Y));
+	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("%d, %d"), (int)ServerPosition.X, (int)ServerPosition.Y));
 }
 
 void APlayerCharacter::DestroyNetObject()
@@ -160,7 +158,9 @@ void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 
 		LastMoveInput = Axis;
 
-		MoveAnimationLogic(LastMoveInput);
+		if (!(IsJumping || IsFalling)) {
+			MoveAnimationLogic(LastMoveInput);
+		}
 	}
 }
 
@@ -175,9 +175,6 @@ void APlayerCharacter::JumpInputHandler() {
 			Bottom = i;
 		}
 	}
-
-	MapData->Log();
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("(%d, %d), %d, %d"), (int)ServerPosition.X, (int)ServerPosition.Y, Top, Bottom));
 
 	LocalPositionY = Bottom;
 	SendMovePacket(LastSendPosX, Bottom);
@@ -220,6 +217,15 @@ void APlayerCharacter::JumpAnimationLogic(int Top, int Bottom)
 	IsFalling = false;
 	JumpAnimationStartZ = GetActorLocation().Z;
 	JumpAnimationTop = Top * 100;
+	JumpAnimationBottom = Bottom * 100;
+	JumpAnimationTimer = 0;
+}
+
+void APlayerCharacter::FallAnimationLogic(int Bottom)
+{
+	IsJumping = false;
+	IsFalling = true;
+	JumpAnimationTop = GetActorLocation().Z;
 	JumpAnimationBottom = Bottom * 100;
 	JumpAnimationTimer = 0;
 }
