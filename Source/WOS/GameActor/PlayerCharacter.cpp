@@ -41,7 +41,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 	float z;
 	if (IsJumping) {
 		z = Lerp(Lerp(JumpAnimationStartZ, JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime), JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime);
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("%f"), z));
 
 		if (JumpAnimationTimer > jumpAnimationTime) {
 			IsJumping = false;
@@ -67,7 +66,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 
-			SendMovePacket(ServerPosition.X + LastMoveInput, 0);
+			SendMovePacket(ServerPosition.X + LastMoveInput, LocalPositionY);
 		}
 	}
 	if (!GetIsmine() || LastMoveInput == 0) {
@@ -140,6 +139,9 @@ void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 	LastPosition = ServerPosition;
 	ServerPosition = FVector2D(MovePacket.position.x, MovePacket.position.y);
 	ServerTimer = 0;
+
+	LocalPositionY = ServerPosition.Y;
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("%d, %d"), (int)ServerPosition.X, (int)ServerPosition.Y));
 }
 
 void APlayerCharacter::DestroyNetObject()
@@ -163,11 +165,24 @@ void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 }
 
 void APlayerCharacter::JumpInputHandler() {
+	auto MapData = UManager::Object()->GetCurrentMapData();
 
 	int Top = ServerPosition.Y + 3;
 	int Bottom = ServerPosition.Y;
+
+	for (int i = min(Top, MapData->GetYSize() - 2);i >= 1;i--) {
+		if (!MapData->CheckIsWall(LastSendPosX, i) && MapData->CheckIsWall(LastSendPosX, i - 1)) {
+			Bottom = i;
+		}
+	}
+
+	MapData->Log();
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("(%d, %d), %d, %d"), (int)ServerPosition.X, (int)ServerPosition.Y, Top, Bottom));
+
+	LocalPositionY = Bottom;
+	SendMovePacket(LastSendPosX, Bottom);
 	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::Other, Top, Bottom);
-	JumpAnimationLogic(true, ServerPosition.Y + 3, ServerPosition.Y);
+	JumpAnimationLogic(Top, Bottom);
 }
 
 void APlayerCharacter::AttackInputHandler()
@@ -199,11 +214,11 @@ void APlayerCharacter::MoveAnimationLogic(float Axis)
 	}
 }
 
-void APlayerCharacter::JumpAnimationLogic(bool bIsMine, int Top, int Bottom)
+void APlayerCharacter::JumpAnimationLogic(int Top, int Bottom)
 {
 	IsJumping = true;
 	IsFalling = false;
-	JumpAnimationStartZ = GetActorLocation().Y;
+	JumpAnimationStartZ = GetActorLocation().Z;
 	JumpAnimationTop = Top * 100;
 	JumpAnimationBottom = Bottom * 100;
 	JumpAnimationTimer = 0;
@@ -213,8 +228,11 @@ void APlayerCharacter::SendMovePacket(float X, float Y) {
 	gen::mmo::Move MovePacket;
 	MovePacket.position.x = X;
 	MovePacket.position.y = Y;
+	LastSendPosX = X;
 
 	UManager::Net()->Send(ServerType::MMO, &MovePacket);
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, FString::Printf(TEXT("%d, %d"), (int)MovePacket.position.x, (int)MovePacket.position.y));
 }
 
 float APlayerCharacter::Lerp(float a, float b, float t)

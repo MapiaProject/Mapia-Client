@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Managers/ManagerBase.h"
+#include "DataClass/MapData.h"
 #include "NetObjectManager.generated.h"
 
 namespace gen::mmo
@@ -29,8 +30,7 @@ public:
 	UNetObjectManager();
 	void HandleNetObjectPacket(uint64 ObjectId, const Packet* RecievedPacket);
 	void RequestEnterMap(FString MapName);
-	FString GetCurrentMapName();
-	TArray<TArray<int>>* GetCurrentMapData();
+	MapData* GetCurrentMapData();
 
 	void HandleEnterMap(gen::mmo::EnterMapRes* Packet);
 	void HandleSpawnPlayer(gen::mmo::Spawn* Packet);
@@ -44,7 +44,6 @@ private:
 	TSubclassOf<ACharacter> LocalPlayerClass;
 	TArray<TSubclassOf<AActor>> MonsterActors;
 
-	FString CurrentMapName;
 	FString LastRequstMapName;
-	TArray<TArray<int>> CurrentMapData;
+	MapData CurrentMapData;
 };

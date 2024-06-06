@@ -39,9 +39,8 @@ void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 	if (Packet->success)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("Enter map success"));
-		CurrentMapName = LastRequstMapName;
 
-		FString path = FPaths::ProjectDir() +TEXT("Source\\WOS\\Network\\generated\\mapData\\") + CurrentMapName + TEXT(".ini");
+		FString path = FPaths::ProjectDir() + TEXT("Source\\WOS\\Network\\generated\\mapData\\") + LastRequstMapName + TEXT(".ini");
 
 		Ini ini = Ini(path);
 		FString data = ini[TEXT("map")].Get<FString>("data");
@@ -49,7 +48,7 @@ void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 		int xSize, zSize;
 
 		//맵 사이즈 추출
-		FString size = ini[TEXT("info")].Get<FString>("size");
+		FString size = ini[TEXT("info")].Get<FString>("size");GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, size);
 		FString xData, zData;
 		size.Split(TEXT(","), &xData, &zData);
 		xSize = FCString::Atoi(*xData);
@@ -58,13 +57,15 @@ void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 		//맵 배열 생성
 		mapData.Reset(0);
 		for (int z = 0;z < zSize;z++) {
-			mapData.Add(TArray<int>());
+			TArray<int> Array = TArray<int>();
 			for (int x = 0;x < xSize;x++) {
 				TCHAR c = data[z * xSize + x];
-				mapData[z].Add(FCString::Atoi(&c));
+				Array.Add(FCString::Atoi(&c));
 			}
-
+			mapData.Insert(Array, 0);
 		}
+
+		CurrentMapData = MapData(LastRequstMapName, mapData);
 	}
 	else
 	{
@@ -161,12 +162,7 @@ void UNetObjectManager::RequestEnterMap(FString MapName)
 	LastRequstMapName = MapName;
 }
 
-String UNetObjectManager::GetCurrentMapName()
-{
-	return CurrentMapName;
-}
-
-TArray<TArray<int>>* UNetObjectManager::GetCurrentMapData()
+MapData* UNetObjectManager::GetCurrentMapData()
 {
 	return &CurrentMapData;
 }

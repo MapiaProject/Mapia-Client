@@ -50,7 +50,7 @@ public:
 	}
 public:
 	FORCEINLINE void SetTarget(RpcTarget NotifyTarget) { this->Target = NotifyTarget; }
-	FORCEINLINE void SetCaller(uint64 Caller) { this->Caller = Caller; }
+	FORCEINLINE void SetCaller(uint64 Id) { this->Caller = Id; }
 	FORCEINLINE void SetBuffer(std::span<char> Buffer) { Data() = std::vector(Buffer.begin(), Buffer.end()); }
 private:
 	uint64 Caller;

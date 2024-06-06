@@ -53,7 +53,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -79,7 +79,7 @@ private:
 
 	void MoveAnimationLogic(float Axis);
 	RPC_FUNCTION(JumpAnimationLogic)
-		void JumpAnimationLogic(bool bIsMine, int Top, int Bottom);
+		void JumpAnimationLogic(int Top, int Bottom);
 	float JumpAnimationStartZ;
 	float JumpAnimationTop;
 	float JumpAnimationBottom;
@@ -103,7 +103,9 @@ private:
 	FVector2D LastPosition;
 	float LastInputTimer;
 	float LastMoveAnimationValue;
+	int LastSendPosX;
 	float CurruntPlayerDir;
 	FVector2D ServerPosition;
+	int LocalPositionY;
 	float ServerTimer;
 };
