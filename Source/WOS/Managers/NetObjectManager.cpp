@@ -4,7 +4,7 @@
 #include "Managers/NetObjectManager.h"
 #include "GameFramework/Character.h"
 #include "GameActor/PlayerCharacter.h"
-#include "MonsterBindingData.h"
+#include "DataClass/MonsterBindingData.h"
 #include "Util/Ini.h"
 #include "Manager.h"
 #include "Kismet/GameplayStatics.h"
@@ -48,7 +48,7 @@ void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 		int xSize, zSize;
 
 		//맵 사이즈 추출
-		FString size = ini[TEXT("info")].Get<FString>("size");GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, size);
+		FString size = ini[TEXT("info")].Get<FString>("size");
 		FString xData, zData;
 		size.Split(TEXT(","), &xData, &zData);
 		xSize = FCString::Atoi(*xData);
