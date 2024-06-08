@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Vector2Int.h"
 
 /**
  * 
@@ -21,8 +22,12 @@ public:
 	FString GetName();
 	int GetXSize();
 	int GetYSize();
+	int GetTile(Vector2Int Position);
 	int GetTile(int X, int Y);
+	bool CheckIsWall(Vector2Int Position);
 	bool CheckIsWall(int X, int Y);
+	int GroundCast(Vector2Int Start);
+	int GroundCast(int X, int Y);
 
 	void Log(FColor Color = FColor::Magenta);
 };

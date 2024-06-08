@@ -34,6 +34,11 @@ int MapData::GetYSize()
 	return TileData.Num();
 }
 
+int MapData::GetTile(Vector2Int Position)
+{
+	return GetTile(Position.X, Position.Y);
+}
+
 int MapData::GetTile(int X, int Y)
 {
 	if (X >= GetXSize() || Y > GetYSize()) {
@@ -42,9 +47,34 @@ int MapData::GetTile(int X, int Y)
 	return TileData[Y][X];
 }
 
+bool MapData::CheckIsWall(Vector2Int Position)
+{
+	return CheckIsWall(Position.X, Position.Y);
+}
+
 bool MapData::CheckIsWall(int X, int Y)
 {
+	if (X > GetXSize() - 1 || Y > GetYSize()) return false;
 	return GetTile(X, Y) == 1;
+}
+
+int MapData::GroundCast(Vector2Int Start)
+{
+	return GroundCast(Start.X, Start.Y);
+}
+
+int MapData::GroundCast(int X, int Y)
+{
+	auto CheckingPositionY = Y;
+	while (CheckingPositionY >= 1) {
+		if (!CheckIsWall(X, CheckingPositionY) && CheckIsWall(X, CheckingPositionY - 1)) {
+			return CheckingPositionY;
+		}
+
+		CheckingPositionY -= 1;
+	}
+
+	return Y;
 }
 
 void MapData::Log(FColor Color)

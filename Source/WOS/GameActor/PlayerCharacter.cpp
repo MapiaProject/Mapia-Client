@@ -64,7 +64,19 @@ void APlayerCharacter::Tick(float DeltaTime)
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 
-			SendMovePacket(ServerPosition.X + LastMoveInput, LocalPositionY);
+			int MoveValue = LastMoveInput;
+			if (UManager::Object()->GetCurrentMapData()->CheckIsWall(ServerPosition + Vector2Int(MoveValue, 0))) {
+				MoveValue = 0;
+			}
+
+			if (!IsJumping && !IsFalling) {
+				auto MapData = UManager::Object()->GetCurrentMapData();
+				int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X + MoveValue, LocalPositionY));
+
+				LocalPositionY = Bottom;
+			}
+
+			SendMovePacket(ServerPosition.X + MoveValue, LocalPositionY);
 		}
 	}
 	if (!GetIsmine() || LastMoveInput == 0) {
@@ -134,6 +146,10 @@ void APlayerCharacter::ReceivePacket(const Packet* ReadingPacket) {
 }
 
 void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
+	if (ServerPosition.Y != LastPosition.Y) {
+		FallAnimationLogic(ServerPosition.Y);
+	}
+
 	LastPosition = ServerPosition;
 	ServerPosition = Vector2Int(MovePacket.position.x, MovePacket.position.y);
 	ServerTimer = 0;
@@ -158,9 +174,7 @@ void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 
 		LastMoveInput = Axis;
 
-		if (!(IsJumping || IsFalling)) {
-			MoveAnimationLogic(LastMoveInput);
-		}
+		MoveAnimationLogic(Axis);
 	}
 }
 
@@ -170,21 +184,17 @@ void APlayerCharacter::JumpInputHandler() {
 	int Top = ServerPosition.Y + 3;
 	int Bottom = ServerPosition.Y;
 
-	for (int i = min(Top, MapData->GetYSize() - 2);i >= 1;i--) {
-		if (!MapData->CheckIsWall(LastSendPosX, i) && MapData->CheckIsWall(LastSendPosX, i - 1)) {
-			Bottom = i;
-		}
-	}
+	Bottom = MapData->GroundCast(Vector2Int(LastSendPosX + LastMoveInput, Top));
 
 	LocalPositionY = Bottom;
-	SendMovePacket(LastSendPosX, Bottom);
+	SendMovePacket(LastSendPosX + LastMoveInput, Bottom);
 	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::Other, Top, Bottom);
 	JumpAnimationLogic(Top, Bottom);
 }
 
 void APlayerCharacter::AttackInputHandler()
 {
-
+	SendMovePacket(10, 10);
 }
 
 void APlayerCharacter::ParryingInputHandler()
