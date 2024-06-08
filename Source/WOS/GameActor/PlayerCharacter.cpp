@@ -189,8 +189,8 @@ void APlayerCharacter::JumpInputHandler() {
 
 	LocalPositionY = Bottom;
 	SendMovePacket(LastSendPosX + LastMoveInput, Bottom);
-	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::Other, Top, Bottom);
-	JumpAnimationLogic(Top, Bottom);
+	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::All, Top, Bottom);
+	//JumpAnimationLogic(Top, Bottom);
 }
 
 void APlayerCharacter::AttackInputHandler()
