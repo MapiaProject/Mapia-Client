@@ -43,6 +43,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		z = Lerp(Lerp(JumpAnimationStartZ, JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime), JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime);
 
 		if (JumpAnimationTimer > jumpAnimationTime) {
+			IsJumping = false;
 			FallAnimationLogic(JumpAnimationBottom / 100);
 		}
 	}
@@ -233,11 +234,15 @@ void APlayerCharacter::JumpAnimationLogic(int Top, int Bottom)
 
 void APlayerCharacter::FallAnimationLogic(int Bottom)
 {
-	IsJumping = false;
-	IsFalling = true;
-	JumpAnimationTop = GetActorLocation().Z;
+	if (!IsJumping && !IsFalling) {
+		IsJumping = false;
+		IsFalling = true;
+	}
+	if (!IsJumping) {
+		JumpAnimationTimer = 0;
+		JumpAnimationTop = GetActorLocation().Z;
+	}
 	JumpAnimationBottom = Bottom * 100;
-	JumpAnimationTimer = 0;
 }
 
 void APlayerCharacter::SendMovePacket(float X, float Y) {
