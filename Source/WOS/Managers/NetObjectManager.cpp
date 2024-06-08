@@ -91,7 +91,7 @@ void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
 
 		NetObjects.Add(Packet->players[0].objectInfo.objectId, Player);
 		Player->SetName(Packet->players[0].name);
-		Player->HandleSpawn(FVector2D(Packet->players[0].objectInfo.position.x, Packet->players[0].objectInfo.position.y));
+		Player->HandleSpawn(Vector2Int(Packet->players[0].objectInfo.position.x, Packet->players[0].objectInfo.position.y));
 		Player->SetIsmine();
 	}
 	else {

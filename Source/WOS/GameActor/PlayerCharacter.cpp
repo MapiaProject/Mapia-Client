@@ -109,7 +109,7 @@ void APlayerCharacter::SetName(FStringView SettedName) {
 	Name = SettedName;
 }
 
-void APlayerCharacter::HandleSpawn(FVector2D Position)
+void APlayerCharacter::HandleSpawn(Vector2Int Position)
 {
 	LastPosition = Position;
 	ServerPosition = Position;
@@ -135,7 +135,7 @@ void APlayerCharacter::ReceivePacket(const Packet* ReadingPacket) {
 
 void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 	LastPosition = ServerPosition;
-	ServerPosition = FVector2D(MovePacket.position.x, MovePacket.position.y);
+	ServerPosition = Vector2Int(MovePacket.position.x, MovePacket.position.y);
 	ServerTimer = 0;
 
 	LocalPositionY = ServerPosition.Y;

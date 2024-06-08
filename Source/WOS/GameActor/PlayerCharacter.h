@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Managers/NetObjectManager.h"
 #include "rpc.h"
+#include "DataClass/Vector2Int.h"
 #include "Network/generated/mmo/Protocol.gen.hpp"
 #include "PlayerCharacter.generated.h"
 
@@ -67,7 +68,7 @@ public:
 	virtual void DestroyNetObject() override;
 
 	void SetName(FStringView SettedName);
-	void HandleSpawn(FVector2D Position);
+	void HandleSpawn(Vector2Int Position);
 	void SetIsmine();
 	bool GetIsmine();
 
@@ -102,12 +103,12 @@ private:
 	float LastSendPositionTime;
 	FVector SpriteOriginScale;
 	bool bNetObjectIsmine;
-	FVector2D LastPosition;
+	Vector2Int LastPosition;
 	float LastInputTimer;
 	float LastMoveAnimationValue;
 	int LastSendPosX;
 	float CurruntPlayerDir;
-	FVector2D ServerPosition;
+	Vector2Int ServerPosition;
 	int LocalPositionY;
 	float ServerTimer;
 };
