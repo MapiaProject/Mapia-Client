@@ -21,7 +21,7 @@ enum class RpcTarget : uint8
 };
 
 template<class T, class... Args> requires std::is_base_of_v<NetObject, T>
-class Rpc : Packet
+class Rpc : public Packet
 {
 public:
 	Rpc(void(T::*RpcFunc)(Args...), uint16 Id) : Packet(Id, RPC), RpcFunc(RpcFunc)
@@ -87,7 +87,7 @@ public:
 		RpcObj->SetTarget(Target);
 		RpcObj->SetCaller(Owner->GetId());
 		RpcObj->WriteParameter(Forward<Args>(ArgsList)...);
-		SendRpc(reinterpret_cast<Packet*>(RpcObj));
+		SendRpc(RpcObj);
 	}
 
 	static void RecvRPC(std::span<char> buffer,  uint16 Id)

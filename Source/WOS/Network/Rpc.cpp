@@ -8,4 +8,5 @@ uint16 RpcView::RpcId = 0;
 void RpcView::SendRpc(Packet* RpcPacket)
 {
 	UManager::Net()->Send(ServerType::MMO, RpcPacket);
+	RpcPacket->Reset();
 }
