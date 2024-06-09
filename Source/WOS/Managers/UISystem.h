@@ -40,6 +40,8 @@ public:
 	void ExecIDCheckResult(bool Result);
 	UFUNCTION()
 	void ExecSuccessRegist();
+	UFUNCTION()
+	void ExecAddChatHistory(FString Message, FLinearColor TextColor);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
 	TSubclassOf<class UTitleUI> TitleWidget;

@@ -31,6 +31,7 @@ namespace gen::mmo
 {
 	class EnterMapRes;
 	class EnterGameRes;
+	class NotifyChat;
 }
 
 namespace gen::account
@@ -75,6 +76,7 @@ public:
 	void HandleCheckNickname(gen::account::CheckNicknameRes* Packet);
 	void HandleEnterGame(gen::mmo::EnterGameRes* Packet);
 	void HandleEnterMap(gen::mmo::EnterMapRes* Packet);
+	void HandleChat(gen::mmo::NotifyChat* Packet);
 public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());
 	static TObjectPtr<UUISystem> UI(const UWorld* World = GEngine->GameViewport->GetWorld());

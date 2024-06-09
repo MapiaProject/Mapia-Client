@@ -87,3 +87,7 @@ void UUISystem::ExecIDCheckResult(bool result) {
 void UUISystem::ExecSuccessRegist() {
 	Cast<UJoinUI>(JoinWidgetObject)->SuccessRegist();
 }
+
+void UUISystem::ExecAddChatHistory(FString Message, FLinearColor TextColor) {
+	Cast<UInGameUI>(InGameWidgetObject)->AddChatHistory(Message, TextColor);
+}

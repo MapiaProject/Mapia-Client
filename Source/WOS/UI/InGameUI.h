@@ -14,6 +14,12 @@ class WOS_API UInGameUI : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+	void NativeConstruct();
+
+	UFUNCTION()
+	void AddChatHistory(FString Message, FLinearColor TextColor);
+
 protected:
 	UFUNCTION()
 	void ShowInventory();
@@ -27,5 +33,15 @@ private:
 	class UProgressBar* HPBar;
 	UPROPERTY(meta=(BindWidget))
 	class UEditableTextBox* THP;
+	UPROPERTY(meta=(BindWidget))
+	class UEditableTextBox* TChat;
+	UPROPERTY(meta=(BindWidget))
+	class UScrollBox* Chating;
 
+	UFUNCTION()
+	void OnChatTextCommited(const FText& Text, ETextCommit::Type CommitMethod);
+	UFUNCTION()
+	void ParseCommand(FString Command);
+	UFUNCTION()
+	void ParseError(int ErrorType);
 };
