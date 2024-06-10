@@ -38,18 +38,23 @@ void APlayerCharacter::Tick(float DeltaTime)
 	JumpAnimationTimer += DeltaTime;
 
 	//점프,낙하 애니메이션
-	float jumpAnimationTime = 0.2f;
+	float jumpAnimationTime = 0.4f;
 	float z;
 	if (IsJumping) {
 		z = Lerp(Lerp(JumpAnimationStartZ, JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime), JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime);
 
 		if (JumpAnimationTimer > jumpAnimationTime) {
 			IsJumping = false;
-			FallAnimationLogic(JumpAnimationBottom / 100);
+			
+			auto MapData = UManager::Object()->GetCurrentMapData();
+			int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X + LastMoveInput, LocalPositionY));
+
+			LocalPositionY = Bottom;
+			FallAnimationLogic(LocalPositionY);
 		}
 	}
 	else if (IsFalling) {
-		z = Lerp(Lerp(JumpAnimationTop, JumpAnimationBottom, JumpAnimationTimer / jumpAnimationTime), JumpAnimationBottom, JumpAnimationTimer / jumpAnimationTime);
+		z = Lerp(JumpAnimationTop, Lerp(JumpAnimationTop, JumpAnimationBottom, JumpAnimationTimer / jumpAnimationTime), JumpAnimationTimer / jumpAnimationTime);
 
 		if (JumpAnimationTimer > jumpAnimationTime) {
 			IsFalling = false;
@@ -73,12 +78,13 @@ void APlayerCharacter::Tick(float DeltaTime)
 				MoveValue = 0;
 			}
 
-			if (!IsJumping && !IsFalling) {
+			/*if (!IsJumping && !IsFalling) {
 				auto MapData = UManager::Object()->GetCurrentMapData();
 				int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X + MoveValue, LocalPositionY));
 
 				LocalPositionY = Bottom;
-			}
+				FallAnimationLogic(Bottom);
+			}*/
 
 			SendMovePacket(ServerPosition.X + MoveValue, LocalPositionY);
 		}
@@ -150,15 +156,22 @@ void APlayerCharacter::ReceivePacket(const Packet* ReadingPacket) {
 }
 
 void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
-	if (ServerPosition.Y != LastPosition.Y) {
-		FallAnimationLogic(ServerPosition.Y);
-	}
 
 	LastPosition = ServerPosition;
 	ServerPosition = Vector2Int(MovePacket.position.x, MovePacket.position.y);
 	ServerTimer = 0;
 
 	LocalPositionY = ServerPosition.Y;
+
+	if (!IsJumping) {
+		auto MapData = UManager::Object()->GetCurrentMapData();
+		int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X, LocalPositionY));
+
+		if (LocalPositionY != Bottom) {
+			LocalPositionY = Bottom;
+			FallAnimationLogic(Bottom);
+		}
+	}
 	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("%d, %d"), (int)ServerPosition.X, (int)ServerPosition.Y));
 }
 
@@ -185,15 +198,19 @@ void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 void APlayerCharacter::JumpInputHandler() {
 	auto MapData = UManager::Object()->GetCurrentMapData();
 
+	if (MapData->GroundCast(LastSendPosX, LocalPositionY) != LocalPositionY || IsJumping || IsFalling) {
+		return;
+	}
+
 	int Top = ServerPosition.Y + 3;
 	int Bottom = ServerPosition.Y;
 
 	Bottom = MapData->GroundCast(Vector2Int(LastSendPosX + LastMoveInput, Top));
 
-	LocalPositionY = Bottom;
-	SendMovePacket(LastSendPosX + LastMoveInput, Bottom);
-	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::All, Top, Bottom);
-	//JumpAnimationLogic(Top, Bottom);
+	LocalPositionY = Top;
+	SendMovePacket(LastSendPosX + LastMoveInput, Top);
+	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::Other, Top, Bottom);
+	JumpAnimationLogic(Top, Bottom);
 }
 
 void APlayerCharacter::AttackInputHandler()
