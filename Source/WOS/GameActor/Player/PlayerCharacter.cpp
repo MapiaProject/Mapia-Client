@@ -37,6 +37,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	LastInputTimer += DeltaTime;
 	JumpAnimationTimer += DeltaTime;
 
+	//점프,낙하 애니메이션
 	float jumpAnimationTime = 0.2f;
 	float z;
 	if (IsJumping) {
@@ -58,10 +59,12 @@ void APlayerCharacter::Tick(float DeltaTime)
 		z = JumpAnimationBottom;
 	}
 
+	//위치 보간
 	auto Position = Lerp(LastPosition.X, ServerPosition.X, ServerTimer / 0.2f) * 100;
 	SetActorLocation(FVector(Position, 0, z));
 
 	if (GetIsmine()) {
+		//0.2초마다 자유낙하 계산, 위치 패킷 보내기
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 

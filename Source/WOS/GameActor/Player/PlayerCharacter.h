@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "NetObject.h"
+#include "../NetObject.h"
 #include "Packet.h"
 #include "PaperCharacter.h"
 #include "PaperFlipbook.h"
@@ -99,6 +99,7 @@ private:
 	static constexpr float sendPositionInterval = 0.2f;
 	FString Name;
 
+	//위치 계산, 애니메이션 구현용 변수
 	float LastMoveInput;
 	float LastSendPositionTime;
 	FVector SpriteOriginScale;
