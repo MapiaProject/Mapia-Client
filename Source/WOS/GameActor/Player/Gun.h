@@ -16,4 +16,5 @@ class WOS_API UGun : public UWeapon
 	
 public:
 	virtual void OnSwitchedFrom(TObjectPtr<UWeapon> Other);
+	virtual void LightAttackHandler(int Axis) override;
 };

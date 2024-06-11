@@ -14,9 +14,9 @@ UWeapon::UWeapon()
 	// ...
 }
 
-void UWeapon::Init(TObjectPtr<APlayerCharacter> PlayerChracter)
+void UWeapon::Init(TObjectPtr<APlayerCharacter> PlayerCharacter)
 {
-	this->Owner = Owner;
+	this->Owner = PlayerCharacter;
 	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Init"));
 }
 
@@ -34,6 +34,7 @@ void UWeapon::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 
 void UWeapon::LightAttackHandler(int Axis)
 {
+
 }
 
 void UWeapon::HeavyAttackHandler(int Axis)

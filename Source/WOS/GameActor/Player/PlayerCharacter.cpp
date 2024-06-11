@@ -238,7 +238,7 @@ void APlayerCharacter::JumpInputHandler() {
 
 void APlayerCharacter::AttackInputHandler()
 {
-	SendMovePacket(10, 10);
+	CurrentWeapon->LightAttackHandler(LastMoveInput);
 }
 
 void APlayerCharacter::ParryingInputHandler()
@@ -324,6 +324,8 @@ FVector2D APlayerCharacter::Lerp(FVector2D a, FVector2D b, float t)
 
 TArray<AActor*> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D Scale, float Dir, bool IgnoreFlip)
 {
+	AddedPosition *= 2;
+	AddedPosition += Scale;
 	if (!IgnoreFlip) {
 		AddedPosition.X *= CurruntPlayerDir;
 		Dir *= CurruntPlayerDir;
