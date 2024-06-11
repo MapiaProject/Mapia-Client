@@ -26,6 +26,17 @@ void APlayerCharacter::BeginPlay()
 
 	GetSprite()->SetFlipbook(IdleAnimation);
 	SpriteOriginScale = GetSprite()->GetComponentScale();
+
+	for (auto WeaponType : StartingWeapon) {
+		MyWeapons.Add(static_cast<UWeapon*>(this->FindComponentByClass(WeaponType)));
+	}
+
+	for (auto Weapon : MyWeapons) {
+		Weapon->Init(this);
+	}
+	if (MyWeapons.Num() > 0) {
+		SwitchWeapon(0);
+	}
 }
 
 // Called every frame
@@ -45,7 +56,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 		if (JumpAnimationTimer > jumpAnimationTime) {
 			IsJumping = false;
-			
+
 			auto MapData = UManager::Object()->GetCurrentMapData();
 			int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X + LastMoveInput, LocalPositionY));
 
@@ -108,6 +119,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &APlayerCharacter::JumpInputHandler);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APlayerCharacter::AttackInputHandler);
 		EnhancedInputComponent->BindAction(ParryingAction, ETriggerEvent::Started, this, &APlayerCharacter::ParryingInputHandler);
+		EnhancedInputComponent->BindAction(WeaponSwitchAction, ETriggerEvent::Started, this, &APlayerCharacter::WeaponSwitchInputHandler);
 	}
 	else {
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("InputComponent is not EnhancedInputComponent"));
@@ -195,6 +207,17 @@ void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 	}
 }
 
+void APlayerCharacter::WeaponSwitchInputHandler(const FInputActionValue& Value)
+{
+	int Axis = (int)Value.Get<float>();
+
+	int Index = (CurrentWeaponIndex + Axis) % MyWeapons.Num();
+	if (Index < 0) {
+		Index = MyWeapons.Num() - 1;
+	}
+	SwitchWeapon(Index);
+}
+
 void APlayerCharacter::JumpInputHandler() {
 	auto MapData = UManager::Object()->GetCurrentMapData();
 
@@ -263,6 +286,19 @@ void APlayerCharacter::FallAnimationLogic(int Bottom)
 		JumpAnimationTop = GetActorLocation().Z;
 	}
 	JumpAnimationBottom = Bottom * 100;
+}
+
+void APlayerCharacter::SwitchWeapon(int WeaponIndex)
+{
+	auto Origin = CurrentWeapon;
+	if (Origin != nullptr) {
+		CurrentWeapon->OnSwitchedTo(MyWeapons[WeaponIndex]);
+	}
+	CurrentWeapon = MyWeapons[WeaponIndex];
+	CurrentWeaponIndex = WeaponIndex;
+	if (Origin != nullptr) {
+		CurrentWeapon->OnSwitchedFrom(Origin);
+	}
 }
 
 void APlayerCharacter::SendMovePacket(float X, float Y) {

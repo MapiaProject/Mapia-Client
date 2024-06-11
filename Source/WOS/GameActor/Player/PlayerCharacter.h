@@ -12,6 +12,7 @@
 #include "Managers/NetObjectManager.h"
 #include "rpc.h"
 #include "DataClass/Vector2Int.h"
+#include "Weapon.h"
 #include "Network/generated/mmo/Protocol.gen.hpp"
 #include "PlayerCharacter.generated.h"
 
@@ -20,6 +21,25 @@ class WOS_API APlayerCharacter : public APaperCharacter, public NetObject
 {
 	GENERATED_BODY()
 public:
+	UPROPERTY(EditAnywhere, Category = Weapon)
+		TArray<TSubclassOf<UWeapon>> StartingWeapon;
+
+	UPROPERTY(EditAnywhere, Category = Move)
+		float MoveSpeed;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+		TObjectPtr<UInputMappingContext> InputMappingContext;
+	UPROPERTY(EditAnywhere, Category = Input)
+		TObjectPtr<UInputAction> MoveAction;
+	UPROPERTY(EditAnywhere, Category = Input)
+		TObjectPtr<UInputAction> WeaponSwitchAction;
+	UPROPERTY(EditAnywhere, Category = Input)
+		TObjectPtr<UInputAction> JumpAction;
+	UPROPERTY(EditAnywhere, Category = Input)
+		TObjectPtr<UInputAction> AttackAction;
+	UPROPERTY(EditAnywhere, Category = Input)
+		TObjectPtr<UInputAction> ParryingAction;
+
 	UPROPERTY(EditAnywhere, Category = Animation)
 		TObjectPtr<UPaperFlipbook> IdleAnimation;
 	UPROPERTY(EditAnywhere, Category = Animation)
@@ -35,21 +55,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Animation)
 		TObjectPtr<UPaperFlipbook> DieAnimation;
 
-	UPROPERTY(EditAnywhere, Category = Input)
-		TObjectPtr<UInputMappingContext> InputMappingContext;
-	UPROPERTY(EditAnywhere, Category = Input)
-		TObjectPtr<UInputAction> MoveAction;
-	UPROPERTY(EditAnywhere, Category = Input)
-		TObjectPtr<UInputAction> JumpAction;
-	UPROPERTY(EditAnywhere, Category = Input)
-		TObjectPtr<UInputAction> AttackAction;
-	UPROPERTY(EditAnywhere, Category = Input)
-		TObjectPtr<UInputAction> ParryingAction;
-	UPROPERTY(EditAnywhere, Category = Move)
-		float MoveSpeed;
 
 	// Sets default values for this character's properties
 	APlayerCharacter();
+	friend UWeapon;
 
 protected:
 	// Called when the game starts or when spawned
@@ -74,6 +83,7 @@ public:
 
 private:
 	void MoveInputHandler(const FInputActionValue& Value);
+	void WeaponSwitchInputHandler(const FInputActionValue& Value);
 	void JumpInputHandler();
 	void AttackInputHandler();
 	void ParryingInputHandler();
@@ -83,6 +93,7 @@ private:
 		void JumpAnimationLogic(int Top, int Bottom);
 	RPC_FUNCTION(FallAnimationLogic)
 		void FallAnimationLogic(int Bottom);
+	void SwitchWeapon(int WeaponIndex);
 	float JumpAnimationStartZ;
 	float JumpAnimationTop;
 	float JumpAnimationBottom;
@@ -112,4 +123,8 @@ private:
 	Vector2Int ServerPosition;
 	int LocalPositionY;
 	float ServerTimer;
+
+	TArray<UWeapon*> MyWeapons;
+	TObjectPtr<UWeapon> CurrentWeapon = nullptr;
+	int CurrentWeaponIndex;
 };
