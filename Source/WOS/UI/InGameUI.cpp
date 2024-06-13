@@ -90,13 +90,9 @@ void UInGameUI::ParseCommand(FString Command) {
 		else if (Commands[0] == TEXT("/d")) {
 			if (Commands.Num() < 3) ParseError(1);
 			else if (Commands.Num() == 3) {
-				// Commands[1]로 ObjectId 얻어오기
-				// Id가 없으면 에러 로그 출력
-								
 				gen::mmo::Chat Chat;
 				Chat.type = gen::mmo::EChatType::Direct;
-				// Chat.targetId = 얻어온 ObjectId
-				Chat.targetId = 0;
+				Chat.targetName = Commands[1];
 				Chat.message = Commands[2];
 				UManager::Net()->Send(ServerType::MMO, &Chat);
 

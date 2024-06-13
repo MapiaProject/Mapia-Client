@@ -72,11 +72,13 @@ void UUISystem::HideWidget(WidgetType WidgetType)
 }
 
 void UUISystem::ExecSuccessLogin() {
+	Cast<ULoginUI>(LoginWidgetObject)->SetBlank();
 	Cast<ULoginUI>(LoginWidgetObject)->SuccessLogin();
 }
 
 void UUISystem::ExecFailedLogin(int cause) {
 	ShowWidget(WidgetType::LoginFail);
+	Cast<ULoginUI>(LoginWidgetObject)->SetBlank();
 	Cast<ULoginFailUI>(LoginFailWidgetObject)->SetCause(cause);
 }
 

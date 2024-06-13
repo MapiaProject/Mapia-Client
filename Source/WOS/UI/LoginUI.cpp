@@ -23,9 +23,15 @@ void ULoginUI::OnClickStart()
 	req.nickname = ID->GetText().ToString();
 	req.password = FMD5::HashAnsiString(*PW->GetText().ToString());
 	UManager::Net()->Send(ServerType::Account, &req);
+}
 
+void ULoginUI::SetBlank() {
 	ID->SetText(FText::FromString(TEXT("")));
 	PW->SetText(FText::FromString(TEXT("")));
+}
+
+FText ULoginUI::GetID() const {
+	return ID->GetText();
 }
 
 void ULoginUI::SuccessLogin() const

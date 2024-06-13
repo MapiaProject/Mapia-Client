@@ -115,13 +115,13 @@ void UManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 void UManager::HandleChat(gen::mmo::NotifyChat* Packet) {
 	auto World = GetWorld();
 	if (Packet->type == gen::mmo::EChatType::All) {
-		UI(World)->ExecAddChatHistory(Packet->senderName + TEXT("->ÀüÃ¼ : ") + Packet->message, FLinearColor(1, 153 / 255.0f, 0, 1));
+		UI(World)->ExecAddChatHistory(Packet->senderName + TEXT("->ì „ì²´ : ") + Packet->message, FLinearColor(1, 153 / 255.0f, 0, 1));
 	}
 	else if (Packet->type == gen::mmo::EChatType::Local) {
-		UI(World)->ExecAddChatHistory(Packet->senderName + TEXT("->Áö¿ª : ") + Packet->message, FLinearColor(0, 192 / 255.0f, 1, 1));
+		UI(World)->ExecAddChatHistory(Packet->senderName + TEXT("->ì§€ì—­ : ") + Packet->message, FLinearColor(0, 192 / 255.0f, 1, 1));
 	}
 	else if (Packet->type == gen::mmo::EChatType::Direct) {
-		UI(World)->ExecAddChatHistory(Packet->senderName + TEXT("->³ª : ") + Packet->message, FLinearColor(192 / 255.0f, 32 / 255.0f, 1, 1));
+		UI(World)->ExecAddChatHistory(Packet->senderName + TEXT("->ë‚˜ : ") + Packet->message, FLinearColor(192 / 255.0f, 32 / 255.0f, 1, 1));
 	}
 }
 
