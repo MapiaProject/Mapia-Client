@@ -238,7 +238,7 @@ void APlayerCharacter::JumpInputHandler() {
 
 void APlayerCharacter::AttackInputHandler()
 {
-	CurrentWeapon->LightAttackHandler(LastMoveInput);
+	CurrentWeapon->HeavyAttackHandler(LastMoveInput);
 }
 
 void APlayerCharacter::ParryingInputHandler()

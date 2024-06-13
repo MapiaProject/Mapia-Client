@@ -22,6 +22,7 @@ void UWeapon::Init(TObjectPtr<APlayerCharacter> PlayerCharacter)
 
 void UWeapon::OnSwitchedFrom(TObjectPtr<UWeapon> Other)
 {
+
 }
 
 void UWeapon::OnSwitchedTo(TObjectPtr<UWeapon> Other)
@@ -45,9 +46,47 @@ void UWeapon::ParryingHandler(int Axis)
 {
 }
 
+void UWeapon::Skill1Handler(int Axis)
+{
+}
+
+void UWeapon::Skill2Handler(int Axis)
+{
+}
+
+void UWeapon::Skill3Handler(int Axis)
+{
+}
+
 bool UWeapon::IsUsing()
 {
 	return Owner->CurrentWeapon == this;
+}
+
+TArray<AActor*> UWeapon::ScanHitbox(FVector2D AddedPosition, FVector2D Scale, float Dir, bool IgnoreFlip)
+{
+	return Owner->ScanHitbox(AddedPosition, Scale, Dir, IgnoreFlip);
+}
+
+bool UWeapon::SendDamage(AActor* Target, int Damage)
+{
+	NetObject* O = reinterpret_cast<NetObject*>(Target);
+	if (O != nullptr) {
+		return O->TakeDamage(Damage);
+	}
+
+	return false;
+}
+
+int UWeapon::SendDamage(TArray<AActor*> Target, int Damage)
+{
+	int Count = 0;
+	for (auto T : Target) {
+		if (SendDamage(T, Damage)) {
+			Count++;
+		}
+	}
+	return Count;
 }
 
 FString UWeapon::GetName()

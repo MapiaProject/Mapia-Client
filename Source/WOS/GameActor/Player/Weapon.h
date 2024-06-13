@@ -8,6 +8,8 @@
 
 class APlayerCharacter;
 
+#define CHECK_COOLTIME(SkillName) Last##SkillName##Time + SkillName##CoolTime >= GetWorld()->TimeSeconds
+
 
 UCLASS()
 class WOS_API UWeapon : public UActorComponent
@@ -26,12 +28,18 @@ public:
 	virtual void LightAttackHandler(int Axis);
 	virtual void HeavyAttackHandler(int Axis);
 	virtual void ParryingHandler(int Axis);
+	virtual void Skill1Handler(int Axis);
+	virtual void Skill2Handler(int Axis);
+	virtual void Skill3Handler(int Axis);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = Info)
 		FString Name;
 
 	bool IsUsing();
+	TArray<AActor*> ScanHitbox(FVector2D AddedPosition, FVector2D Scale, float Dir = 0, bool IgnoreFlip = false);
+	bool SendDamage(AActor* Target,int Damage);
+	int SendDamage(TArray<AActor*> Target,int Damage);
 
 	TObjectPtr<APlayerCharacter> Owner;
 
