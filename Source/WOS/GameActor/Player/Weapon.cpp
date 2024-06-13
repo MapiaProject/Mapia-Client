@@ -89,6 +89,16 @@ int UWeapon::SendDamage(TArray<AActor*> Target, int Damage)
 	return Count;
 }
 
+void UWeapon::SetAfterDelay(float Delay)
+{
+	Owner->SetAfterDelay(Delay);
+}
+
+bool UWeapon::IsAfterDelaying()
+{
+	return Owner->IsAfterDelaying();
+}
+
 FString UWeapon::GetName()
 {
 	return Name;

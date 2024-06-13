@@ -80,6 +80,7 @@ public:
 	void HandleSpawn(Vector2Int Position);
 	void SetIsmine();
 	bool GetIsmine();
+	bool IsAfterDelaying();
 
 private:
 	void MoveInputHandler(const FInputActionValue& Value);
@@ -93,7 +94,6 @@ private:
 		void JumpAnimationLogic(int Top, int Bottom);
 	RPC_FUNCTION(FallAnimationLogic)
 		void FallAnimationLogic(int Bottom);
-	void SwitchWeapon(int WeaponIndex);
 	float JumpAnimationStartZ;
 	float JumpAnimationTop;
 	float JumpAnimationBottom;
@@ -101,6 +101,8 @@ private:
 	bool IsJumping;
 	bool IsFalling;
 
+	void SwitchWeapon(int WeaponIndex);
+	void SetAfterDelay(float Delay);
 	void SendMovePacket(float X, float Y);
 	float Lerp(float a, float b, float t);
 	FVector2D Lerp(FVector2D a, FVector2D b, float t);
@@ -127,4 +129,5 @@ private:
 	TArray<UWeapon*> MyWeapons;
 	TObjectPtr<UWeapon> CurrentWeapon = nullptr;
 	int CurrentWeaponIndex;
+	float WeaponAfterDelay;
 };

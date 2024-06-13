@@ -47,6 +47,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	ServerTimer += DeltaTime;
 	LastInputTimer += DeltaTime;
 	JumpAnimationTimer += DeltaTime;
+	WeaponAfterDelay -= DeltaTime;
 
 	//점프,낙하 애니메이션
 	float jumpAnimationTime = 0.4f;
@@ -299,6 +300,16 @@ void APlayerCharacter::SwitchWeapon(int WeaponIndex)
 	if (Origin != nullptr) {
 		CurrentWeapon->OnSwitchedFrom(Origin);
 	}
+}
+
+void APlayerCharacter::SetAfterDelay(float Delay)
+{
+	WeaponAfterDelay = Delay;
+}
+
+bool APlayerCharacter::IsAfterDelaying()
+{
+	return WeaponAfterDelay > 0;
 }
 
 void APlayerCharacter::SendMovePacket(float X, float Y) {

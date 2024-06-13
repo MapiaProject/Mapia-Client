@@ -23,7 +23,8 @@ void UGun::OnSwitchedTo(TObjectPtr<UWeapon> Other)
 void UGun::LightAttackHandler(int Axis)
 {
 	Super::LightAttackHandler(Axis);
-	if (CHECK_COOLTIME(LightAttack) && Energy >= LightAttackNeededEnergy) {
+	if (!IsAfterDelaying() && CHECK_COOLTIME(LightAttack) && Energy >= LightAttackNeededEnergy) {
+		SetAfterDelay(LightAttackAfterDelay);
 		LastLightAttackTime = GetWorld()->TimeSeconds;
 		Energy -= LightAttackNeededEnergy;
 		int a = SendDamage(ScanHitbox(FVector2D(50, 0), FVector2D(1000, 100)), LightAttackDamage);
@@ -34,7 +35,8 @@ void UGun::LightAttackHandler(int Axis)
 void UGun::HeavyAttackHandler(int Axis)
 {
 	Super::HeavyAttackHandler(Axis);
-	if (Energy >= HeavyAttackNeededEnergy) {
+	if (!IsAfterDelaying() && Energy >= HeavyAttackNeededEnergy) {
+		SetAfterDelay(HeavyAttackAfterDelay);
 		Energy -= HeavyAttackNeededEnergy;
 		HeavyAttackCounter = HeavyAttackCount;
 		HeavyAttackTimer = 0;
@@ -44,7 +46,8 @@ void UGun::HeavyAttackHandler(int Axis)
 void UGun::Skill1Handler(int Axis)
 {
 	Super::Skill1Handler(Axis);
-	if (Energy < 100 && CHECK_COOLTIME(Reload)) {
+	if (!IsAfterDelaying() && Energy < 100 && CHECK_COOLTIME(Reload)) {
+		SetAfterDelay(ReloadAfterDelay);
 		LastReloadTime = GetWorld()->TimeSeconds;
 		Energy = MaxEnergy;
 	}

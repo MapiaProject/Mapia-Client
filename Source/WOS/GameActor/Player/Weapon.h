@@ -40,6 +40,8 @@ protected:
 	TArray<AActor*> ScanHitbox(FVector2D AddedPosition, FVector2D Scale, float Dir = 0, bool IgnoreFlip = false);
 	bool SendDamage(AActor* Target,int Damage);
 	int SendDamage(TArray<AActor*> Target,int Damage);
+	void SetAfterDelay(float Delay);
+	bool IsAfterDelaying();
 
 	TObjectPtr<APlayerCharacter> Owner;
 
