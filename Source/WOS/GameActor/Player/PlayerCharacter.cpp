@@ -70,6 +70,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 		if (JumpAnimationTimer > jumpAnimationTime) {
 			IsFalling = false;
+			MoveAnimationLogic(LastMoveAnimationValue);
 		}
 	}
 	else {
@@ -252,15 +253,18 @@ void APlayerCharacter::MoveAnimationLogic(float Axis)
 	if (Axis > 0)Axis = 1;
 	else if (Axis < 0)Axis = -1;
 
+	if (!IsJumping && !IsFalling) {
+		GetSprite()->SetFlipbook(WalkAnimation);
+		if (Axis == 0) {
+			GetSprite()->SetFlipbook(IdleAnimation);
+		}
+	}
+
 	if (Axis != LastMoveAnimationValue) {
 		if (Axis != 0) {
 			GetSprite()->SetWorldScale3D(FVector(SpriteOriginScale.X * Axis, SpriteOriginScale.Y, SpriteOriginScale.Z));
-			GetSprite()->SetFlipbook(WalkAnimation);
 
 			CurruntPlayerDir = Axis;
-		}
-		else {
-			GetSprite()->SetFlipbook(IdleAnimation);
 		}
 		LastMoveAnimationValue = Axis;
 	}
@@ -274,6 +278,7 @@ void APlayerCharacter::JumpAnimationLogic(int Top, int Bottom)
 	JumpAnimationTop = Top * 100;
 	JumpAnimationBottom = Bottom * 100;
 	JumpAnimationTimer = 0;
+	GetSprite()->SetFlipbook(JumpAnimation);
 }
 
 void APlayerCharacter::FallAnimationLogic(int Bottom)
@@ -287,6 +292,7 @@ void APlayerCharacter::FallAnimationLogic(int Bottom)
 		JumpAnimationTop = GetActorLocation().Z;
 	}
 	JumpAnimationBottom = Bottom * 100;
+	GetSprite()->SetFlipbook(JumpAnimation);
 }
 
 void APlayerCharacter::SwitchWeapon(int WeaponIndex)
