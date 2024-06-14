@@ -120,10 +120,9 @@ Packet& Packet::operator<<(double Data) {
 }
 
 Packet& Packet::operator<<(StringView Data) {
-    std::string str;
-    str.assign(Data.begin(), Data.end());
-    *this << static_cast<int16>(str.length());
-    m_buffer.insert(m_buffer.end(), str.begin(), str.end());
+    const auto str = reinterpret_cast<const char*>(Data.GetData());
+    *this << static_cast<int16>(Data.Len());
+    m_buffer.insert(m_buffer.end(), str, str + Data.Len() * 2);
     return *this;
 }
 
@@ -230,8 +229,7 @@ Packet& Packet::operator>>(String& Data)
 {
     unsigned short len;
     *this >> len;
-    std::string str(m_buffer.begin(), m_buffer.begin() + len);
-    Data = FString(len, str.c_str());
-    m_buffer.erase(m_buffer.begin(), m_buffer.begin() + len);
+    Data = std::wstring(reinterpret_cast<const wchar_t*>(m_buffer.data()), len).c_str();
+    m_buffer.erase(m_buffer.begin(), m_buffer.begin() + len*2);
     return *this;
 }
