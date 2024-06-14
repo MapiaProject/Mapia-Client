@@ -82,6 +82,8 @@ public:
 	bool GetIsmine();
 	bool IsAfterDelaying();
 
+	void RPCJump(int Top, int Bottom);
+
 private:
 	void MoveInputHandler(const FInputActionValue& Value);
 	void WeaponSwitchInputHandler(const FInputActionValue& Value);

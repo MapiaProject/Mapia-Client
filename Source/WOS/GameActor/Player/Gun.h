@@ -30,14 +30,14 @@ public:
 private:
 	UPROPERTY(EditAnywhere, Category = GunInfo)
 		int MaxEnergy;
+
 	UPROPERTY(EditAnywhere, Category = GunLightAttack)
 		int LightAttackDamage;
 	UPROPERTY(EditAnywhere, Category = GunLightAttack)
 		int LightAttackNeededEnergy;
 	UPROPERTY(EditAnywhere, Category = GunLightAttack)
-		float LightAttackCoolTime;
-	UPROPERTY(EditAnywhere, Category = GunLightAttack)
 		float LightAttackAfterDelay;
+
 	UPROPERTY(EditAnywhere, Category = GunHeavyAttack)
 		int HeavyAttackDamage;
 	UPROPERTY(EditAnywhere, Category = GunHeavyAttack)
@@ -48,15 +48,16 @@ private:
 		float HeavyAttackDelay;
 	UPROPERTY(EditAnywhere, Category = GunHeavyAttack)
 		float HeavyAttackAfterDelay;
+
 	UPROPERTY(EditAnywhere, Category = Reroad)
 		float ReloadCoolTime;
 	UPROPERTY(EditAnywhere, Category = Reroad)
 		float ReloadAfterDelay;
 
+
 	float Energy;
 	int HeavyAttackCounter;
 	float HeavyAttackTimer;
 
-	float LastLightAttackTime;
 	float LastReloadTime;
 };

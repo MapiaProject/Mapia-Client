@@ -318,6 +318,11 @@ bool APlayerCharacter::IsAfterDelaying()
 	return WeaponAfterDelay > 0;
 }
 
+void APlayerCharacter::RPCJump(int Top, int Bottom)
+{
+	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::All, Top, Bottom);
+}
+
 void APlayerCharacter::SendMovePacket(float X, float Y) {
 	gen::mmo::Move MovePacket;
 	MovePacket.position.x = X;

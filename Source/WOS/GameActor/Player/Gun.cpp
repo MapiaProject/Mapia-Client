@@ -17,18 +17,17 @@ void UGun::OnSwitchedFrom(TObjectPtr<UWeapon> Other)
 
 void UGun::OnSwitchedTo(TObjectPtr<UWeapon> Other)
 {
+	Super::OnSwitchedTo(Other);
 	HeavyAttackCount = 0;
 }
 
 void UGun::LightAttackHandler(int Axis)
 {
 	Super::LightAttackHandler(Axis);
-	if (!IsAfterDelaying() && CHECK_COOLTIME(LightAttack) && Energy >= LightAttackNeededEnergy) {
+	if (!IsAfterDelaying()&& Energy >= LightAttackNeededEnergy) {
 		SetAfterDelay(LightAttackAfterDelay);
-		LastLightAttackTime = GetWorld()->TimeSeconds;
 		Energy -= LightAttackNeededEnergy;
 		int a = SendDamage(ScanHitbox(FVector2D(50, 0), FVector2D(1000, 100)), LightAttackDamage);
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("targetCount : %d"), a));
 	}
 }
 
