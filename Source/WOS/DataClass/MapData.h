@@ -6,7 +6,7 @@
 #include "Vector2Int.h"
 
 /**
- * 
+ *
  */
 class WOS_API MapData
 {
@@ -26,8 +26,15 @@ public:
 	int GetTile(int X, int Y);
 	bool CheckIsWall(Vector2Int Position);
 	bool CheckIsWall(int X, int Y);
+	bool CheckInWorld(Vector2Int Position);
+	bool CheckInWorld(int X, int Y);
+	Vector2Int RayCast(Vector2Int Start, Vector2Int Direction);
+	Vector2Int RayCast(Vector2Int Start, Vector2Int Direction, int Len);
 	int GroundCast(Vector2Int Start);
 	int GroundCast(int X, int Y);
 
 	void Log(FColor Color = FColor::Magenta);
+
+private:
+	Vector2Int RayCast(Vector2Int Start, Vector2Int Direction, int Len, bool UseLen);
 };

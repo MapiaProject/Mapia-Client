@@ -41,8 +41,8 @@ int MapData::GetTile(Vector2Int Position)
 
 int MapData::GetTile(int X, int Y)
 {
-	if (X >= GetXSize() || Y > GetYSize()) {
-		return 0;
+	if (!CheckInWorld(X, Y)) {
+		return 1;
 	}
 	return TileData[Y][X];
 }
@@ -58,6 +58,26 @@ bool MapData::CheckIsWall(int X, int Y)
 	return GetTile(X, Y) == 1;
 }
 
+bool MapData::CheckInWorld(Vector2Int Position)
+{
+	return CheckInWorld(Position.X, Position.Y);
+}
+
+bool MapData::CheckInWorld(int X, int Y)
+{
+	return X >= 0 && Y >= 0 && X < GetXSize() && Y < GetYSize();
+}
+
+Vector2Int MapData::RayCast(Vector2Int Start, Vector2Int Direction)
+{
+	return RayCast(Start, Direction, 0, false);
+}
+
+Vector2Int MapData::RayCast(Vector2Int Start, Vector2Int Direction, int Len)
+{
+	return RayCast(Start, Direction, Len, true);
+}
+
 int MapData::GroundCast(Vector2Int Start)
 {
 	return GroundCast(Start.X, Start.Y);
@@ -65,16 +85,7 @@ int MapData::GroundCast(Vector2Int Start)
 
 int MapData::GroundCast(int X, int Y)
 {
-	auto CheckingPositionY = Y;
-	while (CheckingPositionY >= 1) {
-		if (!CheckIsWall(X, CheckingPositionY) && CheckIsWall(X, CheckingPositionY - 1)) {
-			return CheckingPositionY;
-		}
-
-		CheckingPositionY -= 1;
-	}
-
-	return Y;
+	return RayCast(Vector2Int(X, Y), Vector2Int(0, -1)).Y;
 }
 
 void MapData::Log(FColor Color)
@@ -91,4 +102,17 @@ void MapData::Log(FColor Color)
 	GEngine->AddOnScreenDebugMessage(-1, 5, Color, FString::Printf(TEXT("Size : %d x %d"), GetXSize(), GetYSize()));
 	GEngine->AddOnScreenDebugMessage(-1, 5, Color, TEXT("MapDataLog"));
 	GEngine->AddOnScreenDebugMessage(-1, 5, Color, TEXT("==============="));
+}
+
+Vector2Int MapData::RayCast(Vector2Int Start, Vector2Int Direction, int Len, bool UseLen)
+{
+	Vector2Int Current = Start;
+	for (int a;!UseLen || a < Len;a++) {
+		if (CheckIsWall(Current + Direction) || !CheckInWorld(Current + Direction)) {
+			break;
+		}
+		Current = Current + Direction;
+	}
+
+	return Current;
 }
