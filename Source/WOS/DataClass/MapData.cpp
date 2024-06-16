@@ -107,7 +107,7 @@ void MapData::Log(FColor Color)
 Vector2Int MapData::RayCast(Vector2Int Start, Vector2Int Direction, int Len, bool UseLen)
 {
 	Vector2Int Current = Start;
-	for (int a;!UseLen || a < Len;a++) {
+	for (int a = 0;!UseLen || a < Len;a++) {
 		if (CheckIsWall(Current + Direction) || !CheckInWorld(Current + Direction)) {
 			break;
 		}

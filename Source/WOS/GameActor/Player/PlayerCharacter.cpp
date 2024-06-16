@@ -86,20 +86,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 
-			int MoveValue = LastMoveInput;
-			if (UManager::Object()->GetCurrentMapData()->CheckIsWall(ServerPosition + Vector2Int(MoveValue, 0))) {
-				MoveValue = 0;
-			}
-
-			/*if (!IsJumping && !IsFalling) {
-				auto MapData = UManager::Object()->GetCurrentMapData();
-				int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X + MoveValue, LocalPositionY));
-
-				LocalPositionY = Bottom;
-				FallAnimationLogic(Bottom);
-			}*/
-
-			SendMovePacket(ServerPosition.X + MoveValue, LocalPositionY);
+			MoveLogic(Vector2Int(ServerPosition.X + LastMoveInput, LocalPositionY));
 		}
 	}
 	if (!GetIsmine() || LastMoveInput == 0) {
@@ -243,6 +230,33 @@ void APlayerCharacter::AttackInputHandler()
 void APlayerCharacter::ParryingInputHandler()
 {
 
+}
+
+void APlayerCharacter::MoveLogic(Vector2Int Position, bool UseAnimation)
+{
+	Vector2Int Origin = ServerPosition;
+	auto MapData = UManager::Object()->GetCurrentMapData();
+	if (!MapData->CheckInWorld(Position)) {
+		if (Position.X < 0) {
+			Position.X = 0;
+		}
+		else if (Position.X >= MapData->GetXSize()) {
+			Position.X = MapData->GetXSize() - 1;
+		}
+		if (Position.Y < 0) {
+			Position.Y = 0;
+		}
+		else if (Position.Y >= MapData->GetYSize()) {
+			Position.Y = MapData->GetYSize() - 1;
+		}
+	}
+
+	SendMovePacket(Position.X, Position.Y);
+
+	if (UseAnimation) {
+		float Axis = Position.X - ServerPosition.X;
+		MoveAnimationLogic(Axis);
+	}
 }
 
 void APlayerCharacter::MoveAnimationLogic(float Axis)
