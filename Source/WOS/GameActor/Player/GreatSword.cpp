@@ -46,7 +46,7 @@ void UGreatSword::LightAttackHandler(int Axis)
 		else {
 			SetAfterDelay(LightAttackAfterDelay);
 		}
-		int a = SendDamage(ScanHitbox(FVector2D(50, 0), FVector2D(200, 150)), LightAttackDamage);
+		SendDamage(ScanHitbox(FVector2D(50, 0), FVector2D(200, 150)), LightAttackDamage);
 	}
 }
 
@@ -61,7 +61,7 @@ void UGreatSword::HeavyAttackHandler(int Axis)
 		else {
 			SetAfterDelay(HeavyAttackAfterDelay);
 		}
-		int a = SendDamage(ScanHitbox(FVector2D(50, 0), FVector2D(300, 150)), HeavyAttackDamage);
+		SendDamage(ScanHitbox(FVector2D(50, 0), FVector2D(300, 150)), HeavyAttackDamage);
 	}
 }
 

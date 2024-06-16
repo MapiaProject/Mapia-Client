@@ -232,6 +232,11 @@ void APlayerCharacter::ParryingInputHandler()
 
 }
 
+void APlayerCharacter::Dash(int Direction)
+{
+	MoveLogic(Vector2Int(LastSendPosX + Direction, ServerPosition.Y), false);
+}
+
 void APlayerCharacter::MoveLogic(Vector2Int Position, bool UseAnimation)
 {
 	Vector2Int Origin = ServerPosition;

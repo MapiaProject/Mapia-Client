@@ -21,8 +21,8 @@ public:
 
 	virtual void LightAttackHandler(int Axis);
 	virtual void HeavyAttackHandler(int Axis);
-	//virtual void Skill2Handler(int Axis);
-	//virtual void Skill3Handler(int Axis);
+	virtual void Skill2Handler(int Axis);
+	virtual void Skill3Handler(int Axis);
 
 	float GetEnergy();
 

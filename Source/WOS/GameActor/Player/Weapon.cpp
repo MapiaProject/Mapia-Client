@@ -99,6 +99,21 @@ bool UWeapon::IsAfterDelaying()
 	return Owner->IsAfterDelaying();
 }
 
+void UWeapon::Dash(int Direction)
+{
+	Owner->Dash(Direction);
+}
+
+int UWeapon::GetLastMoveInput()
+{
+	return Owner->LastMoveInput;
+}
+
+void UWeapon::MoveAnimationLogic(int Axis)
+{
+	Owner->MoveAnimationLogic(Axis);
+}
+
 FString UWeapon::GetName()
 {
 	return Name;

@@ -91,6 +91,7 @@ private:
 	void AttackInputHandler();
 	void ParryingInputHandler();
 
+	void Dash(int Direction);
 	void MoveLogic(Vector2Int Position, bool UseAnimation = true);
 	void MoveAnimationLogic(float Axis);
 	RPC_FUNCTION(JumpAnimationLogic)

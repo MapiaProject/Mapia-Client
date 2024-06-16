@@ -42,6 +42,9 @@ protected:
 	int SendDamage(TArray<AActor*> Target,int Damage);
 	void SetAfterDelay(float Delay);
 	bool IsAfterDelaying();
+	void Dash(int Direction);
+	int GetLastMoveInput();
+	void MoveAnimationLogic(int Axis);
 
 	TObjectPtr<APlayerCharacter> Owner;
 

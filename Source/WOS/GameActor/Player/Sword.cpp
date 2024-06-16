@@ -2,6 +2,7 @@
 
 
 #include "GameActor/Player/Sword.h"
+#include "PlayerCharacter.h"
 
 void USword::Init(TObjectPtr<APlayerCharacter> PlayerCharacter)
 {
@@ -32,7 +33,7 @@ void USword::LightAttackHandler(int Axis)
 	{
 		SetAfterDelay(LightAttackAfterDelay);
 
-		int a = SendDamage(ScanHitbox(FVector2D(50, 0), FVector2D(150, 100)), LightAttackDamage);
+		SendDamage(ScanHitbox(FVector2D(50, 0), FVector2D(150, 100)), LightAttackDamage);
 	}
 }
 
@@ -43,7 +44,30 @@ void USword::HeavyAttackHandler(int Axis)
 	{
 		SetAfterDelay(HeavyAttackAfterDelay);
 
-		int a = SendDamage(ScanHitbox(FVector2D(50, 0), FVector2D(150, 150)), HeavyAttackDamage);
+		SendDamage(ScanHitbox(FVector2D(50, 0), FVector2D(150, 150)), HeavyAttackDamage);
+	}
+}
+
+void USword::Skill2Handler(int Axis)
+{
+	Super::Skill2Handler(Axis);
+	if (!IsAfterDelaying()) {
+		SetAfterDelay(RushAfterDelay);
+
+		ScanHitbox(FVector2D(-100, 0), FVector2D(200 + RushLength * 100, 100));
+		Dash(GetLastMoveInput() * RushLength);
+		MoveAnimationLogic(GetLastMoveInput());
+	}
+}
+
+void USword::Skill3Handler(int Axis)
+{
+	Super::Skill3Handler(Axis);
+	if (!IsAfterDelaying()) {
+		SetAfterDelay(BackStepAfterDelay);
+
+		Dash(-GetLastMoveInput() * BackStepLength);
+		MoveAnimationLogic(-GetLastMoveInput());
 	}
 }
 
