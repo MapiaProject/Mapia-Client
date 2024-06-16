@@ -82,7 +82,7 @@ public:
 	bool GetIsmine();
 	bool IsAfterDelaying();
 
-	void RPCJump(int Top, int Bottom);
+	void RPCJump(int JumpPower);
 
 private:
 	void MoveInputHandler(const FInputActionValue& Value);
@@ -93,7 +93,7 @@ private:
 
 	void MoveAnimationLogic(float Axis);
 	RPC_FUNCTION(JumpAnimationLogic)
-		void JumpAnimationLogic(int Top, int Bottom);
+		void JumpAnimationLogic(int Top);
 	RPC_FUNCTION(FallAnimationLogic)
 		void FallAnimationLogic(int Bottom);
 	float JumpAnimationStartZ;

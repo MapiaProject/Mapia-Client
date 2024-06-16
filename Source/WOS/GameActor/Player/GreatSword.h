@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameActor/Player/Weapon.h"
+#include "PlayerCharacter.h"
 #include "GreatSword.generated.h"
 
 /**

@@ -228,14 +228,11 @@ void APlayerCharacter::JumpInputHandler() {
 	}
 
 	int Top = ServerPosition.Y + 3;
-	int Bottom = ServerPosition.Y;
-
-	Bottom = MapData->GroundCast(Vector2Int(LastSendPosX + LastMoveInput, Top));
 
 	LocalPositionY = Top;
 	SendMovePacket(LastSendPosX + LastMoveInput, Top);
-	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::Other, Top, Bottom);
-	JumpAnimationLogic(Top, Bottom);
+	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::Other, Top);
+	JumpAnimationLogic(Top);
 }
 
 void APlayerCharacter::AttackInputHandler()
@@ -270,15 +267,21 @@ void APlayerCharacter::MoveAnimationLogic(float Axis)
 	}
 }
 
-void APlayerCharacter::JumpAnimationLogic(int Top, int Bottom)
+void APlayerCharacter::JumpAnimationLogic(int Top)
 {
 	IsJumping = true;
 	IsFalling = false;
 	JumpAnimationStartZ = GetActorLocation().Z;
-	JumpAnimationTop = Top * 100;
-	JumpAnimationBottom = Bottom * 100;
 	JumpAnimationTimer = 0;
 	GetSprite()->SetFlipbook(JumpAnimation);
+
+	auto MapData = UManager::Object()->GetCurrentMapData();
+	if (Top < MapData->GetYSize()) {
+		JumpAnimationTop = Top * 100;
+	}
+	else {
+		JumpAnimationTop = (MapData->GetYSize() - 1) * 100;
+	}
 }
 
 void APlayerCharacter::FallAnimationLogic(int Bottom)
@@ -318,9 +321,11 @@ bool APlayerCharacter::IsAfterDelaying()
 	return WeaponAfterDelay > 0;
 }
 
-void APlayerCharacter::RPCJump(int Top, int Bottom)
+void APlayerCharacter::RPCJump(int JumpPower)
 {
-	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::All, Top, Bottom);
+	int Top = ServerPosition.Y + JumpPower;
+	SendMovePacket(LastSendPosX + LastMoveInput, Top);
+	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::All, Top);
 }
 
 void APlayerCharacter::SendMovePacket(float X, float Y) {

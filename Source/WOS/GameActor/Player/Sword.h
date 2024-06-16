@@ -16,4 +16,20 @@ class WOS_API USword : public UWeapon
 	
 public:
 	virtual void OnSwitchedFrom(TObjectPtr<UWeapon> Other);
+
+private:
+	UPROPERTY(EditAnywhere, Category = GreatSwordInfo)
+		int MaxEnergy;
+	UPROPERTY(EditAnywhere, Category = GreatSwordInfo)
+		int EnergyRegenSpeed;
+
+	UPROPERTY(EditAnywhere, Category = GreatSwordLightAttack)
+		int LightAttackDamage;
+	UPROPERTY(EditAnywhere, Category = GreatSwordLightAttack)
+		float LightAttackAfterDelay;
+
+	UPROPERTY(EditAnywhere, Category = GreatSwordHeavyAttack)
+		int HeavyAttackDamage;
+	UPROPERTY(EditAnywhere, Category = GreatSwordHeavyAttack)
+		float HeavyAttackAfterDelay;
 };

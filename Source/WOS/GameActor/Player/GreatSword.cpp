@@ -73,6 +73,7 @@ void UGreatSword::Skill1Handler(int Axis)
 		SetAfterDelay(VerticalSmashAfterDelay);
 		LastVerticalSmashTime = GetWorld()->TimeSeconds;
 		int a = SendDamage(ScanHitbox(FVector2D(50, -100), FVector2D(200, 600)), VerticalSmashDamage);
+		Owner->RPCJump(1);
 	}
 }
 
