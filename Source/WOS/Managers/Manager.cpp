@@ -65,6 +65,11 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 
 		UI(World)->ExecSuccessLogin();
 	}
+	else {
+		int cause = Packet->cause;
+
+		UI(World)->ExecFailedLogin(cause);
+	}
 }
 
 void UManager::HandleRegister(gen::account::RegisterRes* Packet)
@@ -91,6 +96,19 @@ void UManager::HandleEnterGame(gen::mmo::EnterGameRes* Packet)
 void UManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 {
 	Object(GetWorld())->HandleEnterMap(Packet);
+}
+
+void UManager::HandleChat(gen::mmo::NotifyChat* Packet) {
+	auto World = GetWorld();
+	if (Packet->type == gen::mmo::EChatType::All) {
+		UI(World)->ExecAddChatHistory(Packet->senderName + TEXT("->전체 : ") + Packet->message, FLinearColor(1, 153 / 255.0f, 0, 1));
+	}
+	else if (Packet->type == gen::mmo::EChatType::Local) {
+		UI(World)->ExecAddChatHistory(Packet->senderName + TEXT("->지역 : ") + Packet->message, FLinearColor(0, 192 / 255.0f, 1, 1));
+	}
+	else if (Packet->type == gen::mmo::EChatType::Direct) {
+		UI(World)->ExecAddChatHistory(Packet->senderName + TEXT("->나 : ") + Packet->message, FLinearColor(192 / 255.0f, 32 / 255.0f, 1, 1));
+	}
 }
 
 TObjectPtr<UNetwork> UManager::Net(const UWorld* World)

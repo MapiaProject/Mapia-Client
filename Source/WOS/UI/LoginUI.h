@@ -18,6 +18,10 @@ public:
 	void NativeConstruct();
 	UFUNCTION()
 	void SuccessLogin() const;
+	UFUNCTION()
+	void SetBlank();
+	UFUNCTION()
+	FText GetID() const;
 
 protected:
 	UFUNCTION()
