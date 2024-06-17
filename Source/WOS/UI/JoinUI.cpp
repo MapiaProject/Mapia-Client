@@ -43,14 +43,13 @@ void UJoinUI::OnClickRegist() {
 }
 
 void UJoinUI::IDCheckResult(bool result) {
-	if (result) {
+	if (!result) {
 		isIDCheck = true;
-		TIDCheckResult->SetText(FText::FromString(TEXT("»ç¿ë °¡´ÉÇÑ ¾ÆÀÌµð ÀÔ´Ï´Ù.")));
+		TIDCheckResult->SetText(FText::FromString(TEXT("ì‚¬ìš© ê°€ëŠ¥í•œ ì•„ì´ë”” ìž…ë‹ˆë‹¤.")));
 		TIDCheckResult->SetForegroundColor(FLinearColor(0, 1, 0, 1));
 	}
 	else {
-		isPWCheck = true;
-		TIDCheckResult->SetText(FText::FromString(TEXT("Áßº¹µÈ ¾ÆÀÌµð ÀÔ´Ï´Ù.")));
+		TIDCheckResult->SetText(FText::FromString(TEXT("ì¤‘ë³µëœ ì•„ì´ë”” ìž…ë‹ˆë‹¤.")));
 		TIDCheckResult->SetForegroundColor(FLinearColor(1, 0, 0, 1));
 	}
 }

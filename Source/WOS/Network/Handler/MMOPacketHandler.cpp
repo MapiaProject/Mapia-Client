@@ -36,6 +36,7 @@ bool mmo::PacketHandler::NotifyMovePacketHandler(TSharedPtr<Session> session, TS
 
 bool mmo::PacketHandler::NotifyChatPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyChat> packet)
 {
+	UManager::Get()->HandleChat(packet.Get());
 	return false;
 }
 
