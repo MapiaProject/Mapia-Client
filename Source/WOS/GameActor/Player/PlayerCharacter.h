@@ -92,7 +92,7 @@ private:
 	void ParryingInputHandler();
 
 	void Dash(int Direction);
-	void MoveLogic(Vector2Int Position, bool UseAnimation = true);
+	void MoveLogic(Vector2Int Position);
 	void MoveAnimationLogic(float Axis);
 	RPC_FUNCTION(JumpAnimationLogic)
 		void JumpAnimationLogic(int Top);

@@ -86,7 +86,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 
-			MoveLogic(Vector2Int(ServerPosition.X + LastMoveInput, LocalPositionY));
+			auto MapData = UManager::Object()->GetCurrentMapData();
+			Vector2Int TargetPosition = MapData->RayCast(Vector2Int(ServerPosition.X, LocalPositionY), Vector2Int(LastMoveInput, 0), 1);
+			MoveLogic(TargetPosition);
 		}
 	}
 	if (!GetIsmine() || LastMoveInput == 0) {
@@ -234,10 +236,12 @@ void APlayerCharacter::ParryingInputHandler()
 
 void APlayerCharacter::Dash(int Direction)
 {
-	MoveLogic(Vector2Int(LastSendPosX + Direction, ServerPosition.Y), false);
+	auto MapData = UManager::Object()->GetCurrentMapData();
+	Vector2Int TargetPosition = MapData->RayCast(Vector2Int(LastSendPosX, ServerPosition.Y), Vector2Int(Direction, 0), 1);
+	MoveLogic(Vector2Int(LastSendPosX + Direction, ServerPosition.Y));
 }
 
-void APlayerCharacter::MoveLogic(Vector2Int Position, bool UseAnimation)
+void APlayerCharacter::MoveLogic(Vector2Int Position)
 {
 	Vector2Int Origin = ServerPosition;
 	auto MapData = UManager::Object()->GetCurrentMapData();
@@ -257,11 +261,6 @@ void APlayerCharacter::MoveLogic(Vector2Int Position, bool UseAnimation)
 	}
 
 	SendMovePacket(Position.X, Position.Y);
-
-	if (UseAnimation) {
-		float Axis = Position.X - ServerPosition.X;
-		MoveAnimationLogic(Axis);
-	}
 }
 
 void APlayerCharacter::MoveAnimationLogic(float Axis)
