@@ -48,6 +48,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	LastInputTimer += DeltaTime;
 	JumpAnimationTimer += DeltaTime;
 	WeaponAfterDelay -= DeltaTime;
+	DamagedMaterialTimer -= DeltaTime;
 
 	//점프,낙하 애니메이션
 	float jumpAnimationTime = 0.4f;
@@ -75,6 +76,10 @@ void APlayerCharacter::Tick(float DeltaTime)
 	}
 	else {
 		z = JumpAnimationBottom;
+	}
+	if (IsDamagedMaterialOn && DamagedMaterialTimer < 0) {
+		GetSprite()->SetMaterial(0, DefaultMaterial);
+		IsDamagedMaterialOn = false;
 	}
 
 	//위치 보간
@@ -183,6 +188,17 @@ void APlayerCharacter::DestroyNetObject()
 	Destroy();
 }
 
+bool APlayerCharacter::TakeDamage(int Damage)
+{
+	bool IsDamaged = NetObject::TakeDamage(Damage);
+	if (IsDamaged) {
+		GetSprite()->SetMaterial(0, DamagedMaterial);
+		IsDamagedMaterialOn = true;
+		DamagedMaterialTimer = DamagedMaterialTime;
+	}
+	return IsDamaged;
+}
+
 void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 	float Axis = Value.Get<float>();
 	if (Axis != LastMoveInput) {
@@ -226,7 +242,7 @@ void APlayerCharacter::JumpInputHandler() {
 
 void APlayerCharacter::AttackInputHandler()
 {
-	CurrentWeapon->HeavyAttackHandler(LastMoveInput);
+	TakeDamage(0);
 }
 
 void APlayerCharacter::ParryingInputHandler()

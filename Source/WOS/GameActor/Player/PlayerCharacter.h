@@ -54,6 +54,13 @@ public:
 		TObjectPtr<UPaperFlipbook> Attack2Animation;
 	UPROPERTY(EditAnywhere, Category = Animation)
 		TObjectPtr<UPaperFlipbook> DieAnimation;
+	UPROPERTY(EditAnywhere, Category = Animation)
+		TObjectPtr<UMaterialInterface> DefaultMaterial;
+	UPROPERTY(EditAnywhere, Category = Animation)
+		TObjectPtr<UMaterialInterface> DamagedMaterial;
+	UPROPERTY(EditAnywhere, Category = Animation)
+		float DamagedMaterialTime;
+
 
 
 	// Sets default values for this character's properties
@@ -75,6 +82,7 @@ public:
 
 	virtual void ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket);
 	virtual void DestroyNetObject() override;
+	virtual bool TakeDamage(int Damage) override;
 
 	void SetName(FStringView SettedName);
 	void HandleSpawn(Vector2Int Position);
@@ -134,4 +142,7 @@ private:
 	TObjectPtr<UWeapon> CurrentWeapon = nullptr;
 	int CurrentWeaponIndex;
 	float WeaponAfterDelay;
+
+	float DamagedMaterialTimer;
+	bool IsDamagedMaterialOn;
 };
