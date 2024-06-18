@@ -3,8 +3,10 @@
 
 #include "Managers/NetObjectManager.h"
 #include "GameFramework/Character.h"
-#include "GameActor/PlayerCharacter.h"
-#include "MonsterBindingData.h"
+#include "GameActor/Player/PlayerCharacter.h"
+#include "DataClass/MonsterBindingData.h"
+#include "Util/Ini.h"
+#include "Manager.h"
 #include "Kismet/GameplayStatics.h"
 #include <UObject/ConstructorHelpers.h>
 #include <Util/NetUtility.h>
@@ -32,6 +34,45 @@ UNetObjectManager::UNetObjectManager()
 	}
 }
 
+void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
+{
+	if (Packet->success)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("Enter map success"));
+
+		FString path = FPaths::ProjectDir() + TEXT("Source\\WOS\\Network\\generated\\mapData\\") + LastRequstMapName + TEXT(".ini");
+
+		Ini ini = Ini(path);
+		FString data = ini[TEXT("map")].Get<FString>("data");
+		TArray<TArray<int>> mapData;
+		int xSize, zSize;
+
+		//맵 사이즈 추출
+		FString size = ini[TEXT("info")].Get<FString>("size");
+		FString xData, zData;
+		size.Split(TEXT(","), &xData, &zData);
+		xSize = FCString::Atoi(*xData);
+		zSize = FCString::Atoi(*zData);
+
+		//맵 배열 생성
+		mapData.Reset(0);
+		for (int z = 0;z < zSize;z++) {
+			TArray<int> Array = TArray<int>();
+			for (int x = 0;x < xSize;x++) {
+				TCHAR c = data[z * xSize + x];
+				Array.Add(FCString::Atoi(&c));
+			}
+			mapData.Insert(Array, 0);
+		}
+
+		CurrentMapData = MapData(LastRequstMapName, mapData);
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Can't enter map"));
+	}
+}
+
 void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
 	auto* World = GetWorld();
 	auto Rotation = FRotator(0, 0, 0);
@@ -50,7 +91,7 @@ void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
 
 		NetObjects.Add(Packet->players[0].objectInfo.objectId, Player);
 		Player->SetName(Packet->players[0].name);
-		Player->HandleSpawn(FVector2D(Packet->players[0].objectInfo.position.x, Packet->players[0].objectInfo.position.y));
+		Player->HandleSpawn(Vector2Int(Packet->players[0].objectInfo.position.x, Packet->players[0].objectInfo.position.y));
 		Player->SetIsmine();
 	}
 	else {
@@ -107,4 +148,21 @@ void UNetObjectManager::HandleNetObjectPacket(uint64 ObjectId, const Packet* Rec
 	if (NetObjects.Contains(ObjectId)) {
 		NetObjects[ObjectId]->ReceivePacket(RecievedPacket);
 	}
+}
+
+void UNetObjectManager::RequestEnterMap(FString MapName)
+{
+	gen::mmo::EnterMapReq EnterMap;
+	EnterMap.mapName = MapName;
+	gen::mmo::Vector2 Pos;
+	Pos.x = -1;
+	Pos.y = -1;
+	UManager::Net()->Send(ServerType::MMO, &EnterMap);
+
+	LastRequstMapName = MapName;
+}
+
+MapData* UNetObjectManager::GetCurrentMapData()
+{
+	return &CurrentMapData;
 }
