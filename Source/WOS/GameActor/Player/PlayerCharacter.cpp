@@ -51,6 +51,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	JumpAnimationTimer += DeltaTime;
 	WeaponAfterDelay -= DeltaTime;
 	DamagedMaterialTimer -= DeltaTime;
+	ParryingTimer -= DeltaTime;
 
 	auto MapData = UManager::Object()->GetCurrentMapData();
 
@@ -163,6 +164,12 @@ void APlayerCharacter::ReceivePacket(const Packet* ReadingPacket) {
 	case gen::mmo::PacketId::NOTIFY_MOVE:
 		ReceiveNotifyMove(*static_cast<const gen::mmo::NotifyMove*>(ReadingPacket));
 		break;
+	case gen::mmo::PacketId::NOTIFY_DAMAGED:
+		ReceiveNotifyDamaged(*static_cast<const gen::mmo::NotifyDamaged*>(ReadingPacket));
+		break;
+	case gen::mmo::PacketId::TAKE_ATTACK:
+		ReceiveTakeAttack(*static_cast<const gen::mmo::TakeAttack*>(ReadingPacket));
+		break;
 	}
 }
 
@@ -186,20 +193,34 @@ void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("%d, %d"), (int)ServerPosition.X, (int)ServerPosition.Y));
 }
 
+void APlayerCharacter::ReceiveNotifyDamaged(gen::mmo::NotifyDamaged NotifyDamagedPacket)
+{
+	GetSprite()->SetMaterial(0, DamagedMaterial);
+	IsDamagedMaterialOn = true;
+	DamagedMaterialTimer = DamagedMaterialTime;
+}
+
+void APlayerCharacter::ReceiveTakeAttack(gen::mmo::TakeAttack TakeAttackPacket)
+{
+	auto Status = gen::mmo::HitStatus();
+	if (IsParrying()) {
+		Status.state = gen::mmo::EPlayerState::Parrying;
+	}
+	else if (IsJumping) {
+		Status.state = gen::mmo::EPlayerState::Jump;
+	}
+	else if(IsAfterDelaying()){
+		Status.state = gen::mmo::EPlayerState::Attack;
+	}
+	else {
+		Status.state = gen::mmo::EPlayerState::Idle;
+	}
+	UManager::Net()->Send(ServerType::MMO, &Status);
+}
+
 void APlayerCharacter::DestroyNetObject()
 {
 	Destroy();
-}
-
-bool APlayerCharacter::TakeDamage(int Damage)
-{
-	bool IsDamaged = NetObject::TakeDamage(Damage);
-	if (IsDamaged) {
-		GetSprite()->SetMaterial(0, DamagedMaterial);
-		IsDamagedMaterialOn = true;
-		DamagedMaterialTimer = DamagedMaterialTime;
-	}
-	return IsDamaged;
 }
 
 void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
@@ -245,7 +266,7 @@ void APlayerCharacter::JumpInputHandler() {
 
 void APlayerCharacter::AttackInputHandler()
 {
-	TakeDamage(0);
+
 }
 
 void APlayerCharacter::ParryingInputHandler()
@@ -357,6 +378,11 @@ void APlayerCharacter::SetAfterDelay(float Delay)
 bool APlayerCharacter::IsAfterDelaying()
 {
 	return WeaponAfterDelay > 0;
+}
+
+bool APlayerCharacter::IsParrying()
+{
+	return ParryingTimer > 0;
 }
 
 void APlayerCharacter::RPCJump(int JumpPower)

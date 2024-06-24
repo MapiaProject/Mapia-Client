@@ -81,14 +81,16 @@ public:
 	virtual void ReceivePacket(const Packet* ReadingPacket) override;
 
 	virtual void ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket);
+	virtual void ReceiveNotifyDamaged(gen::mmo::NotifyDamaged NotifyDamagedPacket);
+	virtual void ReceiveTakeAttack(gen::mmo::TakeAttack TakeAttackPacket);
 	virtual void DestroyNetObject() override;
-	virtual bool TakeDamage(int Damage) override;
 
 	void SetName(FStringView SettedName);
 	void HandleSpawn(Vector2Int Position);
 	void SetIsmine();
 	bool GetIsmine();
 	bool IsAfterDelaying();
+	bool IsParrying();
 
 	void RPCJump(int JumpPower);
 
@@ -146,4 +148,5 @@ private:
 
 	float DamagedMaterialTimer;
 	bool IsDamagedMaterialOn;
+	float ParryingTimer;
 };

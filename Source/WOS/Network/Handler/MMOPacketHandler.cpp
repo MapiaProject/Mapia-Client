@@ -49,10 +49,12 @@ bool gen::mmo::PacketHandler::SpawnMonsterPacketHandler(TSharedPtr<Session> sess
 
 bool gen::mmo::PacketHandler::NotifyDamagedPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyDamaged> packet)
 {
+	UManager::Object()->HandleNetObjectPacket(packet.Get()->damageResult.objectId, packet.Get());
 	return false;
 }
 
 bool gen::mmo::PacketHandler::TakeAttackPacketHandler(TSharedPtr<Session> session, TSharedPtr<TakeAttack> packet)
 {
+	UManager::Object()->HandleNetObjectPacket(packet.Get()->target, packet.Get());
 	return false;
 }
