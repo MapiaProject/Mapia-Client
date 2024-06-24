@@ -89,27 +89,13 @@ void UManager::HandleEnterGame(gen::mmo::EnterGameRes* Packet)
 {
 	if (NetworkObject->GetUUID().has_value())
 	{
-		gen::mmo::EnterMapReq EnterMap;
-		//EnterMap.name = NetworkObject->GetUUID().value();
-		EnterMap.mapName = TEXT("Village");
-		gen::mmo::Vector2 Pos;
-		Pos.x = -1;
-		Pos.y = -1;
-		//EnterMap.position = Pos;
-		NetworkObject->Send(ServerType::MMO, &EnterMap);
+		Object(GetWorld())->RequestEnterMap(TEXT("Village"));
 	}
 }
 
 void UManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 {
-	if (Packet->success)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("Enter map success"));
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Can't enter map"));
-	}
+	Object(GetWorld())->HandleEnterMap(Packet);
 }
 
 void UManager::HandleChat(gen::mmo::NotifyChat* Packet) {

@@ -1,0 +1,422 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "PlayerCharacter.h"
+#include "PaperFlipbookComponent.h"
+#include "Managers/Manager.h"
+#include "Managers/Network.h"
+#include "GameFramework/PlayerController.h"
+#include "Engine/LocalPlayer.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Util/NetUtility.h"
+#include "Network/generated/mmo/Packet.gen.hpp"
+
+// Sets default values
+APlayerCharacter::APlayerCharacter()
+{
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+	RPC(JumpAnimationLogic);
+}
+
+// Called when the game starts or when spawned
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GetSprite()->SetFlipbook(IdleAnimation);
+	SpriteOriginScale = GetSprite()->GetComponentScale();
+
+	for (auto WeaponType : StartingWeapon) {
+		MyWeapons.Add(static_cast<UWeapon*>(this->FindComponentByClass(WeaponType)));
+	}
+
+	for (auto Weapon : MyWeapons) {
+		Weapon->Init(this);
+	}
+	if (MyWeapons.Num() > 0) {
+		SwitchWeapon(0);
+	}
+}
+
+// Called every frame
+void APlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	float time = GetWorld()->GetTimeSeconds();
+	ServerTimer += DeltaTime;
+	LastInputTimer += DeltaTime;
+	JumpAnimationTimer += DeltaTime;
+	WeaponAfterDelay -= DeltaTime;
+	DamagedMaterialTimer -= DeltaTime;
+
+	//점프,낙하 애니메이션
+	float jumpAnimationTime = 0.4f;
+	float z;
+	if (IsJumping) {
+		z = Lerp(Lerp(JumpAnimationStartZ, JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime), JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime);
+
+		if (JumpAnimationTimer > jumpAnimationTime) {
+			IsJumping = false;
+
+			auto MapData = UManager::Object()->GetCurrentMapData();
+			int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X + LastMoveInput, LocalPositionY));
+
+			LocalPositionY = Bottom;
+			FallAnimationLogic(LocalPositionY);
+		}
+	}
+	else if (IsFalling) {
+		z = Lerp(JumpAnimationTop, Lerp(JumpAnimationTop, JumpAnimationBottom, JumpAnimationTimer / jumpAnimationTime), JumpAnimationTimer / jumpAnimationTime);
+
+		if (JumpAnimationTimer > jumpAnimationTime) {
+			IsFalling = false;
+			MoveAnimationLogic(LastMoveAnimationValue);
+		}
+	}
+	else {
+		z = JumpAnimationBottom;
+	}
+	if (IsDamagedMaterialOn && DamagedMaterialTimer < 0) {
+		GetSprite()->SetMaterial(0, DefaultMaterial);
+		IsDamagedMaterialOn = false;
+	}
+
+	//위치 보간
+	auto Position = Lerp(LastPosition.X, ServerPosition.X, ServerTimer / 0.2f) * 100;
+	SetActorLocation(FVector(Position, 0, z));
+
+	if (GetIsmine()) {
+		//0.2초마다 자유낙하 계산, 위치 패킷 보내기
+		if (time > LastSendPositionTime + sendPositionInterval) {
+			LastSendPositionTime = time;
+
+			auto MapData = UManager::Object()->GetCurrentMapData();
+			Vector2Int TargetPosition = MapData->RayCast(Vector2Int(ServerPosition.X, LocalPositionY), Vector2Int(LastMoveInput, 0), 1);
+			MoveLogic(TargetPosition);
+		}
+	}
+	if (!GetIsmine() || LastMoveInput == 0) {
+		float dir = ServerPosition.X - LastPosition.X;
+		MoveAnimationLogic(dir);
+	}
+}
+
+// Called to bind functionality to input
+void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+
+	if (EnhancedInputComponent != nullptr) {
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::MoveInputHandler);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &APlayerCharacter::MoveInputHandler);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &APlayerCharacter::JumpInputHandler);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APlayerCharacter::AttackInputHandler);
+		EnhancedInputComponent->BindAction(ParryingAction, ETriggerEvent::Started, this, &APlayerCharacter::ParryingInputHandler);
+		EnhancedInputComponent->BindAction(WeaponSwitchAction, ETriggerEvent::Started, this, &APlayerCharacter::WeaponSwitchInputHandler);
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("InputComponent is not EnhancedInputComponent"));
+	}
+
+	auto ControllerPtr = Cast<APlayerController>(GetController());
+	if (ControllerPtr != nullptr) {
+		if (auto SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(ControllerPtr->GetLocalPlayer())) {
+			SubSystem->AddMappingContext(InputMappingContext, 0);
+		}
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("PlayerCharacter Can't Found PlayerController"));
+	}
+
+
+	PrimaryActorTick.bCanEverTick = true;
+}
+
+void APlayerCharacter::SetName(FStringView SettedName) {
+	Name = SettedName;
+}
+
+void APlayerCharacter::HandleSpawn(Vector2Int Position)
+{
+	LastPosition = Position;
+	ServerPosition = Position;
+}
+
+void APlayerCharacter::SetIsmine()
+{
+	bNetObjectIsmine = true;
+}
+
+bool APlayerCharacter::GetIsmine()
+{
+	return bNetObjectIsmine;
+}
+
+void APlayerCharacter::ReceivePacket(const Packet* ReadingPacket) {
+	switch (ReadingPacket->GetId()) {
+	case gen::mmo::PacketId::NOTIFY_MOVE:
+		ReceiveNotifyMove(*static_cast<const gen::mmo::NotifyMove*>(ReadingPacket));
+		break;
+	}
+}
+
+void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
+
+	LastPosition = ServerPosition;
+	ServerPosition = Vector2Int(MovePacket.position.x, MovePacket.position.y);
+	ServerTimer = 0;
+
+	LocalPositionY = ServerPosition.Y;
+
+	if (!IsJumping) {
+		auto MapData = UManager::Object()->GetCurrentMapData();
+		int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X, LocalPositionY));
+
+		if (LocalPositionY != Bottom) {
+			LocalPositionY = Bottom;
+			FallAnimationLogic(Bottom);
+		}
+	}
+	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("%d, %d"), (int)ServerPosition.X, (int)ServerPosition.Y));
+}
+
+void APlayerCharacter::DestroyNetObject()
+{
+	Destroy();
+}
+
+bool APlayerCharacter::TakeDamage(int Damage)
+{
+	bool IsDamaged = NetObject::TakeDamage(Damage);
+	if (IsDamaged) {
+		GetSprite()->SetMaterial(0, DamagedMaterial);
+		IsDamagedMaterialOn = true;
+		DamagedMaterialTimer = DamagedMaterialTime;
+	}
+	return IsDamaged;
+}
+
+void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
+	float Axis = Value.Get<float>();
+	if (Axis != LastMoveInput) {
+		if (LastMoveInput == 0 && LastInputTimer > 0.2f) {
+			LastInputTimer = 0;
+
+			LastSendPositionTime = GetWorld()->GetTimeSeconds() - 0.2f;
+		}
+
+		LastMoveInput = Axis;
+
+		MoveAnimationLogic(Axis);
+	}
+}
+
+void APlayerCharacter::WeaponSwitchInputHandler(const FInputActionValue& Value)
+{
+	int Axis = (int)Value.Get<float>();
+
+	int Index = (CurrentWeaponIndex + Axis) % MyWeapons.Num();
+	if (Index < 0) {
+		Index = MyWeapons.Num() - 1;
+	}
+	SwitchWeapon(Index);
+}
+
+void APlayerCharacter::JumpInputHandler() {
+	auto MapData = UManager::Object()->GetCurrentMapData();
+
+	if (MapData->GroundCast(LastSendPosX, LocalPositionY) != LocalPositionY || IsJumping || IsFalling) {
+		return;
+	}
+
+	int Top = ServerPosition.Y + 3;
+
+	LocalPositionY = Top;
+	SendMovePacket(LastSendPosX + LastMoveInput, Top);
+	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::Other, Top);
+	JumpAnimationLogic(Top);
+}
+
+void APlayerCharacter::AttackInputHandler()
+{
+	TakeDamage(0);
+}
+
+void APlayerCharacter::ParryingInputHandler()
+{
+
+}
+
+void APlayerCharacter::Dash(int Direction)
+{
+	auto MapData = UManager::Object()->GetCurrentMapData();
+	Vector2Int TargetPosition = MapData->RayCast(Vector2Int(LastSendPosX, ServerPosition.Y), Vector2Int(Direction, 0), 1);
+	MoveLogic(Vector2Int(LastSendPosX + Direction, ServerPosition.Y));
+}
+
+void APlayerCharacter::MoveLogic(Vector2Int Position)
+{
+	Vector2Int Origin = ServerPosition;
+	auto MapData = UManager::Object()->GetCurrentMapData();
+	if (!MapData->CheckInWorld(Position)) {
+		if (Position.X < 0) {
+			Position.X = 0;
+		}
+		else if (Position.X >= MapData->GetXSize()) {
+			Position.X = MapData->GetXSize() - 1;
+		}
+		if (Position.Y < 0) {
+			Position.Y = 0;
+		}
+		else if (Position.Y >= MapData->GetYSize()) {
+			Position.Y = MapData->GetYSize() - 1;
+		}
+	}
+
+	SendMovePacket(Position.X, Position.Y);
+}
+
+void APlayerCharacter::MoveAnimationLogic(float Axis)
+{
+	if (Axis > 0)Axis = 1;
+	else if (Axis < 0)Axis = -1;
+
+	if (!IsJumping && !IsFalling) {
+		GetSprite()->SetFlipbook(WalkAnimation);
+		if (Axis == 0) {
+			GetSprite()->SetFlipbook(IdleAnimation);
+		}
+	}
+
+	if (Axis != LastMoveAnimationValue) {
+		if (Axis != 0) {
+			GetSprite()->SetWorldScale3D(FVector(SpriteOriginScale.X * Axis, SpriteOriginScale.Y, SpriteOriginScale.Z));
+
+			CurruntPlayerDir = Axis;
+		}
+		LastMoveAnimationValue = Axis;
+	}
+}
+
+void APlayerCharacter::JumpAnimationLogic(int Top)
+{
+	IsJumping = true;
+	IsFalling = false;
+	JumpAnimationStartZ = GetActorLocation().Z;
+	JumpAnimationTimer = 0;
+	GetSprite()->SetFlipbook(JumpAnimation);
+
+	auto MapData = UManager::Object()->GetCurrentMapData();
+	if (Top < MapData->GetYSize()) {
+		JumpAnimationTop = Top * 100;
+	}
+	else {
+		JumpAnimationTop = (MapData->GetYSize() - 1) * 100;
+	}
+}
+
+void APlayerCharacter::FallAnimationLogic(int Bottom)
+{
+	if (!IsJumping && !IsFalling) {
+		IsJumping = false;
+		IsFalling = true;
+	}
+	if (!IsJumping) {
+		JumpAnimationTimer = 0;
+		JumpAnimationTop = GetActorLocation().Z;
+	}
+	JumpAnimationBottom = Bottom * 100;
+	GetSprite()->SetFlipbook(JumpAnimation);
+}
+
+void APlayerCharacter::SwitchWeapon(int WeaponIndex)
+{
+	auto Origin = CurrentWeapon;
+	if (Origin != nullptr) {
+		CurrentWeapon->OnSwitchedTo(MyWeapons[WeaponIndex]);
+	}
+	CurrentWeapon = MyWeapons[WeaponIndex];
+	CurrentWeaponIndex = WeaponIndex;
+	if (Origin != nullptr) {
+		CurrentWeapon->OnSwitchedFrom(Origin);
+	}
+}
+
+void APlayerCharacter::SetAfterDelay(float Delay)
+{
+	WeaponAfterDelay = Delay;
+}
+
+bool APlayerCharacter::IsAfterDelaying()
+{
+	return WeaponAfterDelay > 0;
+}
+
+void APlayerCharacter::RPCJump(int JumpPower)
+{
+	int Top = ServerPosition.Y + JumpPower;
+	SendMovePacket(LastSendPosX + LastMoveInput, Top);
+	RpcView::CallRPC(JumpAnimationLogic, RpcTarget::All, Top);
+}
+
+void APlayerCharacter::SendMovePacket(float X, float Y) {
+	gen::mmo::Move MovePacket;
+	MovePacket.position.x = X;
+	MovePacket.position.y = Y;
+	LastSendPosX = X;
+
+	UManager::Net()->Send(ServerType::MMO, &MovePacket);
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, FString::Printf(TEXT("%d, %d"), (int)MovePacket.position.x, (int)MovePacket.position.y));
+}
+
+float APlayerCharacter::Lerp(float a, float b, float t)
+{
+	return a + (b - a) * t;
+}
+
+FVector2D APlayerCharacter::Lerp(FVector2D a, FVector2D b, float t)
+{
+	return FVector2D(Lerp(a.X, b.X, t), Lerp(a.Y, b.Y, t));
+}
+
+TArray<AActor*> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D Scale, float Dir, bool IgnoreFlip)
+{
+	AddedPosition *= 2;
+	AddedPosition += Scale;
+	if (!IgnoreFlip) {
+		AddedPosition.X *= CurruntPlayerDir;
+		Dir *= CurruntPlayerDir;
+	}
+
+	auto Pos = GetActorLocation() + FVector(AddedPosition.X, 0, AddedPosition.Y);
+	ETraceTypeQuery ObjectTypes = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_WorldDynamic);
+	TArray<AActor*> IgnoreActors;
+	TArray<FHitResult> Results;
+
+	UKismetSystemLibrary::BoxTraceMulti(
+		GetWorld(),
+		Pos,
+		Pos,
+		FVector(Scale.X, 0, Scale.Y),
+		FRotator(-Dir, 0, 0),
+		ObjectTypes,
+		false,
+		IgnoreActors,
+		EDrawDebugTrace::ForDuration,
+		Results,
+		true
+	);
+
+	TArray <AActor*> Actors = TArray<AActor*>();
+	for (auto Result : Results) {
+		if (!Actors.Contains(Result.GetActor())) {
+			Actors.Add(Result.GetActor());
+		}
+	}
+
+	return Actors;
+}
