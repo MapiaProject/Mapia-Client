@@ -73,6 +73,9 @@ void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 		FString MonsterName = ini[TEXT("info")].Get<FString>("monster");
 
 		CurrentMapData = MapData(LastRequstMapName, mapData, PortalLinks, MonsterName);
+
+
+		UGameplayStatics::OpenLevel(this, FName(CurrentMapData.GetName()));
 	}
 	else
 	{

@@ -146,7 +146,6 @@ void APlayerCharacter::HandleSpawn(Vector2Int Position)
 {
 	LastPosition = Position;
 	ServerPosition = Position;
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("%d, %d"), Position.X, Position.Y));
 }
 
 void APlayerCharacter::SetIsmine()
@@ -374,8 +373,6 @@ void APlayerCharacter::SendMovePacket(float X, float Y) {
 	LastSendPosX = X;
 
 	UManager::Net()->Send(ServerType::MMO, &MovePacket);
-
-	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, FString::Printf(TEXT("%d, %d"), (int)MovePacket.position.x, (int)MovePacket.position.y));
 }
 
 float APlayerCharacter::Lerp(float a, float b, float t)
