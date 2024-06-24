@@ -120,6 +120,7 @@ private:
 	FVector2D Lerp(FVector2D a, FVector2D b, float t);
 
 	TArray<AActor*> ScanHitbox(FVector2D AddedPosition, FVector2D Scale, float Dir = 0, bool IgnoreFlip = false);
+	void TryUsePortal(Vector2Int Position);
 
 	static constexpr float sendPositionInterval = 0.2f;
 	FString Name;

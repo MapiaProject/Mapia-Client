@@ -65,7 +65,14 @@ void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 			mapData.Insert(Array, 0);
 		}
 
-		CurrentMapData = MapData(LastRequstMapName, mapData);
+		//몬스터 정보 추출
+		FString PortalText = ini[TEXT("info")].Get<FString>("portal");
+		TArray<FString> PortalLinks;
+		PortalText.ParseIntoArray(PortalLinks, TEXT(","));
+
+		FString MonsterName = ini[TEXT("info")].Get<FString>("monster");
+
+		CurrentMapData = MapData(LastRequstMapName, mapData, PortalLinks, MonsterName);
 	}
 	else
 	{
@@ -152,6 +159,8 @@ void UNetObjectManager::HandleNetObjectPacket(uint64 ObjectId, const Packet* Rec
 
 void UNetObjectManager::RequestEnterMap(FString MapName)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("Request Enter Map : %s"), *MapName));
+
 	gen::mmo::EnterMapReq EnterMap;
 	EnterMap.mapName = MapName;
 	gen::mmo::Vector2 Pos;

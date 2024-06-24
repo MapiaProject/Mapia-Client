@@ -3,15 +3,29 @@
 
 #include "DataClass/MapData.h"
 
-MapData::MapData() : MapData("", TArray<TArray<int>>())
+MapData::MapData() : MapData("", TArray<TArray<int>>(), TArray<FString>())
 {
 
 }
 
-MapData::MapData(FString MapName, TArray<TArray<int>> TileData)
+MapData::MapData(FString MapName, TArray<TArray<int>> TileData, TArray<FString> PortalLinks, FString SpawnMonsterName)
 {
 	this->Name = MapName;
 	this->TileData = TileData;
+	this->SpawnMonsterName = SpawnMonsterName;
+
+
+
+	PortalDatas = TArray<PortalData>();
+	int PortalCount = 0;
+	for (int y = 0;y < GetYSize();y++) {
+		for (int x = 0;x < GetXSize();x++) {
+			if (TileData[y][x] == 3) {
+				PortalDatas.Add(PortalData(PortalLinks[PortalCount], Vector2Int(x, y)));
+				PortalCount++;
+			}
+		}
+	}
 }
 
 MapData::~MapData()
@@ -45,6 +59,33 @@ int MapData::GetTile(int X, int Y)
 		return 1;
 	}
 	return TileData[Y][X];
+}
+
+FString MapData::GetSpawnMonsterName()
+{
+	return SpawnMonsterName;
+}
+
+int MapData::GetPortalCount()
+{
+	return PortalDatas.Num();
+}
+
+FString MapData::GetPortalLinkName(Vector2Int Position)
+{
+	return GetPortalLinkName(Position.X, Position.Y);
+}
+
+FString MapData::GetPortalLinkName(int X, int Y)
+{
+	if (CheckInWorld(X, Y) && GetTile(X, Y) == 3) {
+		for (int i = 0;i < PortalDatas.Num();i++) {
+			if (PortalDatas[i].Position.X == X && PortalDatas[i].Position.Y == Y) {
+				return PortalDatas[i].LinkName;
+			}
+		}
+	}
+	return TEXT("");
 }
 
 bool MapData::CheckIsWall(Vector2Int Position)

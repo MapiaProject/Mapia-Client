@@ -11,6 +11,8 @@
 #include "Util/NetUtility.h"
 #include "Network/generated/mmo/Packet.gen.hpp"
 
+#define DebugLog(x) GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, x);
+
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
@@ -50,20 +52,22 @@ void APlayerCharacter::Tick(float DeltaTime)
 	WeaponAfterDelay -= DeltaTime;
 	DamagedMaterialTimer -= DeltaTime;
 
+	auto MapData = UManager::Object()->GetCurrentMapData();
+
 	//점프,낙하 애니메이션
 	float jumpAnimationTime = 0.4f;
 	float z;
 	if (IsJumping) {
 		z = Lerp(Lerp(JumpAnimationStartZ, JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime), JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime);
+		//Log(FString::Printf(TEXT("(%f)"), JumpAnimationTop));
 
 		if (JumpAnimationTimer > jumpAnimationTime) {
 			IsJumping = false;
-
-			auto MapData = UManager::Object()->GetCurrentMapData();
 			int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X + LastMoveInput, LocalPositionY));
 
 			LocalPositionY = Bottom;
 			FallAnimationLogic(LocalPositionY);
+
 		}
 	}
 	else if (IsFalling) {
@@ -91,7 +95,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 
-			auto MapData = UManager::Object()->GetCurrentMapData();
 			Vector2Int TargetPosition = MapData->RayCast(Vector2Int(ServerPosition.X, LocalPositionY), Vector2Int(LastMoveInput, 0), 1);
 			MoveLogic(TargetPosition);
 		}
@@ -143,6 +146,7 @@ void APlayerCharacter::HandleSpawn(Vector2Int Position)
 {
 	LastPosition = Position;
 	ServerPosition = Position;
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("%d, %d"), Position.X, Position.Y));
 }
 
 void APlayerCharacter::SetIsmine()
@@ -276,6 +280,7 @@ void APlayerCharacter::MoveLogic(Vector2Int Position)
 		}
 	}
 
+	TryUsePortal(Position);
 	SendMovePacket(Position.X, Position.Y);
 }
 
@@ -308,12 +313,12 @@ void APlayerCharacter::JumpAnimationLogic(int Top)
 	JumpAnimationStartZ = GetActorLocation().Z;
 	JumpAnimationTimer = 0;
 	GetSprite()->SetFlipbook(JumpAnimation);
-
 	auto MapData = UManager::Object()->GetCurrentMapData();
 	if (Top < MapData->GetYSize()) {
 		JumpAnimationTop = Top * 100;
 	}
 	else {
+		MapData->Log();
 		JumpAnimationTop = (MapData->GetYSize() - 1) * 100;
 	}
 }
@@ -419,4 +424,12 @@ TArray<AActor*> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D 
 	}
 
 	return Actors;
+}
+
+void APlayerCharacter::TryUsePortal(Vector2Int Position)
+{
+	auto MapData = UManager::Object()->GetCurrentMapData();
+	if (MapData->GetTile(Position) == 3) {
+		UManager::Object()->RequestEnterMap(MapData->GetPortalLinkName(Position));
+	}
 }
