@@ -120,10 +120,9 @@ Packet& Packet::operator<<(double Data) {
 }
 
 Packet& Packet::operator<<(StringView Data) {
-    std::string str;
-    str.assign(Data.begin(), Data.end());
-    *this << static_cast<int16>(str.length());
-    m_buffer.insert(m_buffer.end(), str.begin(), str.end());
+    const auto str = reinterpret_cast<const char*>(Data.GetData());
+    *this << static_cast<int16>(Data.Len());
+    m_buffer.insert(m_buffer.end(), str, str + Data.Len() * 2);
     return *this;
 }
 
@@ -134,104 +133,3 @@ Packet& Packet::operator>>(unsigned char& Data)
     return *this;
 }
 
-Packet& Packet::operator>>(unsigned short& Data)
-{
-    std::memcpy(&Data, m_buffer.data(), sizeof(Data));
-    m_buffer.erase(m_buffer.begin(), m_buffer.begin() + sizeof(Data));
-    return *this;
-}
-
-Packet& Packet::operator>>(unsigned int& Data)
-{
-    std::memcpy(&Data, m_buffer.data(), sizeof(Data));
-    m_buffer.erase(m_buffer.begin(), m_buffer.begin() + sizeof(Data));
-    return *this;
-}
-
-Packet& Packet::operator>>(unsigned long& Data)
-{
-    std::memcpy(&Data, m_buffer.data(), sizeof(Data));
-    m_buffer.erase(m_buffer.begin(), m_buffer.begin() + sizeof(Data));
-    return *this;
-}
-
-Packet& Packet::operator>>(unsigned long long& Data)
-{
-    std::memcpy(&Data, m_buffer.data(), sizeof(Data));
-    m_buffer.erase(m_buffer.begin(), m_buffer.begin() + sizeof(Data));
-    return *this;
-}
-
-Packet& Packet::operator>>(bool& Data)
-{
-    unsigned char t;
-    *this >> t;
-    Data = static_cast<bool>(t);
-
-    return *this;
-}
-
-Packet& Packet::operator>>(char& Data)
-{
-    unsigned char t;
-    *this >> t;
-    Data = static_cast<char>(t);
-
-    return *this;
-}
-
-Packet& Packet::operator>>(short& Data)
-{
-    unsigned short t;
-    *this >> t;
-    Data = static_cast<short>(t);
-    return *this;
-}
-
-Packet& Packet::operator>>(long& Data)
-{
-    unsigned long t;
-    *this >> t;
-    Data = static_cast<long>(t);
-    return *this;
-}
-
-Packet& Packet::operator>>(long long& Data)
-{
-    unsigned long long t;
-    *this >> t;
-    Data = static_cast<long long>(t);
-    return *this;
-}
-
-Packet& Packet::operator>>(int& Data)
-{
-    unsigned int t = 0;
-    *this >> t;
-    Data = static_cast<int>(t);
-    return *this;
-}
-
-Packet& Packet::operator>>(float& Data)
-{
-    std::memcpy(&Data, m_buffer.data(), sizeof(Data));
-    m_buffer.erase(m_buffer.begin(), m_buffer.begin() + sizeof(Data));
-    return *this;
-}
-
-Packet& Packet::operator>>(double& Data)
-{
-    std::memcpy(&Data, m_buffer.data(), sizeof(Data));
-    m_buffer.erase(m_buffer.begin(), m_buffer.begin() + sizeof(Data));
-    return *this;
-}
-
-Packet& Packet::operator>>(String& Data)
-{
-    unsigned short len;
-    *this >> len;
-    std::string str(m_buffer.begin(), m_buffer.begin() + len);
-    Data = FString(len, str.c_str());
-    m_buffer.erase(m_buffer.begin(), m_buffer.begin() + len);
-    return *this;
-}

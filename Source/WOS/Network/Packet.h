@@ -44,7 +44,7 @@ public:
     template<class T>
     Packet& operator<<(std::vector<T> Data) {
         *this << static_cast<unsigned short>(Data.size());
-        for(const T& elem : Data)
+        for (const T& elem : Data)
             *this << elem;
         return *this;
     }
@@ -68,7 +68,7 @@ public:
     Packet& operator>>(std::vector<T>& Data) {
         unsigned short len;
         *this >> len;
-        for(unsigned short i = 0; i < len; ++i) {
+        for (unsigned short i = 0; i < len; ++i) {
             T t;
             *this >> t;
             Data.push_back(t);
