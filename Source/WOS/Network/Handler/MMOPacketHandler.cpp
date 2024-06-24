@@ -51,3 +51,8 @@ bool gen::mmo::PacketHandler::NotifyDamagedPacketHandler(TSharedPtr<Session> ses
 {
 	return false;
 }
+
+bool gen::mmo::PacketHandler::TakeAttackPacketHandler(TSharedPtr<Session> session, TSharedPtr<TakeAttack> packet)
+{
+	return false;
+}

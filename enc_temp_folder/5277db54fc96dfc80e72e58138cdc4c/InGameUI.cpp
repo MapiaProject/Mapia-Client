@@ -44,7 +44,7 @@ void UInGameUI::ShowMenu() {
 }
 
 void UInGameUI::ShowHP(float MaxHP, float CurHP) {
-	HPBar->SetPercent(CurHP / MaxHP);
+	HPBar->Percent = CurHP / MaxHP;
 	THP->SetText(FText::FromString(FString::Printf(TEXT("%.2f/%.2f"), CurHP, MaxHP)));
 }
 
