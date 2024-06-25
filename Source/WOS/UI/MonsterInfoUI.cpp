@@ -5,12 +5,11 @@
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 
-void UMonsterInfoUI::NativeConstruct() {
-	Super::NativeConstruct();
-
-	TName->SetText(FText::FromString(TEXT("gkgkgkgkgkgkgk")));
+void UMonsterInfoUI::SetHP(float MaxHP, float CurHP) {
+	HPBar->SetPercent(MaxHP / CurHP);
+	THP->SetText(FText::FromString(FString::Printf(TEXT("%d/%d"), CurHP, MaxHP)));
 }
 
-void UMonsterInfoUI::SetHP(float curHP, float maxHP) {
-	HPBar->SetPercent(curHP / maxHP);
+void UMonsterInfoUI::SetName(FString Name) {
+	TName->SetText(FText::FromString(Name));
 }

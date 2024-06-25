@@ -43,9 +43,9 @@ void UInGameUI::ShowMenu() {
 	UManager::UI(GetWorld())->ShowWidget(WidgetType::Menu);
 }
 
-void UInGameUI::ShowHP(float MaxHP, float CurHP) {
+void UInGameUI::SetHP(float MaxHP, float CurHP) {
 	HPBar->SetPercent(CurHP / MaxHP);
-	THP->SetText(FText::FromString(FString::Printf(TEXT("%.2f/%.2f"), CurHP, MaxHP)));
+	THP->SetText(FText::FromString(FString::Printf(TEXT("%d/%d"), CurHP, MaxHP)));
 }
 
 void UInGameUI::OnChatTextCommited(const FText& Text, ETextCommit::Type CommitMethod) {
@@ -57,7 +57,6 @@ void UInGameUI::OnChatTextCommited(const FText& Text, ETextCommit::Type CommitMe
 }
 
 void UInGameUI::ParseCommand(FString Command) {
-	//UE_LOG(LogTemp, Warning, TEXT("%s"), *Command);
 	TArray<FString> Commands;
 	Command.ParseIntoArray(Commands, TEXT(" "), true);
 	
