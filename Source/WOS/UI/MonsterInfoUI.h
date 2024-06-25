@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class WOS_API UMonsterInfoUI : public UUserWidget
 {
 	GENERATED_BODY()
@@ -22,9 +22,9 @@ public:
 
 private:
 	UPROPERTY(meta=(BindWidget))
-	class UTextBlock* TName;
-	UPROPERTY(meta=(BindWidget))
 	class UProgressBar* HPBar;
+	UPROPERTY(meta=(BindWidget))
+	class UTextBlock* TName;
 	UPROPERTY(meta=(BindWidget))
 	class UTextBlock* THP;
 };

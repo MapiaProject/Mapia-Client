@@ -6,7 +6,6 @@
 #include "../NetObject.h"
 #include "PaperFlipbook.h"
 #include "PaperCharacter.h"
-#include "Blueprint/UserWidget.h"
 #include "Network/generated/mmo/Protocol.gen.hpp"
 #include "Monster.generated.h"
 
@@ -19,6 +18,8 @@ class WOS_API AMonster : public APaperCharacter, public NetObject
 	GENERATED_BODY()
 	
 public:
+	AMonster();
+
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
@@ -50,11 +51,14 @@ public:
 	virtual void Move();
 	virtual void AirBorne();
 
-	UPROPERTY()
-	UUserWidget* MonsterInfoUI;
+	UPROPERTY(VisibleAnywhere)
+	class UWidgetComponent* MonsterInfoUI;
 
 protected:
-	virtual void SetName();
+	virtual void SetName(FString Name);
+
+	UPROPERTY(VisibleAnywhere)
+	class UWidgetComponent* HPWidgetCom;
 
 	float Lerp(float a, float b, float t);
 	FVector2D Lerp(FVector2D a, FVector2D b, float t);

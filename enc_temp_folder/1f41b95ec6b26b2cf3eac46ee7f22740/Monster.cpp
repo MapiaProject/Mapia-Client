@@ -64,7 +64,14 @@ bool AMonster::TakeDamage(int Damage)
 
 void AMonster::SetName(FString Name)
 {
-	Cast<UMonsterInfoUI>(MonsterInfoUI->GetUserWidgetObject())->SetName(Name);
+	if (MonsterInfoUI->GetUserWidgetObject()) {
+		UE_LOG(LogTemp, Warning, TEXT("NOT NULL"));
+	}
+	else 
+		UE_LOG(LogTemp, Warning, TEXT("NULL"));
+
+	UE_LOG(LogTemp, Warning, TEXT("NULL"));
+	//Cast<UMonsterInfoUI>(MonsterInfoUI)->SetName(Name);
 }
 
 void AMonster::SetHP()
