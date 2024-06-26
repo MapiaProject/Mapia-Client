@@ -11,7 +11,8 @@ class UManager;
  */
 
 UCLASS(Blueprintable, BlueprintType)
-class UManagerBase : public UObject
+class 
+	UManagerBase : public UObject
 {
 	GENERATED_BODY()
 public:

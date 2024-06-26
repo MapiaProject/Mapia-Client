@@ -1,11 +1,6 @@
 .idea
 .vs
-*.sln
-.vsconfig
 Binaries
 Intermediate
 Saved
-Platforms
 Content/Assets/*
-Build/
-Source/WOS/Network/generated/*

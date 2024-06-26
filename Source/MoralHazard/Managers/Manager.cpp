@@ -3,10 +3,10 @@
 
 #include "Manager.h"
 
+#include "MHGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Network/Session.h"
-#include "Managers/Network.h"
-#include "Components/Widget.h"
+#include "UI/LobbyUI.h"
 
 UManager::UManager() : NetworkObject(nullptr)
 {
@@ -15,31 +15,6 @@ UManager::UManager() : NetworkObject(nullptr)
 
 UManager::~UManager()
 {
-}
-
-void UManager::BeginPlay()
-{
-	Initialize();
-	ConnectToServer();
-}
-
-void UManager::Tick()
-{
-	HandlePacket();
-}
-
-void UManager::EndPlay()
-{
-	DisconnectFromServer();
-}
-
-void UManager::EnterGame()
-{
-	if (NetworkObject)
-	{
-		auto packet = gen::EnterGameReq {};
-		NetworkObject->Send(&packet);
-	}
 }
 
 void UManager::ConnectToServer() const
@@ -61,11 +36,63 @@ void UManager::HandlePacket() const
 
 void UManager::DisconnectFromServer() const
 {
-	if(!NetworkObject)
+	if (!NetworkObject)
 		return;
 	if (!NetworkObject->IsConnected())
 	{
 
+	}
+}
+
+void UManager::EnterRoom(uint32 Id)
+{
+	CurrentRoomId = Id;
+	
+	gen::RoomEventReq enterEvent;
+	enterEvent.event = gen::ENTER;
+	enterEvent.room.id = Id;
+	NetworkObject->Send(&enterEvent);
+}
+
+void UManager::LeaveRoom()
+{
+	if (CurrentRoomId.has_value())
+	{
+		gen::RoomEventReq EventReq;
+		EventReq.event = gen::LEAVE;
+		EventReq.room.id = CurrentRoomId.value();
+		NetworkObject->Send(&EventReq);
+	}
+}
+
+void UManager::RefreshRoom(gen::NotifyRoomList RoomList)
+{
+	for (const auto& room : RoomList.roomList)
+	{
+		auto GameMode = Cast<AMHGameModeBase>(UGameplayStatics::GetGameMode(GEngine->GameViewport->GetWorld()));
+		if (auto LobbyUI = Cast<ULobbyUI>(GameMode->CurrentWidget))
+		{
+			LobbyUI->AddRoom(room.id, room.name);
+		}
+		else return;
+	}
+}
+
+void UManager::HandleRoomEventResult(gen::RoomEventRes EventRes)
+{
+	switch (EventRes.event)
+	{
+	case gen::ENTER:
+		if (EventRes.success)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Emerald, TEXT("ENTER!"));
+		}
+		else CurrentRoomId = std::nullopt;
+		break;
+	case gen::LEAVE:
+		break;
+	case gen::CREATE:
+		break;
 	}
 }
 
@@ -78,7 +105,7 @@ UManager* UManager::Instance(const UWorld* World)
 {
 	if (World == nullptr)
 		return nullptr;
-	auto manager = CastChecked<UManager>(UGameplayStatics::GetGameInstance(World));
+	auto manager = CastChecked<UManager>(World->GetGameInstance());
 	if (manager != nullptr)
 	{
 		manager->Initialize();
