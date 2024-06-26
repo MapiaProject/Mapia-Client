@@ -2,9 +2,9 @@
 
 
 #include "Managers/Network.h"
-#include "Network/IoThread.h"
+#include "Session/Session.h"
 
-UNetwork::UNetwork() : bIsConnected(false), IoThread(nullptr)
+UNetwork::UNetwork()
 {
 }
 
@@ -12,46 +12,57 @@ UNetwork::~UNetwork()
 {
 }
 
-bool UNetwork::Connect(const net::Endpoint& EndPoint)
+bool UNetwork::Connect(ServerType Type, const net::Endpoint& EndPoint, SessionFactoryFunc SessionFactory)
 {
-	Socket.create(net::Protocol::Tcp);
-	bIsConnected = Socket.connect(EndPoint);
-	if (bIsConnected)
+	auto Socket = MakeShared<net::Socket>(net::Protocol::Tcp);
+	const bool bIsConnected = Socket->connect(EndPoint);
+	if(bIsConnected)
 	{
-		IoThread = new ::FIoThread(&Socket);
+		const auto Session = SessionFactory(Socket);
+		Session->OnConnected();
+		
+		AddSession(Type, Session);
 	}
 	return bIsConnected;
 }
 
 void UNetwork::Disconnect()
 {
-	if (bIsConnected)
+	for (auto& Tuple : Sessions)
 	{
-		bIsConnected = false;
-		Socket.disconnect();
-		Socket.close();
-
-		delete IoThread;
+		Tuple.Value->Disconnect();
+		Tuple.Value = nullptr;
 	}
+	Sessions.Reset();
 }
 
-bool UNetwork::IsConnected() const
+void UNetwork::Send(ServerType Type, Packet* Packet) const
 {
-	return bIsConnected;
+	if (Sessions.Contains(Type))
+		Sessions[Type]->Send(Packet);
 }
 
-void UNetwork::Send(Packet* Packet) const
+void UNetwork::AddSession(ServerType Type, TSharedPtr<FSession> NewSession)
 {
-	if (Session)
-		Session->Send(Packet);
+	this->Sessions.Add(Type, NewSession);
 }
 
-void UNetwork::SetSession(const TSharedPtr<FSession>& NewSession)
+TArray<TSharedPtr<FSession>> UNetwork::GetSessions()
 {
-	this->Session = NewSession;
+	TArray<TSharedPtr<FSession>> SessionArray;
+	for(auto Tuple : Sessions)
+	{
+		SessionArray.Add(Tuple.Value);
+	}
+	return SessionArray;
 }
- 
-TSharedPtr<FSession> UNetwork::GetSession()
+
+void UNetwork::SetUUID(FString Uuid)
 {
-	return Session;
+	this->UUID = Uuid;
+}
+
+std::optional<FString> UNetwork::GetUUID() const
+{
+	return UUID;
 }
