@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameActor/Monster/Monster.h"
-#include "Slime.generated.h"
+#include "GeminiRobot.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class WOS_API ASlime : public AMonster
+class WOS_API AGeminiRobot : public AMonster
 {
 	GENERATED_BODY()
 	

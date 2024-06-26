@@ -1,23 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GameActor/Monster/Slime.h"
+#include "GameActor/Monster/GeminiRobot.h"
 #include "PaperFlipbookComponent.h"
 
-void ASlime::BeginPlay()
+void AGeminiRobot::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetName(TEXT("Slime"));
+	SetName(TEXT("GeminiRobot"));
 }
 
-void ASlime::Tick(float DeltaTime)
+void AGeminiRobot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-void ASlime::AirBorne()
+void AGeminiRobot::AirBorne()
 {
 	Super::AirBorne();
 }
