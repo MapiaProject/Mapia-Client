@@ -4,6 +4,8 @@
 #include <memory>
 #include <span>
 
+#include "ObjectPool.h"
+
 #ifdef __UNREAL__
 using String = FString;
 using StringView = FStringView;
@@ -11,11 +13,17 @@ using StringView = FStringView;
 
 class FSession;
 
+enum PacketType : uint8
+{
+    Generated,
+    RPC
+};
+
 class Packet {
     friend FSession;
 public:
     Packet() = default;
-    Packet(unsigned short id, int reserve = 1024);
+    Packet(uint16 id, PacketType type = Generated, int reserve = 1024);
     virtual ~Packet() {};
 public:
     Packet& operator<<(unsigned char Data);
@@ -70,23 +78,26 @@ public:
 protected:
     void virtual Write() {};
     void virtual Read();
-    void Finish();
 public:
+    void SetId(uint16 id) { m_id = id; }
     unsigned short GetId() const { return m_id; }
-    unsigned short GetSize() const { return m_size; }
 public:
     void Parse(std::span<char> buffer);
 
     template<class T>
-    static TSharedPtr<T> ParseFrom(std::span<char> buffer)
+    static TSharedPtr<T> ParseFrom(std::span<char> buffer, uint16 id)
     {
-        auto pk = MakeShared<T>();
+        auto pk = new T;
         pk->Parse(buffer);
-        return pk;
+        pk->SetId(id);
+        return TSharedPtr<T>(pk);
     }
+    static bool IsRpcId(uint16 id);
+
     std::vector<char>& Data();
+
+    void Reset();
 private:
     std::vector<char> m_buffer;
     unsigned short m_id;
-    unsigned short m_size;
 };
