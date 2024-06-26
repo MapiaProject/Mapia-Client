@@ -9,15 +9,8 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"Engine",
-				"UMG",
-				"Paper2D"
+				"Engine"
 			]
-		},
-		{
-			"Name": "WOSEditor",
-			"Type": "Editor",
-			"LoadingPhase": "PostEngineInit"
 		}
 	],
 	"Plugins": [

@@ -2,7 +2,12 @@
 
 #pragma once
 
+#include <optional>
+
 #include "CoreMinimal.h"
+#include "Managers/Network.h"
+#include "Network/generated/Protocol.gen.hpp"
+
 #include "Manager.generated.h"
 
 #define INIT_MANAGER(name)\
@@ -18,38 +23,27 @@ if (!name##Object)												\
 	}															\
 }																\
 
-class UNetwork;
-class UWidget;
-
 /**
  * 
  */
 UCLASS()
-class WOS_API UManager : public UGameInstance
+class MORALHAZARD_API UManager : public UGameInstance
 {
 	GENERATED_BODY()
 public:
 	UManager();
 	virtual ~UManager() override;
 public:
-	UFUNCTION(BlueprintCallable)
-	void BeginPlay();
-
-	UFUNCTION(BlueprintCallable)
-	void Tick();
-
-	UFUNCTION(BlueprintCallable)
-	void EndPlay();
-
-	UFUNCTION(BlueprintCallable)
-	void EnterGame();
-	
 	void ConnectToServer() const;
 	void HandlePacket() const;
 	void DisconnectFromServer() const;
+	void EnterRoom(uint32 Id);
+	void LeaveRoom();
+
+	void RefreshRoom(gen::NotifyRoomList RoomList);
+	void HandleRoomEventResult(gen::RoomEventRes EventRes);
 public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());
-private:
 	static UManager* Instance(const UWorld* World = GEngine->GameViewport->GetWorld());
 	void Initialize();
 private:
@@ -57,4 +51,6 @@ private:
 	TSubclassOf<UNetwork> NetworkClass;
 	UPROPERTY()
 	TObjectPtr<UNetwork> NetworkObject;
+
+	std::optional<uint32> CurrentRoomId;
 };	
