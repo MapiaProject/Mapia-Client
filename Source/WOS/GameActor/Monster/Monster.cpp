@@ -16,8 +16,6 @@ void AMonster::BeginPlay() {
 
 	GetSprite()->SetMaterial(0, DamagedMaterial);
 	GetSprite()->SetFlipbook(IdleAnimation);
-
-	SetName(TEXT("MonsterName"));
 }
 
 void AMonster::Tick(float DeltaTime)
@@ -32,6 +30,24 @@ void AMonster::Tick(float DeltaTime)
 			CurDamageEffectTime = 0;
 		}
 	}
+
+	MoveTimer += DeltaTime;
+	auto RetPos = Lerp(StartPos, DestinationPos, MoveTimer / 0.2f) * 100;
+	SetActorLocation(FVector(RetPos.X, 0, RetPos.Y));
+
+	if (isAttack) {
+		AttackAnimationTimer += DeltaTime;
+		if (AttackAnimationTimer >= AttackAnimationTime) {
+			AttackAnimationTimer = 0;
+			isAttack = false;
+		}
+	}
+	else if (isAirBorne) {
+
+	}
+	else {
+		Move();
+	}
 }
 
 void AMonster::ReceivePacket(const Packet* ReadingPacket)
@@ -45,11 +61,13 @@ void AMonster::ReceivePacket(const Packet* ReadingPacket)
 
 void AMonster::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket)
 {
-}
+	FVector curPos = GetActorLocation();
+	StartPos = FVector2D(curPos.X, curPos.Z);
+	DestinationPos = FVector2D(MovePacket.position.x, MovePacket.position.y);
+	MoveTimer = 0;
 
-void AMonster::DestroyNetObject()
-{
-	Destroy();
+	float RetSub = StartPos.X - DestinationPos.X;
+	Dir = RetSub / abs(RetSub);
 }
 
 bool AMonster::TakeDamage(int Damage)
@@ -62,26 +80,41 @@ bool AMonster::TakeDamage(int Damage)
 	return IsDamaged;
 }
 
+void AMonster::DestroyNetObject()
+{
+	Destroy();
+}
+
 void AMonster::SetName(FString Name)
 {
 	Cast<UMonsterInfoUI>(MonsterInfoUI->GetUserWidgetObject())->SetName(Name);
 }
 
-void AMonster::SetHP()
+void AMonster::SetHP(float MaxHP, float CurHP)
 {
-	//Cast<UMonsterInfoUI>(MonsterInfoUI)->SetHP(0, 0);
+	Cast<UMonsterInfoUI>(MonsterInfoUI)->SetHP(0, 0);
 }
 
 void AMonster::Attack()
 {
+	GetSprite()->SetFlipbook(AttackAnimation);
 }
 
-void AMonster::Move()
-{
+void AMonster::Move() {
+	if (Dir) {
+		FVector curScale = GetSprite()->GetRelativeScale3D();
+		curScale.X = Dir * abs(curScale.X);
+		GetSprite()->SetRelativeScale3D(curScale);
+		GetSprite()->SetFlipbook(WalkAnimation);
+	}
+	else {
+		GetSprite()->SetFlipbook(IdleAnimation);
+	}
 }
 
 void AMonster::AirBorne()
 {
+	GetSprite()->SetFlipbook(AirborneAnimation);
 }
 
 float AMonster::Lerp(float a, float b, float t)

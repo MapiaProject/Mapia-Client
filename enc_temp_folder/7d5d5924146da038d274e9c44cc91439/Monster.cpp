@@ -32,6 +32,10 @@ void AMonster::Tick(float DeltaTime)
 			CurDamageEffectTime = 0;
 		}
 	}
+
+	MoveTimer += DeltaTime;
+	auto retPos = Lerp(StartPos, DestinationPos, MoveTimer / 0.2f);
+	
 }
 
 void AMonster::ReceivePacket(const Packet* ReadingPacket)
@@ -45,11 +49,10 @@ void AMonster::ReceivePacket(const Packet* ReadingPacket)
 
 void AMonster::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket)
 {
-}
-
-void AMonster::DestroyNetObject()
-{
-	Destroy();
+	FVector curPos = GetActorLocation();
+	StartPos = FVector2D(curPos.X, curPos.Z);
+	DestinationPos = FVector2D(MovePacket.position.x, MovePacket.position.y);
+	MoveTimer = 0;
 }
 
 bool AMonster::TakeDamage(int Damage)
@@ -62,33 +65,29 @@ bool AMonster::TakeDamage(int Damage)
 	return IsDamaged;
 }
 
-void AMonster::SetName(FString Name)
+void AMonster::DestroyNetObject()
 {
-	if (MonsterInfoUI->GetUserWidgetObject()) {
-		UE_LOG(LogTemp, Warning, TEXT("NOT NULL"));
-	}
-	else 
-		UE_LOG(LogTemp, Warning, TEXT("NULL"));
-
-	UE_LOG(LogTemp, Warning, TEXT("NULL"));
-	//Cast<UMonsterInfoUI>(MonsterInfoUI)->SetName(Name);
+	Destroy();
 }
 
-void AMonster::SetHP()
+void AMonster::SetName(FString Name)
 {
-	//Cast<UMonsterInfoUI>(MonsterInfoUI)->SetHP(0, 0);
+	Cast<UMonsterInfoUI>(MonsterInfoUI->GetUserWidgetObject())->SetName(Name);
+}
+
+void AMonster::SetHP(float MaxHP, float CurHP)
+{
+	Cast<UMonsterInfoUI>(MonsterInfoUI)->SetHP(0, 0);
 }
 
 void AMonster::Attack()
 {
-}
-
-void AMonster::Move()
-{
+	GetSprite()->SetFlipbook(AttackAnimation);
 }
 
 void AMonster::AirBorne()
 {
+	GetSprite()->SetFlipbook(AirborneAnimation);
 }
 
 float AMonster::Lerp(float a, float b, float t)

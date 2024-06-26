@@ -33,8 +33,6 @@ public:
 	TObjectPtr<UPaperFlipbook> AirborneAnimation;
 	UPROPERTY(EditAnywhere, Category = Animation)
 	TObjectPtr<UPaperFlipbook> DieAnimation;
-	UPROPERTY(EditAnywhere, Category = Animation)
-	float AttackAnimationTime;
 
 	UPROPERTY(EditAnywhere, Category=Material)
 	TObjectPtr<UMaterialInterface> DefaultMaterial;
@@ -43,21 +41,21 @@ public:
 	UPROPERTY(EditAnywhere, Category=Material)
 	float MaxDamageEffectTime;
 
+
 	virtual void ReceivePacket(const Packet* ReadingPacket) override;
 	virtual bool TakeDamage(int Damage) override;
 	virtual void DestroyNetObject() override;
 
+	virtual void ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket);
 	virtual void AirBorne();
 
 	UPROPERTY(VisibleAnywhere)
 	class UWidgetComponent* MonsterInfoUI;
 
 protected:
-	void ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket);
 	void SetName(FString Name);
 	void SetHP(float MaxHP, float CurHP);
 	void Attack();
-	void Move();
 
 	UPROPERTY(VisibleAnywhere)
 	class UWidgetComponent* HPWidgetCom;
@@ -68,14 +66,9 @@ protected:
 	bool DamageEffectOn;
 	float CurDamageEffectTime;
 
-	int Dir;
 	FVector2D StartPos;
 	FVector2D DestinationPos;
+
 	float MoveTimer;
-
-	float AttackAnimationTimer;
-
-	bool isAttack;
-	bool isAirBorne;
 
 };
