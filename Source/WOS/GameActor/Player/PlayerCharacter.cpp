@@ -209,7 +209,7 @@ void APlayerCharacter::ReceiveTakeAttack(gen::mmo::TakeAttack TakeAttackPacket)
 	else if (IsJumping) {
 		Status.state = gen::mmo::EPlayerState::Jump;
 	}
-	else if(IsAfterDelaying()){
+	else if (IsAfterDelaying()) {
 		Status.state = gen::mmo::EPlayerState::Attack;
 	}
 	else {
@@ -310,9 +310,11 @@ void APlayerCharacter::MoveAnimationLogic(float Axis)
 	else if (Axis < 0)Axis = -1;
 
 	if (!IsJumping && !IsFalling) {
-		GetSprite()->SetFlipbook(WalkAnimation);
 		if (Axis == 0) {
 			GetSprite()->SetFlipbook(IdleAnimation);
+		}
+		else {
+			GetSprite()->SetFlipbook(WalkAnimation);
 		}
 	}
 
