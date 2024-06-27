@@ -11,6 +11,8 @@
 #include "Util/NetUtility.h"
 #include "Network/generated/mmo/Packet.gen.hpp"
 
+#define DebugLog(x) GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, x);
+
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
@@ -49,21 +51,24 @@ void APlayerCharacter::Tick(float DeltaTime)
 	JumpAnimationTimer += DeltaTime;
 	WeaponAfterDelay -= DeltaTime;
 	DamagedMaterialTimer -= DeltaTime;
+	ParryingTimer -= DeltaTime;
+
+	auto MapData = UManager::Object()->GetCurrentMapData();
 
 	//점프,낙하 애니메이션
 	float jumpAnimationTime = 0.4f;
 	float z;
 	if (IsJumping) {
 		z = Lerp(Lerp(JumpAnimationStartZ, JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime), JumpAnimationTop, JumpAnimationTimer / jumpAnimationTime);
+		//Log(FString::Printf(TEXT("(%f)"), JumpAnimationTop));
 
 		if (JumpAnimationTimer > jumpAnimationTime) {
 			IsJumping = false;
-
-			auto MapData = UManager::Object()->GetCurrentMapData();
 			int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X + LastMoveInput, LocalPositionY));
 
 			LocalPositionY = Bottom;
 			FallAnimationLogic(LocalPositionY);
+
 		}
 	}
 	else if (IsFalling) {
@@ -91,7 +96,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 
-			auto MapData = UManager::Object()->GetCurrentMapData();
 			Vector2Int TargetPosition = MapData->RayCast(Vector2Int(ServerPosition.X, LocalPositionY), Vector2Int(LastMoveInput, 0), 1);
 			MoveLogic(TargetPosition);
 		}
@@ -160,6 +164,12 @@ void APlayerCharacter::ReceivePacket(const Packet* ReadingPacket) {
 	case gen::mmo::PacketId::NOTIFY_MOVE:
 		ReceiveNotifyMove(*static_cast<const gen::mmo::NotifyMove*>(ReadingPacket));
 		break;
+	case gen::mmo::PacketId::NOTIFY_DAMAGED:
+		ReceiveNotifyDamaged(*static_cast<const gen::mmo::NotifyDamaged*>(ReadingPacket));
+		break;
+	case gen::mmo::PacketId::TAKE_ATTACK:
+		ReceiveTakeAttack(*static_cast<const gen::mmo::TakeAttack*>(ReadingPacket));
+		break;
 	}
 }
 
@@ -183,20 +193,34 @@ void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("%d, %d"), (int)ServerPosition.X, (int)ServerPosition.Y));
 }
 
+void APlayerCharacter::ReceiveNotifyDamaged(gen::mmo::NotifyDamaged NotifyDamagedPacket)
+{
+	GetSprite()->SetMaterial(0, DamagedMaterial);
+	IsDamagedMaterialOn = true;
+	DamagedMaterialTimer = DamagedMaterialTime;
+}
+
+void APlayerCharacter::ReceiveTakeAttack(gen::mmo::TakeAttack TakeAttackPacket)
+{
+	auto Status = gen::mmo::HitStatus();
+	if (IsParrying()) {
+		Status.state = gen::mmo::EPlayerState::Parrying;
+	}
+	else if (IsJumping) {
+		Status.state = gen::mmo::EPlayerState::Jump;
+	}
+	else if(IsAfterDelaying()){
+		Status.state = gen::mmo::EPlayerState::Attack;
+	}
+	else {
+		Status.state = gen::mmo::EPlayerState::Idle;
+	}
+	UManager::Net()->Send(ServerType::MMO, &Status);
+}
+
 void APlayerCharacter::DestroyNetObject()
 {
 	Destroy();
-}
-
-bool APlayerCharacter::TakeDamage(int Damage)
-{
-	bool IsDamaged = NetObject::TakeDamage(Damage);
-	if (IsDamaged) {
-		GetSprite()->SetMaterial(0, DamagedMaterial);
-		IsDamagedMaterialOn = true;
-		DamagedMaterialTimer = DamagedMaterialTime;
-	}
-	return IsDamaged;
 }
 
 void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
@@ -242,7 +266,7 @@ void APlayerCharacter::JumpInputHandler() {
 
 void APlayerCharacter::AttackInputHandler()
 {
-	TakeDamage(0);
+
 }
 
 void APlayerCharacter::ParryingInputHandler()
@@ -276,6 +300,7 @@ void APlayerCharacter::MoveLogic(Vector2Int Position)
 		}
 	}
 
+	TryUsePortal(Position);
 	SendMovePacket(Position.X, Position.Y);
 }
 
@@ -308,12 +333,12 @@ void APlayerCharacter::JumpAnimationLogic(int Top)
 	JumpAnimationStartZ = GetActorLocation().Z;
 	JumpAnimationTimer = 0;
 	GetSprite()->SetFlipbook(JumpAnimation);
-
 	auto MapData = UManager::Object()->GetCurrentMapData();
 	if (Top < MapData->GetYSize()) {
 		JumpAnimationTop = Top * 100;
 	}
 	else {
+		MapData->Log();
 		JumpAnimationTop = (MapData->GetYSize() - 1) * 100;
 	}
 }
@@ -355,6 +380,11 @@ bool APlayerCharacter::IsAfterDelaying()
 	return WeaponAfterDelay > 0;
 }
 
+bool APlayerCharacter::IsParrying()
+{
+	return ParryingTimer > 0;
+}
+
 void APlayerCharacter::RPCJump(int JumpPower)
 {
 	int Top = ServerPosition.Y + JumpPower;
@@ -369,8 +399,6 @@ void APlayerCharacter::SendMovePacket(float X, float Y) {
 	LastSendPosX = X;
 
 	UManager::Net()->Send(ServerType::MMO, &MovePacket);
-
-	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, FString::Printf(TEXT("%d, %d"), (int)MovePacket.position.x, (int)MovePacket.position.y));
 }
 
 float APlayerCharacter::Lerp(float a, float b, float t)
@@ -419,4 +447,12 @@ TArray<AActor*> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D 
 	}
 
 	return Actors;
+}
+
+void APlayerCharacter::TryUsePortal(Vector2Int Position)
+{
+	auto MapData = UManager::Object()->GetCurrentMapData();
+	if (MapData->GetTile(Position) == 3) {
+		UManager::Object()->RequestEnterMap(MapData->GetPortalLinkName(Position));
+	}
 }

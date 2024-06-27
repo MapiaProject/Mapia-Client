@@ -65,7 +65,17 @@ void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 			mapData.Insert(Array, 0);
 		}
 
-		CurrentMapData = MapData(LastRequstMapName, mapData);
+		//몬스터 정보 추출
+		FString PortalText = ini[TEXT("info")].Get<FString>("portal");
+		TArray<FString> PortalLinks;
+		PortalText.ParseIntoArray(PortalLinks, TEXT(","));
+
+		FString MonsterName = ini[TEXT("info")].Get<FString>("monster");
+
+		CurrentMapData = MapData(LastRequstMapName, mapData, PortalLinks, MonsterName);
+
+
+		//UGameplayStatics::OpenLevel(this, FName(CurrentMapData.GetName()));
 	}
 	else
 	{
@@ -78,34 +88,20 @@ void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
 	auto Rotation = FRotator(0, 0, 0);
 	APlayerCharacter* Player = nullptr;
 
-	if (Packet->isMine) {
-		FVector Position = NetUtility::MakeVector(Packet->players[0].objectInfo.position) * 100;
-		auto* Actor = World->SpawnActor(LocalPlayerClass, &Position, &Rotation);
+	FVector Position = NetUtility::MakeVector(Packet->object.position) * 100;
+	auto* Actor = World->SpawnActor(LocalPlayerClass, &Position, &Rotation);
 
-		Player = Cast<APlayerCharacter>(Actor);
-		Player->ObjectId = Packet->players[0].objectInfo.objectId;
+	Player = Cast<APlayerCharacter>(Actor);
+	Player->ObjectId = Packet->object.objectId;
 
-		auto Controller = UGameplayStatics::GetPlayerController(World, 0);
-		Player->Controller = Controller;
-		Controller->Possess(Player);
+	auto Controller = UGameplayStatics::GetPlayerController(World, 0);
+	Player->Controller = Controller;
+	Controller->Possess(Player);
 
-		NetObjects.Add(Packet->players[0].objectInfo.objectId, Player);
-		Player->SetName(Packet->players[0].name);
-		Player->HandleSpawn(Vector2Int(Packet->players[0].objectInfo.position.x, Packet->players[0].objectInfo.position.y));
-		Player->SetIsmine();
-	}
-	else {
-		for (auto PlayerInfo : Packet->players) {
-			FVector Position = NetUtility::MakeVector(PlayerInfo.objectInfo.position) * 100;
-
-			auto* Actor = World->SpawnActor(PlayerClass, &Position, &Rotation);
-			Player = Cast<APlayerCharacter>(Actor);
-			Player->ObjectId = PlayerInfo.objectInfo.objectId;
-
-			NetObjects.Add(PlayerInfo.objectInfo.objectId, Player);
-			Player->SetName(PlayerInfo.name);
-		}
-	}
+	NetObjects.Add(Packet->object.objectId, Player);
+	Player->SetName(Packet->object.name);
+	Player->HandleSpawn(Vector2Int(Packet->object.position.x, Packet->object.position.y));
+	Player->SetIsmine();
 }
 
 void UNetObjectManager::HandleLeaveMap(gen::mmo::NotifyLeaveMap* Packet)
@@ -113,28 +109,38 @@ void UNetObjectManager::HandleLeaveMap(gen::mmo::NotifyLeaveMap* Packet)
 	NetObjects[Packet->objectId]->DestroyNetObject();
 }
 
-void UNetObjectManager::HandleSpawnMonster(gen::mmo::SpawnMonster* Packet)
+void UNetObjectManager::HandleNotifySpawn(gen::mmo::NotifySpawn* Packet)
 {
-	int MonsterTypeIndex = (int)Packet->monsterType;
 	auto* World = GetWorld();
+	auto Rotation = FRotator(0, 0, 0);
 
-	for (auto MonsterInfo : Packet->monsterInfos) {
-		FVector Position = NetUtility::MakeVector(MonsterInfo.position);
-		auto Rotation = FRotator(0, 0, 0);
+	for (const auto& Object : Packet->objects) {
+		FVector Position = NetUtility::MakeVector(Object.position) * 100;
 
-		if (MonsterTypeIndex < MonsterActors.Num()) {
-			auto* Actor = World->SpawnActor(MonsterActors[MonsterTypeIndex], &Position, &Rotation);
-			auto Monster = reinterpret_cast<NetObject*>(Actor);
+		if (Object.type == gen::mmo::EObjectType::PLAYER) {
+			auto* Actor = World->SpawnActor(PlayerClass, &Position, &Rotation);
+			auto* Player = Cast<APlayerCharacter>(Actor);
+			Player->ObjectId = Object.objectId;
 
-			if (Monster) {
-				Monster->ObjectId = MonsterInfo.objectId;
-			}
-			else {
-				UE_LOG(LogTemp, Warning, TEXT("Spawned monster is not NetObject"));
-			}
+			NetObjects.Add(Object.objectId, Player);
+			Player->SetName(Object.name);
 		}
 		else {
-			UE_LOG(LogTemp, Warning, TEXT("To much monster asset"));
+			int MonsterTypeIndex = (int)Object.type;
+			if (MonsterTypeIndex < MonsterActors.Num()) {
+				auto* Actor = World->SpawnActor(MonsterActors[MonsterTypeIndex], &Position, &Rotation);
+				auto Monster = reinterpret_cast<NetObject*>(Actor);
+
+				if (Monster) {
+					Monster->ObjectId = Object.objectId;
+				}
+				else {
+					UE_LOG(LogTemp, Warning, TEXT("Spawned monster is not NetObject"));
+				}
+			}
+			else {
+				UE_LOG(LogTemp, Warning, TEXT("To much monster asset"));
+			}
 		}
 	}
 }
@@ -152,6 +158,8 @@ void UNetObjectManager::HandleNetObjectPacket(uint64 ObjectId, const Packet* Rec
 
 void UNetObjectManager::RequestEnterMap(FString MapName)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("Request Enter Map : %s"), *MapName));
+
 	gen::mmo::EnterMapReq EnterMap;
 	EnterMap.mapName = MapName;
 	gen::mmo::Vector2 Pos;

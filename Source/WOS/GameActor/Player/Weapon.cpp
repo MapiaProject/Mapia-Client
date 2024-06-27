@@ -17,7 +17,6 @@ UWeapon::UWeapon()
 void UWeapon::Init(TObjectPtr<APlayerCharacter> PlayerCharacter)
 {
 	this->Owner = PlayerCharacter;
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Init"));
 }
 
 void UWeapon::OnSwitchedFrom(TObjectPtr<UWeapon> Other)

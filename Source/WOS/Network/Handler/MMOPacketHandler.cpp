@@ -40,14 +40,20 @@ bool mmo::PacketHandler::NotifyChatPacketHandler(TSharedPtr<Session> session, TS
 	return false;
 }
 
-bool gen::mmo::PacketHandler::SpawnMonsterPacketHandler(TSharedPtr<Session> session, TSharedPtr<SpawnMonster> packet)
+bool gen::mmo::PacketHandler::NotifyDamagedPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyDamaged> packet)
 {
-	//UManager::Get()->HandleSpawnMonster(packet.Get());
-	UManager::Object()->HandleSpawnMonster(packet.Get());
+	UManager::Object()->HandleNetObjectPacket(packet.Get()->damageResult.objectId, packet.Get());
 	return false;
 }
 
-bool gen::mmo::PacketHandler::NotifyDamagedPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifyDamaged> packet)
+bool gen::mmo::PacketHandler::NotifySpawnPacketHandler(TSharedPtr<Session> session, TSharedPtr<NotifySpawn> packet)
 {
+	UManager::Object()->HandleNotifySpawn(packet.Get());
+	return false;
+}
+
+bool gen::mmo::PacketHandler::TakeAttackPacketHandler(TSharedPtr<Session> session, TSharedPtr<TakeAttack> packet)
+{
+	UManager::Object()->HandleNetObjectPacket(packet.Get()->target, packet.Get());
 	return false;
 }

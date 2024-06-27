@@ -9,7 +9,7 @@
 
 namespace gen::mmo
 {
-	class SpawnMonster;
+	class NotifySpawn;
 	class NotifyLeaveMap;
 	class Spawn;
 	class EnterMapRes;
@@ -35,7 +35,7 @@ public:
 	void HandleEnterMap(gen::mmo::EnterMapRes* Packet);
 	void HandleSpawnPlayer(gen::mmo::Spawn* Packet);
 	void HandleLeaveMap(gen::mmo::NotifyLeaveMap* Packet);
-	void HandleSpawnMonster(gen::mmo::SpawnMonster* Packet);
+	void HandleNotifySpawn(gen::mmo::NotifySpawn* Packet);
 
 	NetObject* GetObjectById(uint64 Id);
 private:
