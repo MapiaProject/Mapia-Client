@@ -75,15 +75,28 @@ void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 		CurrentMapData = MapData(LastRequstMapName, mapData, PortalLinks, MonsterName);
 
 
-		//UGameplayStatics::OpenLevel(this, FName(CurrentMapData.GetName()));
+		UGameplayStatics::OpenLevel(this, FName(CurrentMapData.GetName()));
 	}
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Can't enter map"));
 	}
+
+	NetObjects = TMap<uint64, NetObject*>();
+	ChangingMap = false;
+	while (!NotifySpawnBuffer.IsEmpty()) {
+		gen::mmo::NotifySpawn Packet;
+		for (const auto& Object : Packet.objects) {
+			auto O = Object;
+			ObjectInfo Info(&O);
+			NotifySpawnBuffer.Dequeue(Info);
+			NotifySpawnLogic(&Info);
+		}
+	}
 }
 
 void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Spawn"));
 	auto* World = GetWorld();
 	auto Rotation = FRotator(0, 0, 0);
 	APlayerCharacter* Player = nullptr;
@@ -106,41 +119,59 @@ void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
 
 void UNetObjectManager::HandleLeaveMap(gen::mmo::NotifyLeaveMap* Packet)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("LeaveMap"));
 	NetObjects[Packet->objectId]->DestroyNetObject();
 }
 
 void UNetObjectManager::HandleNotifySpawn(gen::mmo::NotifySpawn* Packet)
 {
-	auto* World = GetWorld();
-	auto Rotation = FRotator(0, 0, 0);
+	if (ChangingMap) {
+		for (const auto& Object : Packet->objects) {
+			auto O = Object;
+			ObjectInfo Info(&O);
+			NotifySpawnBuffer.Enqueue(Info);
+		}
+		return;
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("NotifySpawn"));
 
 	for (const auto& Object : Packet->objects) {
-		FVector Position = NetUtility::MakeVector(Object.position) * 100;
+		auto O = Object;
+		ObjectInfo ObjectInfo(&O);
+		NotifySpawnLogic(&ObjectInfo);
+	}
+}
 
-		if (Object.type == gen::mmo::EObjectType::PLAYER) {
-			auto* Actor = World->SpawnActor(PlayerClass, &Position, &Rotation);
-			auto* Player = Cast<APlayerCharacter>(Actor);
-			Player->ObjectId = Object.objectId;
+void UNetObjectManager::NotifySpawnLogic(ObjectInfo* Object)
+{
+	auto* World = GetWorld();
+	auto Rotation = FRotator(0, 0, 0);
+	FVector Position = Object->position.GetFVector() * 100;
 
-			NetObjects.Add(Object.objectId, Player);
-			Player->SetName(Object.name);
-		}
-		else {
-			int MonsterTypeIndex = (int)Object.type;
-			if (MonsterTypeIndex < MonsterActors.Num()) {
-				auto* Actor = World->SpawnActor(MonsterActors[MonsterTypeIndex], &Position, &Rotation);
-				auto Monster = reinterpret_cast<NetObject*>(Actor);
+	if (Object->type == gen::mmo::EObjectType::PLAYER) {
+		auto* Actor = World->SpawnActor(PlayerClass, &Position, &Rotation);
+		auto* Player = Cast<APlayerCharacter>(Actor);
+		Player->ObjectId = Object->objectId;
 
-				if (Monster) {
-					Monster->ObjectId = Object.objectId;
-				}
-				else {
-					UE_LOG(LogTemp, Warning, TEXT("Spawned monster is not NetObject"));
-				}
+		NetObjects.Add(Object->objectId, Player);
+		Player->SetName(Object->name);
+	}
+	else {
+		int MonsterTypeIndex = (int)Object->type;
+		if (MonsterTypeIndex < MonsterActors.Num()) {
+			auto* Actor = World->SpawnActor(MonsterActors[MonsterTypeIndex], &Position, &Rotation);
+			auto Monster = reinterpret_cast<NetObject*>(Actor);
+
+			if (Monster) {
+				Monster->ObjectId = Object->objectId;
 			}
 			else {
-				UE_LOG(LogTemp, Warning, TEXT("To much monster asset"));
+				UE_LOG(LogTemp, Warning, TEXT("Spawned monster is not NetObject"));
 			}
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("To much monster asset"));
 		}
 	}
 }
@@ -168,9 +199,27 @@ void UNetObjectManager::RequestEnterMap(FString MapName)
 	UManager::Net()->Send(ServerType::MMO, &EnterMap);
 
 	LastRequstMapName = MapName;
+
+	ChangingMap = true;
 }
 
 MapData* UNetObjectManager::GetCurrentMapData()
 {
 	return &CurrentMapData;
+}
+
+ObjectInfo::ObjectInfo(gen::mmo::ObjectInfo* Origin) {
+	name = Origin->name;
+	objectId = Origin->objectId;
+	position = Vector2Int(Origin->position.x, Origin->position.y);
+	remainHp = Origin->remainHp;
+	type = Origin->type;
+}
+
+ObjectInfo::ObjectInfo() {
+
+}
+
+ObjectInfo::~ObjectInfo() {
+
 }

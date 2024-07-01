@@ -48,6 +48,11 @@ FVector2D Vector2Int::GetFVector2D()
 	return FVector2D(X, Y);
 }
 
+FVector Vector2Int::GetFVector()
+{
+	return FVector(X, Y, 0);
+}
+
 Vector2Int Vector2Int::Max(Vector2Int A, Vector2Int B)
 {
 	return Vector2Int(A.X > B.X ? A.X : B.X, A.Y > B.Y ? A.Y : B.Y);

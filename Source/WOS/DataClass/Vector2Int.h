@@ -21,6 +21,7 @@ public:
 	bool operator !=(Vector2Int Other);
 	
 	FVector2D GetFVector2D();
+	FVector GetFVector();
 	static Vector2Int Max(Vector2Int A, Vector2Int B);
 	static Vector2Int Min(Vector2Int A, Vector2Int B);
 	static Vector2Int Clamp(Vector2Int Value,Vector2Int MinValue,Vector2Int MaxValue);
