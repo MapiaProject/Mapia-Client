@@ -76,44 +76,60 @@ void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 
 
 		UGameplayStatics::OpenLevel(this, FName(CurrentMapData.GetName()));
+
 	}
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Can't enter map"));
-	}
 
-	NetObjects = TMap<uint64, NetObject*>();
-	ChangingMap = false;
-	while (!NotifySpawnBuffer.IsEmpty()) {
-		gen::mmo::NotifySpawn Packet;
-		for (const auto& Object : Packet.objects) {
-			auto O = Object;
-			ObjectInfo Info(&O);
-			NotifySpawnBuffer.Dequeue(Info);
-			NotifySpawnLogic(&Info);
+		ChangingMap = false;
+		while (!NotifySpawnBuffer.IsEmpty()) {
+			gen::mmo::NotifySpawn Packet;
+			for (const auto& Object : Packet.objects) {
+				auto O = Object;
+				ObjectInfo Info(&O);
+				NotifySpawnBuffer.Dequeue(Info);
+				NotifySpawnLogic(&Info);
+			}
+		}
+
+		if (UsingPlayerSpawnBuffer) {
+			SpawnPlayerLogic(&PlayerSpawnBuffer);
+			UsingPlayerSpawnBuffer = false;
 		}
 	}
 }
 
 void UNetObjectManager::HandleSpawnPlayer(gen::mmo::Spawn* Packet) {
+	if (ChangingMap) {
+		PlayerSpawnBuffer = ObjectInfo(&(Packet->object));
+		UsingPlayerSpawnBuffer = true;
+		return;
+	}
+	auto O = ObjectInfo(&(Packet->object));
+	SpawnPlayerLogic(&O);
+}
+
+void UNetObjectManager::SpawnPlayerLogic(ObjectInfo* Object)
+{
 	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, TEXT("Spawn"));
 	auto* World = GetWorld();
 	auto Rotation = FRotator(0, 0, 0);
 	APlayerCharacter* Player = nullptr;
 
-	FVector Position = NetUtility::MakeVector(Packet->object.position) * 100;
+	FVector Position = Object->position.GetFVector() * 100;
 	auto* Actor = World->SpawnActor(LocalPlayerClass, &Position, &Rotation);
 
 	Player = Cast<APlayerCharacter>(Actor);
-	Player->ObjectId = Packet->object.objectId;
+	Player->ObjectId = Object->objectId;
 
 	auto Controller = UGameplayStatics::GetPlayerController(World, 0);
 	Player->Controller = Controller;
 	Controller->Possess(Player);
 
-	NetObjects.Add(Packet->object.objectId, Player);
-	Player->SetName(Packet->object.name);
-	Player->HandleSpawn(Vector2Int(Packet->object.position.x, Packet->object.position.y));
+	NetObjects.Add(Object->objectId, Player);
+	Player->SetName(Object->name);
+	Player->HandleSpawn(Vector2Int(Object->position.X, Object->position.Y));
 	Player->SetIsmine();
 }
 
@@ -173,6 +189,26 @@ void UNetObjectManager::NotifySpawnLogic(ObjectInfo* Object)
 		else {
 			UE_LOG(LogTemp, Warning, TEXT("To much monster asset"));
 		}
+	}
+}
+
+void UNetObjectManager::OnLevelLoaded()
+{
+	NetObjects = TMap<uint64, NetObject*>();
+	ChangingMap = false;
+	while (!NotifySpawnBuffer.IsEmpty()) {
+		gen::mmo::NotifySpawn Packet;
+		for (const auto& Object : Packet.objects) {
+			auto O = Object;
+			ObjectInfo Info(&O);
+			NotifySpawnBuffer.Dequeue(Info);
+			NotifySpawnLogic(&Info);
+		}
+	}
+
+	if (UsingPlayerSpawnBuffer) {
+		SpawnPlayerLogic(&PlayerSpawnBuffer);
+		UsingPlayerSpawnBuffer = false;
 	}
 }
 

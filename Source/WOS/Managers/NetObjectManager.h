@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice
+// in the Description page of Project Settings.
 
 #pragma once
 
@@ -49,11 +50,14 @@ public:
 
 	void HandleEnterMap(gen::mmo::EnterMapRes* Packet);
 	void HandleSpawnPlayer(gen::mmo::Spawn* Packet);
+	void SpawnPlayerLogic(ObjectInfo* Object);
 	void HandleLeaveMap(gen::mmo::NotifyLeaveMap* Packet);
 	void HandleNotifySpawn(gen::mmo::NotifySpawn* Packet);
 	void NotifySpawnLogic(ObjectInfo* Object);
+	void OnLevelLoaded();
 
 	NetObject* GetObjectById(uint64 Id);
+
 private:
 	TMap<uint64, NetObject*> NetObjects;
 	TSubclassOf<ACharacter> PlayerClass;
@@ -61,6 +65,8 @@ private:
 	TArray<TSubclassOf<AActor>> MonsterActors;
 
 	TQueue<ObjectInfo> NotifySpawnBuffer;
+	ObjectInfo PlayerSpawnBuffer;
+	bool UsingPlayerSpawnBuffer;
 
 	FString LastRequstMapName;
 	MapData CurrentMapData;
