@@ -19,7 +19,7 @@ public:
 private:
 	const FVector boxSpacing = FVector(100, 100, 100);
 	const FVector boxSize = boxSpacing - FVector::One() * 0.1f;
-	const FColor groundColor = FColor::Black;
+	const FColor groundColor = FColor::White;
 	const FColor monsterSpawnPosColor = FColor::Green;
 	const FColor portalColor = FColor::Cyan;
 	const FColor worldborderColor = FColor::Red;
