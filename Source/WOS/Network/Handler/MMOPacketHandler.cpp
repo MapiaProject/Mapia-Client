@@ -57,3 +57,8 @@ bool gen::mmo::PacketHandler::TakeAttackPacketHandler(TSharedPtr<Session> sessio
 	UManager::Object()->HandleNetObjectPacket(packet.Get()->target, packet.Get());
 	return false;
 }
+
+bool gen::mmo::PacketHandler::ObtainItemPacketHandler(TSharedPtr<Session> session, TSharedPtr<ObtainItem> packet) 
+{
+	return false;
+}

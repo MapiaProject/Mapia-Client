@@ -22,6 +22,9 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	
+	UPROPERTY(EditAnywhere, Category = MonsterInfo)
+	FString Name;
 
 	UPROPERTY(EditAnywhere, Category = Animation)
 	TObjectPtr<UPaperFlipbook> IdleAnimation;
@@ -49,23 +52,22 @@ public:
 	virtual bool TakeDamage(int Damage) override;
 	virtual void DestroyNetObject() override;
 
-	virtual void AirBorne();
-
 	UPROPERTY(VisibleAnywhere)
 	class UWidgetComponent* MonsterInfoUI;
 
 protected:
 	void ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket);
-	void SetName(FString Name);
-	void SetHP(float MaxHP, float CurHP);
+	void SetName();
+	void SetHP();
 	void Attack();
 	void Move();
-
-	//UPROPERTY(VisibleAnywhere)
-	//class UWidgetComponent* HPWidgetCom;
+	void AirBorne();
 
 	float Lerp(float a, float b, float t);
 	FVector2D Lerp(FVector2D a, FVector2D b, float t);
+
+	float MaxHP;
+	float CurHP;
 
 	bool DamageEffectOn;
 	float CurDamageEffectTime;
@@ -85,6 +87,5 @@ protected:
 	float DeltaTimeCopy;
 	float Difference;
 	int RepeatCnt;
-	bool IsRepeatCntOdd;
 
 };

@@ -5,14 +5,14 @@
 #include "PaperFlipbookComponent.h"
 #include "Components/WidgetComponent.h"
 #include "UI/MonsterInfoUI.h"
+#include "Managers/Manager.h"
+#include "Managers/DataLoadManager.h"
 
 AMonster::AMonster() {
 	MonsterInfoUI = CreateDefaultSubobject<UWidgetComponent>(TEXT("MonsterInfoUI"));
 	MonsterInfoUI->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
 	AirBorneAnimationTimer = 0;
-	StartPos = FVector2D(9, 2);
-	DestinationPos = FVector2D(9, 2);
 }
 
 void AMonster::BeginPlay() {
@@ -20,6 +20,11 @@ void AMonster::BeginPlay() {
 
 	GetSprite()->SetMaterial(0, DamagedMaterial);
 	GetSprite()->SetFlipbook(IdleAnimation);
+
+	SetName();
+
+	CurHP = MaxHP = UManager::DataLoad(GetWorld())->LoadMonsterHP(Name);
+	SetHP();
 }
 
 void AMonster::Tick(float DeltaTime)
@@ -89,8 +94,10 @@ bool AMonster::TakeDamage(int Damage)
 {
 	bool IsDamaged = NetObject::TakeDamage(Damage);
 	if (IsDamaged) {
+		CurHP -= Damage;
 		GetSprite()->SetMaterial(0, DamagedMaterial);
 		DamageEffectOn = true;
+		SetHP();
 	}
 	return IsDamaged;
 }
@@ -100,12 +107,12 @@ void AMonster::DestroyNetObject()
 	Destroy();
 }
 
-void AMonster::SetName(FString Name)
+void AMonster::SetName()
 {
 	if (auto WidgetObject = MonsterInfoUI->GetUserWidgetObject()) Cast<UMonsterInfoUI>(WidgetObject)->SetName(Name);
 }
 
-void AMonster::SetHP(float MaxHP, float CurHP)
+void AMonster::SetHP()
 {
 	if (auto WidgetObject = MonsterInfoUI->GetUserWidgetObject()) Cast<UMonsterInfoUI>(WidgetObject)->SetHP(MaxHP, CurHP);
 }
@@ -133,7 +140,6 @@ void AMonster::AirBorne()
 	isAirBorne = true;
 
 	RepeatCnt = AirBorneAnimationTime / DeltaTimeCopy;
-	IsRepeatCntOdd = RepeatCnt & 1;
 	RepeatCnt /= 2;
 
 	Difference = 380.0f / ((RepeatCnt + 1) * RepeatCnt) / 60;

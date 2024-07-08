@@ -49,6 +49,7 @@ namespace net
 class UNetwork;
 class UUISystem;
 class UNetObjectManager;
+class UDataLoadManager;
 class UWidget;
 
 /**
@@ -81,6 +82,7 @@ public:
 	static TObjectPtr<UNetwork> Net(const UWorld* World = GEngine->GameViewport->GetWorld());
 	static TObjectPtr<UUISystem> UI(const UWorld* World = GEngine->GameViewport->GetWorld());
 	static TObjectPtr<UNetObjectManager> Object(const UWorld* World = GEngine->GameViewport->GetWorld());
+	static TObjectPtr<UDataLoadManager> DataLoad(const UWorld* World = GEngine->GameViewport->GetWorld());
 
 	static UManager* Get(const UWorld* World = GEngine->GameViewport->GetWorld());
 	void Initialize();
@@ -88,7 +90,9 @@ private:
 	UPROPERTY(EditAnywhere) TSubclassOf<UNetwork> NetworkClass;
 	UPROPERTY(EditAnywhere) TSubclassOf<UUISystem> UISystemClass;
 	UPROPERTY(EditAnywhere) TSubclassOf<UNetObjectManager> NetObjectManagerClass;
+	UPROPERTY(EditAnywhere) TSubclassOf<UDataLoadManager> DataLoadManagerClass;
 	UPROPERTY() TObjectPtr<UNetwork> NetworkObject;
 	UPROPERTY() TObjectPtr<UUISystem> UISystemObject;
 	UPROPERTY() TObjectPtr<UNetObjectManager> NetObjectManagerObject;
+	UPROPERTY() TObjectPtr<UDataLoadManager> DataLoadManagerObject;
 };
