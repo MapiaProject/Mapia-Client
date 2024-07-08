@@ -25,6 +25,8 @@ void AMonster::BeginPlay() {
 
 	CurHP = MaxHP = UManager::DataLoad(GetWorld())->LoadMonsterHP(Name);
 	SetHP();
+
+	UManager::DataLoad(GetWorld())->LoadMonsterDropItem(Name);
 }
 
 void AMonster::Tick(float DeltaTime)

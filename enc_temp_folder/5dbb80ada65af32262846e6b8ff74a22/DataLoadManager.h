@@ -18,7 +18,6 @@ class WOS_API UDataLoadManager : public UManagerBase
 public:
 	int LoadMonsterHP(FString Name);
 	void LoadMonsterDropItem(FString Name);
-	FString LoadItem(FString Name);
 
 private:
 	FSQLiteDatabase* Database;
