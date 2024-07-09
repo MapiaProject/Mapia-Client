@@ -94,11 +94,13 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	if (GetIsmine()) {
 		//0.2초마다 자유낙하 계산, 위치 패킷 보내기
+		Vector2Int TargetPosition = MapData->RayCast(Vector2Int(ServerPosition.X, LocalPositionY), Vector2Int(LastMoveInput, 0), 1);
+		LocalPositionX += (TargetPosition.X - ServerPosition.X) * DeltaTime;
+
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 
-			Vector2Int TargetPosition = MapData->RayCast(Vector2Int(ServerPosition.X, LocalPositionY), Vector2Int(LastMoveInput, 0), 1);
-			MoveLogic(TargetPosition);
+			MoveLogic(FVector2D(LocalPositionX, LocalPositionY));
 		}
 	}
 	if (!GetIsmine() || LastMoveInput == 0) {
@@ -144,7 +146,7 @@ void APlayerCharacter::SetName(FStringView SettedName) {
 	Name = SettedName;
 }
 
-void APlayerCharacter::HandleSpawn(Vector2Int Position)
+void APlayerCharacter::HandleSpawn(FVector2D Position)
 {
 	LastPosition = Position;
 	ServerPosition = Position;
@@ -177,7 +179,7 @@ void APlayerCharacter::ReceivePacket(const Packet* ReadingPacket) {
 void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 
 	LastPosition = ServerPosition;
-	ServerPosition = Vector2Int(MovePacket.position.x, MovePacket.position.y);
+	ServerPosition = FVector2D(MovePacket.position.x, MovePacket.position.y);
 	ServerTimer = 0;
 
 	LocalPositionY = ServerPosition.Y;
@@ -281,14 +283,15 @@ void APlayerCharacter::Dash(int Direction)
 {
 	auto MapData = UManager::Object()->GetCurrentMapData();
 	Vector2Int TargetPosition = MapData->RayCast(Vector2Int(LastSendPosX, ServerPosition.Y), Vector2Int(Direction, 0), 1);
-	MoveLogic(Vector2Int(LastSendPosX + Direction, ServerPosition.Y));
+	MoveLogic(FVector2D(LastSendPosX + Direction, ServerPosition.Y));
 }
 
-void APlayerCharacter::MoveLogic(Vector2Int Position)
+void APlayerCharacter::MoveLogic(FVector2D Position)
 {
-	Vector2Int Origin = ServerPosition;
+	FVector2D Origin = ServerPosition;
+	Vector2Int PositionInt = Vector2Int(Position.X, Position.Y);
 	auto MapData = UManager::Object()->GetCurrentMapData();
-	if (!MapData->CheckInWorld(Position)) {
+	if (!MapData->CheckInWorld(PositionInt)) {
 		if (Position.X < 0) {
 			Position.X = 0;
 		}
@@ -303,7 +306,7 @@ void APlayerCharacter::MoveLogic(Vector2Int Position)
 		}
 	}
 
-	TryUsePortal(Position);
+	TryUsePortal(PositionInt);
 	SendMovePacket(Position.X, Position.Y);
 }
 
@@ -312,7 +315,7 @@ void APlayerCharacter::MoveAnimationLogic(float Axis)
 	if (Axis > 0)Axis = 1;
 	else if (Axis < 0)Axis = -1;
 
-	if (!IsJumping && !IsFalling && ! IsActing()) {
+	if (!IsJumping && !IsFalling && !IsActing()) {
 		if (Axis == 0) {
 			GetSprite()->SetFlipbook(IdleAnimation);
 		}

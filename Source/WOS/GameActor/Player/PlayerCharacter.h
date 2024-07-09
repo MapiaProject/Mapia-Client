@@ -88,7 +88,7 @@ public:
 	virtual void DestroyNetObject() override;
 
 	void SetName(FStringView SettedName);
-	void HandleSpawn(Vector2Int Position);
+	void HandleSpawn(FVector2D Position);
 	void SetIsmine();
 	bool GetIsmine();
 	bool IsAfterDelaying();
@@ -104,7 +104,7 @@ private:
 	void ParryingInputHandler();
 
 	void Dash(int Direction);
-	void MoveLogic(Vector2Int Position);
+	void MoveLogic(FVector2D Position);
 	void MoveAnimationLogic(float Axis);
 	void Parrying(float Time);
 	RPC_FUNCTION(JumpAnimationLogic)
@@ -139,12 +139,13 @@ private:
 	float LastSendPositionTime;
 	FVector SpriteOriginScale;
 	bool bNetObjectIsmine;
-	Vector2Int LastPosition;
+	FVector2D LastPosition;
 	float LastInputTimer;
 	float LastMoveAnimationValue;
-	int LastSendPosX;
+	float LastSendPosX;
 	float CurruntPlayerDir;
-	Vector2Int ServerPosition;
+	FVector2D ServerPosition;
+	float LocalPositionX;
 	int LocalPositionY;
 	float ServerTimer;
 

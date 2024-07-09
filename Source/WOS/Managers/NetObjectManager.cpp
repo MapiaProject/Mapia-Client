@@ -129,7 +129,7 @@ void UNetObjectManager::SpawnPlayerLogic(ObjectInfo* Object)
 
 	NetObjects.Add(Object->objectId, Player);
 	Player->SetName(Object->name);
-	Player->HandleSpawn(Vector2Int(Object->position.X, Object->position.Y));
+	Player->HandleSpawn(FVector2D(Object->position.X, Object->position.Y));
 	Player->SetIsmine();
 }
 

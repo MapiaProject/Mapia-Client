@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "Managers/OnLevelLoadedEventCaller.h"
 #include "Manager.h"
 #include "NetObjectManager.h"
-#include "Managers/OnLevelLoadedEventCaller.h"
 
 // Sets default values
 AOnLevelLoadedEventCaller::AOnLevelLoadedEventCaller()
