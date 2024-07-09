@@ -47,12 +47,12 @@ void UJoinUI::IDCheckResult(bool result) {
 	if (!result) {
 		isIDCheck = true;
 		TIDCheckResult->SetText(FText::FromString(TEXT("사용 가능한 아이디 입니다.")));
-		TIDCheckResult->SetColorAndOpacity(FSlateColor(FLinearColor(0, 1, 0, 1)));
+		TIDCheckResult->ColorAndOpacity = FLinearColor(0, 1, 0, 1);
 		//TIDCheckResult->SetForegroundColor(FLinearColor(0, 1, 0, 1));
 	}
 	else {
 		TIDCheckResult->SetText(FText::FromString(TEXT("중복된 아이디 입니다.")));
-		TIDCheckResult->SetColorAndOpacity(FSlateColor(FLinearColor(1, 0, 0, 1)));
+		TIDCheckResult->ColorAndOpacity = FLinearColor(1, 0, 0, 1);
 		//TIDCheckResult->SetForegroundColor(FLinearColor(1, 0, 0, 1));
 	}
 }

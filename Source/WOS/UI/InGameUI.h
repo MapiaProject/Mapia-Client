@@ -32,7 +32,7 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	class UProgressBar* HPBar;
 	UPROPERTY(meta=(BindWidget))
-	class UEditableTextBox* THP;
+	class UTextBlock* THP;
 	UPROPERTY(meta=(BindWidget))
 	class UEditableTextBox* TChat;
 	UPROPERTY(meta=(BindWidget))

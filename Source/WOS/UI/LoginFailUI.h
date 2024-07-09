@@ -24,7 +24,7 @@ public:
 
 private:
 	UPROPERTY(meta=(BindWidget))
-	class UEditableTextBox* TCause;
+	class UTextBlock* TCause;
 
 	float HoldingTime;
 };
