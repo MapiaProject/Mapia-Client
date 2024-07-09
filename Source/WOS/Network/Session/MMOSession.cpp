@@ -20,7 +20,13 @@ void FMMOSession::OnConnected()
 void FMMOSession::OnDisconnected()
 {
 	FSession::OnDisconnected();
-	UManager::Get()->IsConnected = false;
+	auto g = GEngine;
+	auto v = g->GameViewport;
+	if (v != nullptr) {
+		auto w = v->GetWorld();
+		auto o = UManager::Get(w);
+		o->IsConnected = false;
+	}
 }
 
 void FMMOSession::OnReceive(std::span<char> buffer, int32 length)
