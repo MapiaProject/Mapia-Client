@@ -84,6 +84,8 @@ public:
 
 	static UManager* Get(const UWorld* World = GEngine->GameViewport->GetWorld());
 	void Initialize();
+
+	bool IsConnected;
 private:
 	UPROPERTY(EditAnywhere) TSubclassOf<UNetwork> NetworkClass;
 	UPROPERTY(EditAnywhere) TSubclassOf<UUISystem> UISystemClass;

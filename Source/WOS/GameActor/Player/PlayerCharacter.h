@@ -59,6 +59,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = Animation)
 		TObjectPtr<UMaterialInterface> DamagedMaterial;
 	UPROPERTY(EditAnywhere, Category = Animation)
+		TObjectPtr<UPaperFlipbook> FarryingAnimation;
+	UPROPERTY(EditAnywhere, Category = Animation)
 		float DamagedMaterialTime;
 
 
@@ -109,6 +111,10 @@ private:
 		void JumpAnimationLogic(int Top);
 	RPC_FUNCTION(FallAnimationLogic)
 		void FallAnimationLogic(int Bottom);
+	RPC_FUNCTION(FarryingAnimationLogic)
+		void FarryingAnimationLogic();
+
+	bool IsActing();
 	float JumpAnimationStartZ;
 	float JumpAnimationTop;
 	float JumpAnimationBottom;

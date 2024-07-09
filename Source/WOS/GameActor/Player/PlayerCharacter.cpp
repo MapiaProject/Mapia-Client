@@ -19,6 +19,7 @@ APlayerCharacter::APlayerCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	RPC(JumpAnimationLogic);
+	RPC(FarryingAnimationLogic);
 }
 
 // Called when the game starts or when spawned
@@ -268,12 +269,12 @@ void APlayerCharacter::JumpInputHandler() {
 
 void APlayerCharacter::AttackInputHandler()
 {
-
+	CurrentWeapon->LightAttackHandler(LastMoveInput);
 }
 
 void APlayerCharacter::ParryingInputHandler()
 {
-
+	CurrentWeapon->ParryingHandler(LastMoveInput);
 }
 
 void APlayerCharacter::Dash(int Direction)
@@ -311,7 +312,7 @@ void APlayerCharacter::MoveAnimationLogic(float Axis)
 	if (Axis > 0)Axis = 1;
 	else if (Axis < 0)Axis = -1;
 
-	if (!IsJumping && !IsFalling) {
+	if (!IsJumping && !IsFalling && ! IsActing()) {
 		if (Axis == 0) {
 			GetSprite()->SetFlipbook(IdleAnimation);
 		}
@@ -361,6 +362,17 @@ void APlayerCharacter::FallAnimationLogic(int Bottom)
 	GetSprite()->SetFlipbook(JumpAnimation);
 }
 
+void APlayerCharacter::FarryingAnimationLogic()
+{
+	DebugLog(TEXT("Parrying"));
+	GetSprite()->SetFlipbook(FarryingAnimation);
+}
+
+bool APlayerCharacter::IsActing()
+{
+	return IsAfterDelaying() || IsParrying();
+}
+
 void APlayerCharacter::SwitchWeapon(int WeaponIndex)
 {
 	auto Origin = CurrentWeapon;
@@ -383,6 +395,8 @@ void APlayerCharacter::Parrying(float Time)
 {
 	if (Time > ParryingTimer) {
 		ParryingTimer = Time;
+
+		RpcView::CallRPC(FarryingAnimationLogic, RpcTarget::All);
 	}
 }
 

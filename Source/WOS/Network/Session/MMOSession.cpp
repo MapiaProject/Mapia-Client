@@ -14,11 +14,13 @@ void FMMOSession::OnConnected()
 	gen::mmo::EnterGameReq Req;
 	Req.name = Cast<ULoginUI>(UManager::UI()->LoginWidgetObject)->GetID().ToString();
 	Send(&Req);
+	UManager::Get()->IsConnected = true;
 }
 
 void FMMOSession::OnDisconnected()
 {
 	FSession::OnDisconnected();
+	UManager::Get()->IsConnected = false;
 }
 
 void FMMOSession::OnReceive(std::span<char> buffer, int32 length)

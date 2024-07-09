@@ -18,7 +18,7 @@ MapData::MapData(FString MapName, TArray<TArray<int>> TileData, TArray<FString> 
 
 	PortalDatas = TArray<PortalData>();
 	int PortalCount = 0;
-	for (int y = 0;y < GetYSize();y++) {
+	for (int y = GetYSize() - 1;y > 0;y--) {
 		for (int x = 0;x < GetXSize();x++) {
 			if (TileData[y][x] == 3) {
 				PortalDatas.Add(PortalData(PortalLinks[PortalCount], Vector2Int(x, y)));
