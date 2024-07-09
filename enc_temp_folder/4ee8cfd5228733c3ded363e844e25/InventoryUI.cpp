@@ -16,6 +16,10 @@ void UInventoryUI::NativeConstruct() {
 	BExit->OnClicked.AddDynamic(this, &UInventoryUI::OnClickExit);
 }
 
+void UInventoryUI::HideInventory() {
+	UManager::UI()->HideWidget(WidgetType::Inventory);
+}
+
 void UInventoryUI::OnClickDamage() {
 
 }
