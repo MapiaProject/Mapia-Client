@@ -113,6 +113,11 @@ void UWeapon::MoveAnimationLogic(int Axis)
 	Owner->MoveAnimationLogic(Axis);
 }
 
+void UWeapon::Parrying(float Time)
+{
+	Owner->Parrying(Time);
+}
+
 FString UWeapon::GetName()
 {
 	return Name;

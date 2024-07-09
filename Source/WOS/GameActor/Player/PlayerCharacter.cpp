@@ -202,20 +202,22 @@ void APlayerCharacter::ReceiveNotifyDamaged(gen::mmo::NotifyDamaged NotifyDamage
 
 void APlayerCharacter::ReceiveTakeAttack(gen::mmo::TakeAttack TakeAttackPacket)
 {
-	auto Status = gen::mmo::HitStatus();
-	if (IsParrying()) {
-		Status.state = gen::mmo::EPlayerState::Parrying;
+	if (GetIsmine()) {
+		auto Status = gen::mmo::HitStatus();
+		if (IsParrying()) {
+			Status.state = gen::mmo::EPlayerState::Parrying;
+		}
+		else if (IsJumping) {
+			Status.state = gen::mmo::EPlayerState::Jump;
+		}
+		else if (IsAfterDelaying()) {
+			Status.state = gen::mmo::EPlayerState::Attack;
+		}
+		else {
+			Status.state = gen::mmo::EPlayerState::Idle;
+		}
+		UManager::Net()->Send(ServerType::MMO, &Status);
 	}
-	else if (IsJumping) {
-		Status.state = gen::mmo::EPlayerState::Jump;
-	}
-	else if (IsAfterDelaying()) {
-		Status.state = gen::mmo::EPlayerState::Attack;
-	}
-	else {
-		Status.state = gen::mmo::EPlayerState::Idle;
-	}
-	UManager::Net()->Send(ServerType::MMO, &Status);
 }
 
 void APlayerCharacter::DestroyNetObject()
@@ -375,6 +377,13 @@ void APlayerCharacter::SwitchWeapon(int WeaponIndex)
 void APlayerCharacter::SetAfterDelay(float Delay)
 {
 	WeaponAfterDelay = Delay;
+}
+
+void APlayerCharacter::Parrying(float Time)
+{
+	if (Time > ParryingTimer) {
+		ParryingTimer = Time;
+	}
 }
 
 bool APlayerCharacter::IsAfterDelaying()

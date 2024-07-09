@@ -104,6 +104,7 @@ private:
 	void Dash(int Direction);
 	void MoveLogic(Vector2Int Position);
 	void MoveAnimationLogic(float Axis);
+	void Parrying(float Time);
 	RPC_FUNCTION(JumpAnimationLogic)
 		void JumpAnimationLogic(int Top);
 	RPC_FUNCTION(FallAnimationLogic)
