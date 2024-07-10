@@ -135,7 +135,7 @@ private:
 	FString Name;
 
 	//위치 계산, 애니메이션 구현용 변수
-	float LastMoveInput;
+	int LastMoveInput;
 	float LastSendPositionTime;
 	FVector SpriteOriginScale;
 	bool bNetObjectIsmine;

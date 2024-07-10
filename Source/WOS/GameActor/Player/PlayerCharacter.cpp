@@ -93,6 +93,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	if (GetIsmine()) {
 		//0.2초마다 자유낙하 계산, 위치 패킷 보내기
 		FVector2D TargetPosition = MapData->RayCast(FVector2D(LocalPositionX, LocalPositionY), Vector2Int(LastMoveInput, 0), DeltaTime * MoveSpeed);
+		MoveAnimationLogic(TargetPosition.X - LocalPositionX);
 		LocalPositionX = TargetPosition.X;
 
 		if (time > LastSendPositionTime + sendPositionInterval) {
@@ -101,7 +102,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 			MoveLogic(FVector2D(LocalPositionX, LocalPositionY));
 		}
 	}
-	if (!GetIsmine() || LastMoveInput == 0) {
+	if (!GetIsmine()) {
 		float dir = ServerPosition.X - LastPosition.X;
 		MoveAnimationLogic(dir);
 	}
@@ -234,7 +235,7 @@ void APlayerCharacter::DestroyNetObject()
 }
 
 void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
-	float Axis = Value.Get<float>();
+	int Axis = Value.Get<float>();
 	if (Axis != LastMoveInput) {
 		if (LastMoveInput == 0 && LastInputTimer > 0.2f) {
 			LastInputTimer = 0;
@@ -243,9 +244,6 @@ void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 		}
 
 		LastMoveInput = Axis;
-
-		DebugLog(TEXT("Input"));
-		MoveAnimationLogic(Axis);
 	}
 }
 
