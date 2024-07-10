@@ -25,7 +25,7 @@ public:
 
 protected:
 	UFUNCTION()
-	void OnClickStart();
+	void OnClickLogin();
 	UFUNCTION()
 	void OnClickJoin();
 
@@ -35,7 +35,7 @@ private:
 	UPROPERTY(meta=(BindWidget))
 	class UEditableTextBox* PW;
 	UPROPERTY(meta=(BindWidget))
-	class UButton* BStart;
+	class UButton* BLogin;
 	UPROPERTY(meta= (BindWidget))
 	class UButton* BJoin;
 

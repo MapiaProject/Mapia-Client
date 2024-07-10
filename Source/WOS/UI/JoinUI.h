@@ -37,6 +37,8 @@ private:
 	class UEditableTextBox* PWCheck;
 	UPROPERTY(meta=(BindWidget))
 	class UTextBlock* TIDCheckResult;
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* TPWCheckResult;
 	UPROPERTY(meta=(BindWidget))
 	class UButton* BIDCheck;
 	UPROPERTY(meta=(BindWidget))

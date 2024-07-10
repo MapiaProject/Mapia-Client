@@ -16,6 +16,7 @@ class WOS_API UInventoryUI : public UUserWidget
 
 public:
 	void NativeConstruct();
+	
 	UFUNCTION()
 	void OnClickDamage();
 	UFUNCTION()
