@@ -88,18 +88,16 @@ void APlayerCharacter::Tick(float DeltaTime)
 	}
 
 	//위치 보간
-	auto Position = Lerp(LastPosition.X, ServerPosition.X, ServerTimer / 0.2f) * 100;
 	SetActorLocation(FVector(LocalPositionX * 100, 0, z));
 
 	if (GetIsmine()) {
 		//0.2초마다 자유낙하 계산, 위치 패킷 보내기
-		Vector2Int TargetPosition = MapData->RayCast(Vector2Int(ServerPosition.X, LocalPositionY), Vector2Int(LastMoveInput, 0), 1);
-		LocalPositionX += (TargetPosition.X - ServerPosition.X) * DeltaTime;
+		FVector2D TargetPosition = MapData->RayCast(FVector2D(LocalPositionX, LocalPositionY), Vector2Int(LastMoveInput, 0), DeltaTime * MoveSpeed);
+		LocalPositionX = TargetPosition.X;
 
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 
-			DebugLog(FString::Printf(TEXT("%f, %d"), LocalPositionX, LocalPositionY))
 			MoveLogic(FVector2D(LocalPositionX, LocalPositionY));
 		}
 	}
@@ -191,13 +189,12 @@ void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 		auto MapData = UManager::Object()->GetCurrentMapData();
 		int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X, LocalPositionY));
 		if (Bottom < LocalPositionY) {
-			DebugLog(FString::Printf(TEXT("%d, %d"), Bottom, LocalPositionY))
-				if (LocalPositionY > Bottom) {
-					LocalPositionY = Bottom;
-					FallAnimationLogic(Bottom);
+			if (LocalPositionY > Bottom) {
+				LocalPositionY = Bottom;
+				FallAnimationLogic(Bottom);
 
-					SendMovePacket(ServerPosition.X, Bottom);
-				}
+				SendMovePacket(ServerPosition.X, Bottom);
+			}
 		}
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("%d, %d"), (int)ServerPosition.X, (int)ServerPosition.Y));
@@ -247,6 +244,7 @@ void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 
 		LastMoveInput = Axis;
 
+		DebugLog(TEXT("Input"));
 		MoveAnimationLogic(Axis);
 	}
 }
@@ -375,7 +373,6 @@ void APlayerCharacter::FallAnimationLogic(int Bottom)
 
 void APlayerCharacter::FarryingAnimationLogic()
 {
-	DebugLog(TEXT("Parrying"));
 	GetSprite()->SetFlipbook(FarryingAnimation);
 }
 

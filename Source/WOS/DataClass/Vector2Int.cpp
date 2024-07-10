@@ -14,6 +14,12 @@ Vector2Int::Vector2Int(int X, int Y)
 	this->Y = Y;
 }
 
+Vector2Int::Vector2Int(FVector2D Pos)
+{
+	X = int(Pos.X + 0.5f);
+	Y = int(Pos.Y + 0.5f);
+}
+
 Vector2Int::~Vector2Int()
 {
 }
@@ -31,6 +37,16 @@ Vector2Int Vector2Int::operator-(Vector2Int Other)
 Vector2Int Vector2Int::operator*(int Scalar)
 {
 	return Vector2Int(X * Scalar, Y * Scalar);
+}
+
+Vector2Int Vector2Int::operator+=(Vector2Int Other)
+{
+	return (*this) + Other;
+}
+
+Vector2Int Vector2Int::operator-=(Vector2Int Other)
+{
+	return (*this) - Other;
 }
 
 bool Vector2Int::operator==(Vector2Int Other)

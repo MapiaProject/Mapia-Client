@@ -37,6 +37,8 @@ public:
 	bool CheckInWorld(int X, int Y);
 	Vector2Int RayCast(Vector2Int Start, Vector2Int Direction);
 	Vector2Int RayCast(Vector2Int Start, Vector2Int Direction, int Len);
+	FVector2D RayCast(FVector2D Start, Vector2Int Direction);
+	FVector2D RayCast(FVector2D Start, Vector2Int Direction, float Len);
 	int GroundCast(Vector2Int Start);
 	int GroundCast(int X, int Y);
 

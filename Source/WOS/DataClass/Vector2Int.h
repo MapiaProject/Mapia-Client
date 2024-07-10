@@ -12,11 +12,14 @@ class WOS_API Vector2Int
 public:
 	Vector2Int();
 	Vector2Int(int X, int Y);
+	Vector2Int(FVector2D Pos);
 	~Vector2Int();
 
 	Vector2Int operator +(Vector2Int Other);
 	Vector2Int operator -(Vector2Int Other);
 	Vector2Int operator *(int Scalar);
+	Vector2Int operator +=(Vector2Int Other);
+	Vector2Int operator -=(Vector2Int Other);
 	bool operator ==(Vector2Int Other);
 	bool operator !=(Vector2Int Other);
 	
