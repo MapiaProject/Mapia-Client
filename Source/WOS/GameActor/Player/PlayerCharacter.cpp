@@ -363,7 +363,7 @@ void APlayerCharacter::FallAnimationLogic(int Bottom)
 	}
 	if (!IsJumping) {
 		JumpAnimationTimer = 0;
-		JumpAnimationTop = GetActorLocation().Z;
+		//JumpAnimationTop = GetActorLocation().Z;
 	}
 	JumpAnimationBottom = Bottom * 100;
 	GetSprite()->SetFlipbook(JumpAnimation);
