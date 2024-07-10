@@ -69,7 +69,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 			LocalPositionY = Bottom;
 			FallAnimationLogic(LocalPositionY);
-
 		}
 	}
 	else if (IsFalling) {
@@ -90,7 +89,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	//위치 보간
 	auto Position = Lerp(LastPosition.X, ServerPosition.X, ServerTimer / 0.2f) * 100;
-	SetActorLocation(FVector(Position, 0, z));
+	SetActorLocation(FVector(LocalPositionX * 100, 0, z));
 
 	if (GetIsmine()) {
 		//0.2초마다 자유낙하 계산, 위치 패킷 보내기
@@ -100,6 +99,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 
+			DebugLog(FString::Printf(TEXT("%f, %d"), LocalPositionX, LocalPositionY))
 			MoveLogic(FVector2D(LocalPositionX, LocalPositionY));
 		}
 	}
@@ -148,6 +148,8 @@ void APlayerCharacter::SetName(FStringView SettedName) {
 
 void APlayerCharacter::HandleSpawn(FVector2D Position)
 {
+	LocalPositionY = Position.Y;
+	LocalPositionX = Position.X;
 	LastPosition = Position;
 	ServerPosition = Position;
 }
@@ -163,6 +165,7 @@ bool APlayerCharacter::GetIsmine()
 }
 
 void APlayerCharacter::ReceivePacket(const Packet* ReadingPacket) {
+	NetObject::ReceivePacket(ReadingPacket);
 	switch (ReadingPacket->GetId()) {
 	case gen::mmo::PacketId::NOTIFY_MOVE:
 		ReceiveNotifyMove(*static_cast<const gen::mmo::NotifyMove*>(ReadingPacket));
@@ -187,10 +190,14 @@ void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 	if (!IsJumping) {
 		auto MapData = UManager::Object()->GetCurrentMapData();
 		int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X, LocalPositionY));
+		if (Bottom < LocalPositionY) {
+			DebugLog(FString::Printf(TEXT("%d, %d"), Bottom, LocalPositionY))
+				if (LocalPositionY > Bottom) {
+					LocalPositionY = Bottom;
+					FallAnimationLogic(Bottom);
 
-		if (LocalPositionY != Bottom) {
-			LocalPositionY = Bottom;
-			FallAnimationLogic(Bottom);
+					SendMovePacket(ServerPosition.X, Bottom);
+				}
 		}
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("%d, %d"), (int)ServerPosition.X, (int)ServerPosition.Y));
@@ -225,6 +232,7 @@ void APlayerCharacter::ReceiveTakeAttack(gen::mmo::TakeAttack TakeAttackPacket)
 
 void APlayerCharacter::DestroyNetObject()
 {
+	NetObject::DestroyNetObject();
 	Destroy();
 }
 
