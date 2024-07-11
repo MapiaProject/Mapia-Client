@@ -484,6 +484,10 @@ TArray<AActor*> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D 
 
 void APlayerCharacter::TryUsePortal(Vector2Int Position)
 {
+	if (Position == LastPortalCheckPosition) {
+		return;
+	}
+	LastPortalCheckPosition = Position;
 	auto MapData = UManager::Object()->GetCurrentMapData();
 	if (MapData->GetTile(Position) == 3) {
 		UManager::Object()->RequestEnterMap(MapData->GetPortalLinkName(Position));
