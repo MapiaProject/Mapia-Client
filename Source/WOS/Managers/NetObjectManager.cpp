@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include <UObject/ConstructorHelpers.h>
 #include <Util/NetUtility.h>
+#include "GameActor/Monster/Monster.h"
 
 #include "Network.h"
 
@@ -129,10 +130,11 @@ void UNetObjectManager::HandleNotifySpawn(gen::mmo::NotifySpawn* Packet)
 			int MonsterTypeIndex = (int)Object.type;
 			if (MonsterTypeIndex < MonsterActors.Num()) {
 				auto* Actor = World->SpawnActor(MonsterActors[MonsterTypeIndex], &Position, &Rotation);
-				auto Monster = reinterpret_cast<NetObject*>(Actor);
+				auto Monster = Cast<AMonster>(Actor);
 
 				if (Monster) {
 					Monster->ObjectId = Object.objectId;
+					Monster->SetStartPos(FVector2D(Position.X, Position.Y));
 				}
 				else {
 					UE_LOG(LogTemp, Warning, TEXT("Spawned monster is not NetObject"));

@@ -48,12 +48,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = Material)
 	float MaxDamageEffectTime;
 
+	UPROPERTY(VisibleAnywhere)
+	class UWidgetComponent* MonsterInfoUI;
+
 	virtual void ReceivePacket(const Packet* ReadingPacket) override;
 	virtual bool TakeDamage(int Damage) override;
 	virtual void DestroyNetObject() override;
 
-	UPROPERTY(VisibleAnywhere)
-	class UWidgetComponent* MonsterInfoUI;
+	void SetStartPos(FVector2D Pos);
 
 protected:
 	void ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket);

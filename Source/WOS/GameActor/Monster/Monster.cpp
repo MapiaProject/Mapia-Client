@@ -109,6 +109,11 @@ void AMonster::DestroyNetObject()
 	Destroy();
 }
 
+void AMonster::SetStartPos(FVector2D Pos)
+{
+	StartPos = Pos;
+}
+
 void AMonster::SetName()
 {
 	if (auto WidgetObject = MonsterInfoUI->GetUserWidgetObject()) Cast<UMonsterInfoUI>(WidgetObject)->SetName(Name);
