@@ -59,6 +59,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = Animation)
 		TObjectPtr<UMaterialInterface> DamagedMaterial;
 	UPROPERTY(EditAnywhere, Category = Animation)
+		TObjectPtr<UPaperFlipbook> FarryingAnimation;
+	UPROPERTY(EditAnywhere, Category = Animation)
 		float DamagedMaterialTime;
 
 
@@ -86,7 +88,7 @@ public:
 	virtual void DestroyNetObject() override;
 
 	void SetName(FStringView SettedName);
-	void HandleSpawn(Vector2Int Position);
+	void HandleSpawn(FVector2D Position);
 	void SetIsmine();
 	bool GetIsmine();
 	bool IsAfterDelaying();
@@ -102,12 +104,17 @@ private:
 	void ParryingInputHandler();
 
 	void Dash(int Direction);
-	void MoveLogic(Vector2Int Position);
+	void MoveLogic(FVector2D Position);
 	void MoveAnimationLogic(float Axis);
+	void Parrying(float Time);
 	RPC_FUNCTION(JumpAnimationLogic)
 		void JumpAnimationLogic(int Top);
 	RPC_FUNCTION(FallAnimationLogic)
 		void FallAnimationLogic(int Bottom);
+	RPC_FUNCTION(FarryingAnimationLogic)
+		void FarryingAnimationLogic();
+
+	bool IsActing();
 	float JumpAnimationStartZ;
 	float JumpAnimationTop;
 	float JumpAnimationBottom;
@@ -128,17 +135,19 @@ private:
 	FString Name;
 
 	//위치 계산, 애니메이션 구현용 변수
-	float LastMoveInput;
+	int LastMoveInput;
 	float LastSendPositionTime;
 	FVector SpriteOriginScale;
 	bool bNetObjectIsmine;
-	Vector2Int LastPosition;
+	FVector2D LastPosition;
 	float LastInputTimer;
 	float LastMoveAnimationValue;
-	int LastSendPosX;
+	float LastSendPosX;
 	float CurruntPlayerDir;
-	Vector2Int ServerPosition;
+	FVector2D ServerPosition;
+	float LocalPositionX;
 	int LocalPositionY;
+	Vector2Int LastPortalCheckPosition;
 	float ServerTimer;
 
 	TArray<UWeapon*> MyWeapons;

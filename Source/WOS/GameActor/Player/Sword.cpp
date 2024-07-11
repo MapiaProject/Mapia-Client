@@ -48,6 +48,11 @@ void USword::HeavyAttackHandler(int Axis)
 	}
 }
 
+void USword::ParryingHandler(int Axis)
+{
+	Parrying(ParryingTime);
+}
+
 void USword::Skill2Handler(int Axis)
 {
 	Super::Skill2Handler(Axis);

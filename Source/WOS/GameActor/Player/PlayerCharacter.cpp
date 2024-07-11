@@ -19,6 +19,7 @@ APlayerCharacter::APlayerCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	RPC(JumpAnimationLogic);
+	RPC(FarryingAnimationLogic);
 }
 
 // Called when the game starts or when spawned
@@ -68,7 +69,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 			LocalPositionY = Bottom;
 			FallAnimationLogic(LocalPositionY);
-
 		}
 	}
 	else if (IsFalling) {
@@ -88,19 +88,21 @@ void APlayerCharacter::Tick(float DeltaTime)
 	}
 
 	//위치 보간
-	auto Position = Lerp(LastPosition.X, ServerPosition.X, ServerTimer / 0.2f) * 100;
-	SetActorLocation(FVector(Position, 0, z));
+	SetActorLocation(FVector(LocalPositionX * 100, 0, z));
 
 	if (GetIsmine()) {
 		//0.2초마다 자유낙하 계산, 위치 패킷 보내기
+		FVector2D TargetPosition = MapData->RayCast(FVector2D(LocalPositionX, LocalPositionY), Vector2Int(LastMoveInput, 0), DeltaTime * MoveSpeed);
+		MoveAnimationLogic(TargetPosition.X - LocalPositionX);
+		LocalPositionX = TargetPosition.X;
+
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
 
-			Vector2Int TargetPosition = MapData->RayCast(Vector2Int(ServerPosition.X, LocalPositionY), Vector2Int(LastMoveInput, 0), 1);
-			MoveLogic(TargetPosition);
+			MoveLogic(FVector2D(LocalPositionX, LocalPositionY));
 		}
 	}
-	if (!GetIsmine() || LastMoveInput == 0) {
+	if (!GetIsmine()) {
 		float dir = ServerPosition.X - LastPosition.X;
 		MoveAnimationLogic(dir);
 	}
@@ -143,8 +145,11 @@ void APlayerCharacter::SetName(FStringView SettedName) {
 	Name = SettedName;
 }
 
-void APlayerCharacter::HandleSpawn(Vector2Int Position)
+void APlayerCharacter::HandleSpawn(FVector2D Position)
 {
+	LocalPositionY = Position.Y;
+	LocalPositionX = Position.X;
+	LastPortalCheckPosition = Position;
 	LastPosition = Position;
 	ServerPosition = Position;
 }
@@ -160,6 +165,7 @@ bool APlayerCharacter::GetIsmine()
 }
 
 void APlayerCharacter::ReceivePacket(const Packet* ReadingPacket) {
+	NetObject::ReceivePacket(ReadingPacket);
 	switch (ReadingPacket->GetId()) {
 	case gen::mmo::PacketId::NOTIFY_MOVE:
 		ReceiveNotifyMove(*static_cast<const gen::mmo::NotifyMove*>(ReadingPacket));
@@ -176,7 +182,7 @@ void APlayerCharacter::ReceivePacket(const Packet* ReadingPacket) {
 void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 
 	LastPosition = ServerPosition;
-	ServerPosition = Vector2Int(MovePacket.position.x, MovePacket.position.y);
+	ServerPosition = FVector2D(MovePacket.position.x, MovePacket.position.y);
 	ServerTimer = 0;
 
 	LocalPositionY = ServerPosition.Y;
@@ -184,10 +190,13 @@ void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 	if (!IsJumping) {
 		auto MapData = UManager::Object()->GetCurrentMapData();
 		int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X, LocalPositionY));
+		if (Bottom < LocalPositionY) {
+			if (LocalPositionY > Bottom) {
+				LocalPositionY = Bottom;
+				FallAnimationLogic(Bottom);
 
-		if (LocalPositionY != Bottom) {
-			LocalPositionY = Bottom;
-			FallAnimationLogic(Bottom);
+				SendMovePacket(ServerPosition.X, Bottom);
+			}
 		}
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("%d, %d"), (int)ServerPosition.X, (int)ServerPosition.Y));
@@ -202,29 +211,32 @@ void APlayerCharacter::ReceiveNotifyDamaged(gen::mmo::NotifyDamaged NotifyDamage
 
 void APlayerCharacter::ReceiveTakeAttack(gen::mmo::TakeAttack TakeAttackPacket)
 {
-	auto Status = gen::mmo::HitStatus();
-	if (IsParrying()) {
-		Status.state = gen::mmo::EPlayerState::Parrying;
+	if (GetIsmine()) {
+		auto Status = gen::mmo::HitStatus();
+		if (IsParrying()) {
+			Status.state = gen::mmo::EPlayerState::Parrying;
+		}
+		else if (IsJumping) {
+			Status.state = gen::mmo::EPlayerState::Jump;
+		}
+		else if (IsAfterDelaying()) {
+			Status.state = gen::mmo::EPlayerState::Attack;
+		}
+		else {
+			Status.state = gen::mmo::EPlayerState::Idle;
+		}
+		UManager::Net()->Send(ServerType::MMO, &Status);
 	}
-	else if (IsJumping) {
-		Status.state = gen::mmo::EPlayerState::Jump;
-	}
-	else if(IsAfterDelaying()){
-		Status.state = gen::mmo::EPlayerState::Attack;
-	}
-	else {
-		Status.state = gen::mmo::EPlayerState::Idle;
-	}
-	UManager::Net()->Send(ServerType::MMO, &Status);
 }
 
 void APlayerCharacter::DestroyNetObject()
 {
+	NetObject::DestroyNetObject();
 	Destroy();
 }
 
 void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
-	float Axis = Value.Get<float>();
+	int Axis = Value.Get<float>();
 	if (Axis != LastMoveInput) {
 		if (LastMoveInput == 0 && LastInputTimer > 0.2f) {
 			LastInputTimer = 0;
@@ -233,8 +245,6 @@ void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 		}
 
 		LastMoveInput = Axis;
-
-		MoveAnimationLogic(Axis);
 	}
 }
 
@@ -266,26 +276,27 @@ void APlayerCharacter::JumpInputHandler() {
 
 void APlayerCharacter::AttackInputHandler()
 {
-
+	CurrentWeapon->LightAttackHandler(LastMoveInput);
 }
 
 void APlayerCharacter::ParryingInputHandler()
 {
-
+	CurrentWeapon->ParryingHandler(LastMoveInput);
 }
 
 void APlayerCharacter::Dash(int Direction)
 {
 	auto MapData = UManager::Object()->GetCurrentMapData();
 	Vector2Int TargetPosition = MapData->RayCast(Vector2Int(LastSendPosX, ServerPosition.Y), Vector2Int(Direction, 0), 1);
-	MoveLogic(Vector2Int(LastSendPosX + Direction, ServerPosition.Y));
+	MoveLogic(FVector2D(LastSendPosX + Direction, ServerPosition.Y));
 }
 
-void APlayerCharacter::MoveLogic(Vector2Int Position)
+void APlayerCharacter::MoveLogic(FVector2D Position)
 {
-	Vector2Int Origin = ServerPosition;
+	FVector2D Origin = ServerPosition;
+	Vector2Int PositionInt = Vector2Int(Position.X, Position.Y);
 	auto MapData = UManager::Object()->GetCurrentMapData();
-	if (!MapData->CheckInWorld(Position)) {
+	if (!MapData->CheckInWorld(PositionInt)) {
 		if (Position.X < 0) {
 			Position.X = 0;
 		}
@@ -299,8 +310,9 @@ void APlayerCharacter::MoveLogic(Vector2Int Position)
 			Position.Y = MapData->GetYSize() - 1;
 		}
 	}
-
-	TryUsePortal(Position);
+	if (LastPortalCheckPosition != PositionInt) {
+		TryUsePortal(PositionInt);
+	}
 	SendMovePacket(Position.X, Position.Y);
 }
 
@@ -309,10 +321,12 @@ void APlayerCharacter::MoveAnimationLogic(float Axis)
 	if (Axis > 0)Axis = 1;
 	else if (Axis < 0)Axis = -1;
 
-	if (!IsJumping && !IsFalling) {
-		GetSprite()->SetFlipbook(WalkAnimation);
+	if (!IsJumping && !IsFalling && !IsActing()) {
 		if (Axis == 0) {
 			GetSprite()->SetFlipbook(IdleAnimation);
+		}
+		else {
+			GetSprite()->SetFlipbook(WalkAnimation);
 		}
 	}
 
@@ -351,10 +365,20 @@ void APlayerCharacter::FallAnimationLogic(int Bottom)
 	}
 	if (!IsJumping) {
 		JumpAnimationTimer = 0;
-		JumpAnimationTop = GetActorLocation().Z;
+		//JumpAnimationTop = GetActorLocation().Z;
 	}
 	JumpAnimationBottom = Bottom * 100;
 	GetSprite()->SetFlipbook(JumpAnimation);
+}
+
+void APlayerCharacter::FarryingAnimationLogic()
+{
+	GetSprite()->SetFlipbook(FarryingAnimation);
+}
+
+bool APlayerCharacter::IsActing()
+{
+	return IsAfterDelaying() || IsParrying();
 }
 
 void APlayerCharacter::SwitchWeapon(int WeaponIndex)
@@ -373,6 +397,15 @@ void APlayerCharacter::SwitchWeapon(int WeaponIndex)
 void APlayerCharacter::SetAfterDelay(float Delay)
 {
 	WeaponAfterDelay = Delay;
+}
+
+void APlayerCharacter::Parrying(float Time)
+{
+	if (Time > ParryingTimer) {
+		ParryingTimer = Time;
+
+		RpcView::CallRPC(FarryingAnimationLogic, RpcTarget::All);
+	}
 }
 
 bool APlayerCharacter::IsAfterDelaying()
@@ -451,6 +484,10 @@ TArray<AActor*> APlayerCharacter::ScanHitbox(FVector2D AddedPosition, FVector2D 
 
 void APlayerCharacter::TryUsePortal(Vector2Int Position)
 {
+	if (Position == LastPortalCheckPosition) {
+		return;
+	}
+	LastPortalCheckPosition = Position;
 	auto MapData = UManager::Object()->GetCurrentMapData();
 	if (MapData->GetTile(Position) == 3) {
 		UManager::Object()->RequestEnterMap(MapData->GetPortalLinkName(Position));

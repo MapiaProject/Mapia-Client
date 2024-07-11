@@ -45,6 +45,7 @@ protected:
 	void Dash(int Direction);
 	int GetLastMoveInput();
 	void MoveAnimationLogic(int Axis);
+	void Parrying(float Time);
 
 	TObjectPtr<APlayerCharacter> Owner;
 

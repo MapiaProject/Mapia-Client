@@ -18,7 +18,7 @@ MapData::MapData(FString MapName, TArray<TArray<int>> TileData, TArray<FString> 
 
 	PortalDatas = TArray<PortalData>();
 	int PortalCount = 0;
-	for (int y = 0;y < GetYSize();y++) {
+	for (int y = GetYSize() - 1;y > 0;y--) {
 		for (int x = 0;x < GetXSize();x++) {
 			if (TileData[y][x] == 3) {
 				PortalDatas.Add(PortalData(PortalLinks[PortalCount], Vector2Int(x, y)));
@@ -119,6 +119,28 @@ Vector2Int MapData::RayCast(Vector2Int Start, Vector2Int Direction, int Len)
 	return RayCast(Start, Direction, Len, true);
 }
 
+FVector2D MapData::RayCast(FVector2D Start, Vector2Int Direction)
+{
+	if (Direction == Vector2Int(0, 0)) {
+		return Start;
+	}
+
+	auto StartInt = Vector2Int(Start);
+	FVector2D RayResult = RayCast(StartInt, Direction).GetFVector2D() + StartInt.GetFVector2D() - Start;
+	return RayResult;
+}
+
+FVector2D MapData::RayCast(FVector2D Start, Vector2Int Direction, float Len)
+{
+	FVector2D RayResult = RayCast(Start, Direction);
+
+	if ((RayResult - Start).Length() > Len) {
+		RayResult = Start + (RayResult - Start).GetSafeNormal() * Len;
+	}
+
+	return RayResult;
+}
+
 int MapData::GroundCast(Vector2Int Start)
 {
 	return GroundCast(Start.X, Start.Y);
@@ -147,6 +169,10 @@ void MapData::Log(FColor Color)
 
 Vector2Int MapData::RayCast(Vector2Int Start, Vector2Int Direction, int Len, bool UseLen)
 {
+	if (Direction == Vector2Int(0, 0)) {
+		return Start;
+	}
+
 	Vector2Int Current = Start;
 	for (int a = 0;!UseLen || a < Len;a++) {
 		if (CheckIsWall(Current + Direction) || !CheckInWorld(Current + Direction)) {

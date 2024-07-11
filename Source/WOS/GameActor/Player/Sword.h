@@ -7,62 +7,66 @@
 #include "Sword.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class WOS_API USword : public UWeapon
 {
 	GENERATED_BODY()
-	
-public:
-	virtual void Init(TObjectPtr<APlayerCharacter> PlayerCharacter);
-	virtual void OnSwitchedFrom(TObjectPtr<UWeapon> Other);
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
 
-	virtual void LightAttackHandler(int Axis);
-	virtual void HeavyAttackHandler(int Axis);
-	virtual void Skill2Handler(int Axis);
-	virtual void Skill3Handler(int Axis);
+public:
+	virtual void Init(TObjectPtr<APlayerCharacter> PlayerCharacter) override;
+	virtual void OnSwitchedFrom(TObjectPtr<UWeapon> Other) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	virtual void LightAttackHandler(int Axis) override;
+	virtual void HeavyAttackHandler(int Axis) override;
+	virtual void ParryingHandler(int Axis) override;
+	virtual void Skill2Handler(int Axis) override;
+	virtual void Skill3Handler(int Axis) override;
 
 	float GetEnergy();
 
 private:
-	UPROPERTY(EditAnywhere, Category = GreatSwordInfo)
-		int MaxEnergy;
-	UPROPERTY(EditAnywhere, Category = GreatSwordInfo)
-		int EnergyRegenSpeed;
+	UPROPERTY(EditAnywhere, Category = SwordInfo)
+	int MaxEnergy;
+	UPROPERTY(EditAnywhere, Category = SwordInfo)
+	int EnergyRegenSpeed;
 
-	UPROPERTY(EditAnywhere, Category = GreatSwordLightAttack)
-		int LightAttackDamage;
-	UPROPERTY(EditAnywhere, Category = GreatSwordLightAttack)
-		float LightAttackAfterDelay;
+	UPROPERTY(EditAnywhere, Category = SwordLightAttack)
+	int LightAttackDamage;
+	UPROPERTY(EditAnywhere, Category = SwordLightAttack)
+	float LightAttackAfterDelay;
 
-	UPROPERTY(EditAnywhere, Category = GreatSwordHeavyAttack)
-		int HeavyAttackDamage;
-	UPROPERTY(EditAnywhere, Category = GreatSwordHeavyAttack)
-		float HeavyAttackAfterDelay;
+	UPROPERTY(EditAnywhere, Category = SwordHeavyAttack)
+	int HeavyAttackDamage;
+	UPROPERTY(EditAnywhere, Category = SwordHeavyAttack)
+	float HeavyAttackAfterDelay;
 
-	UPROPERTY(EditAnywhere, Category = Rush)
-		int RushDamage;
-	UPROPERTY(EditAnywhere, Category = Rush)
-		int RushNeededEnergy;
-	UPROPERTY(EditAnywhere, Category = Rush)
-		float RushCoolTime;
-	UPROPERTY(EditAnywhere, Category = Rush)
-		float RushAfterDelay;
-	UPROPERTY(EditAnywhere, Category = Rush)
-		float RushLength;
+	UPROPERTY(EditAnywhere, Category = SwordParrying)
+	float ParryingTime;
 
-	UPROPERTY(EditAnywhere, Category = BackStep)
-		int BackStepDamage;
-	UPROPERTY(EditAnywhere, Category = BackStep)
-		int BackStepNeededEnergy;
-	UPROPERTY(EditAnywhere, Category = BackStep)
-		float BackStepCoolTime;
-	UPROPERTY(EditAnywhere, Category = BackStep)
-		float BackStepAfterDelay;
-	UPROPERTY(EditAnywhere, Category = BackStep)
-		float BackStepLength;
+	UPROPERTY(EditAnywhere, Category = SwordRush)
+	int RushDamage;
+	UPROPERTY(EditAnywhere, Category = SwordRush)
+	int RushNeededEnergy;
+	UPROPERTY(EditAnywhere, Category = SwordRush)
+	float RushCoolTime;
+	UPROPERTY(EditAnywhere, Category = SwordRush)
+	float RushAfterDelay;
+	UPROPERTY(EditAnywhere, Category = SwordRush)
+	float RushLength;
+
+	UPROPERTY(EditAnywhere, Category = SwordBackStep)
+	int BackStepDamage;
+	UPROPERTY(EditAnywhere, Category = SwordBackStep)
+	int BackStepNeededEnergy;
+	UPROPERTY(EditAnywhere, Category = SwordBackStep)
+	float BackStepCoolTime;
+	UPROPERTY(EditAnywhere, Category = SwordBackStep)
+	float BackStepAfterDelay;
+	UPROPERTY(EditAnywhere, Category = SwordBackStep)
+	float BackStepLength;
 
 	float Energy;
 

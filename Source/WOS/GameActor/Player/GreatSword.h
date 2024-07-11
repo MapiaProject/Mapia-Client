@@ -16,15 +16,15 @@ class WOS_API UGreatSword : public UWeapon
 	GENERATED_BODY()
 	
 public:
-	virtual void Init(TObjectPtr<APlayerCharacter> PlayerCharacter);
-	virtual void OnSwitchedFrom(TObjectPtr<UWeapon> Other);
-	virtual void OnSwitchedTo(TObjectPtr<UWeapon> Other);
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
+	virtual void Init(TObjectPtr<APlayerCharacter> PlayerCharacter) override;
+	virtual void OnSwitchedFrom(TObjectPtr<UWeapon> Other) override;
+	virtual void OnSwitchedTo(TObjectPtr<UWeapon> Other) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	virtual void LightAttackHandler(int Axis);
-	virtual void HeavyAttackHandler(int Axis);
-	virtual void Skill1Handler(int Axis);
-	virtual void Skill2Handler(int Axis);
+	virtual void LightAttackHandler(int Axis) override;
+	virtual void HeavyAttackHandler(int Axis) override;
+	virtual void Skill1Handler(int Axis) override;
+	virtual void Skill2Handler(int Axis) override;
 
 	float GetEnergy();
 	bool IsOverflow();

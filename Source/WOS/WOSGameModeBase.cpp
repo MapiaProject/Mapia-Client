@@ -22,12 +22,14 @@ void AWOSGameModeBase::BeginPlay()
 {	
 	Super::BeginPlay();
 	
-	UManager::Get(GetWorld())->Initialize();
-	UManager::Get(GetWorld())->ConnectToServer(ServerType::Account, [](TSharedPtr<net::Socket> Socket)
-	{
-		auto Session = MakeShared<FAccountSession>(Socket);
-		return Session;
-	});
+	if (!UManager::Get()->IsConnected) {
+		UManager::Get(GetWorld())->Initialize();
+		UManager::Get(GetWorld())->ConnectToServer(ServerType::Account, [](TSharedPtr<net::Socket> Socket)
+			{
+				auto Session = MakeShared<FAccountSession>(Socket);
+				return Session;
+			});
+	}
 }
 
 void AWOSGameModeBase::Tick(float DeltaSeconds)
@@ -39,5 +41,4 @@ void AWOSGameModeBase::Tick(float DeltaSeconds)
 void AWOSGameModeBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-	UManager::Net(GetWorld())->Disconnect();
 }
