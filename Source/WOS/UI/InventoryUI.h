@@ -16,8 +16,7 @@ class WOS_API UInventoryUI : public UUserWidget
 
 public:
 	void NativeConstruct();
-	UFUNCTION()
-	void HideInventory();
+	
 	UFUNCTION()
 	void OnClickDamage();
 	UFUNCTION()
@@ -37,8 +36,6 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* BExit;
 	UPROPERTY(meta = (BindWidget))
-	class UEditableTextBox* TName;
-	UPROPERTY(meta = (BindWidget))
-	class UEditableTextBox* TLevel;
+	class URichTextBlock* TName;
 	
 };

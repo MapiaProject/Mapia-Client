@@ -13,11 +13,11 @@ void ULoginUI::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	BStart->OnClicked.AddDynamic(this, &ULoginUI::OnClickStart);
+	BLogin->OnClicked.AddDynamic(this, &ULoginUI::OnClickLogin);
 	BJoin->OnClicked.AddDynamic(this, &ULoginUI::OnClickJoin);
 }
 
-void ULoginUI::OnClickStart()
+void ULoginUI::OnClickLogin()
 {
 	gen::account::LoginReq req;
 	req.nickname = ID->GetText().ToString();

@@ -12,12 +12,14 @@
 #include "Managers/NetObjectManager.h"
 #include "Session/MMOSession.h"
 #include "Session/Session.h"
+#include "Managers/DataLoadManager.h"
 
 UManager::UManager() : NetworkObject(nullptr)
 {
 	NetworkClass = UNetwork::StaticClass();
 	UISystemClass = UUISystem::StaticClass();
 	NetObjectManagerClass = UNetObjectManager::StaticClass();
+	DataLoadManagerClass = UDataLoadManager::StaticClass();
 }
 
 UManager::~UManager()
@@ -126,6 +128,11 @@ TObjectPtr<UNetObjectManager> UManager::Object(const UWorld* World)
 	return Get(World)->NetObjectManagerObject;
 }
 
+TObjectPtr<UDataLoadManager> UManager::DataLoad(const UWorld* World)
+{
+	return Get(World)->DataLoadManagerObject;
+}
+
 UManager* UManager::Get(const UWorld* World)
 {
 	if (World == nullptr)
@@ -150,5 +157,6 @@ void UManager::Initialize()
 	INIT_MANAGER(Network);
 	INIT_MANAGER(UISystem);
 	INIT_MANAGER(NetObjectManager);
+	INIT_MANAGER(DataLoadManager);
 }
 

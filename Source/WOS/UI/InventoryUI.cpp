@@ -5,7 +5,7 @@
 #include "Managers/Manager.h"
 #include "Managers/UISystem.h"
 #include "Components/Button.h"
-#include "Components/EditableTextBox.h"
+#include "Components/RichTextBlock.h"
 
 void UInventoryUI::NativeConstruct() {
 	Super::NativeConstruct();
@@ -14,10 +14,6 @@ void UInventoryUI::NativeConstruct() {
 	BSpeed->OnClicked.AddDynamic(this, &UInventoryUI::OnClickSpeed);
 	BHealth->OnClicked.AddDynamic(this, &UInventoryUI::OnClickHealth);
 	BExit->OnClicked.AddDynamic(this, &UInventoryUI::OnClickExit);
-}
-
-void UInventoryUI::HideInventory() {
-	UManager::UI()->HideWidget(WidgetType::Inventory);
 }
 
 void UInventoryUI::OnClickDamage() {

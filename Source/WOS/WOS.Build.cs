@@ -11,7 +11,7 @@ public class WOS : ModuleRules
 
         bUseUnity = false;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "EnhancedInput", "Paper2D", "Slate", "SlateCore" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "EnhancedInput", "Paper2D", "Slate", "SlateCore", "DatabaseSupport", "SQLiteCore", "SQLiteSupport" });
 
         PrivateDependencyModuleNames.AddRange(new string[] { "Netcpp", "UnrealEd", "ComponentVisualizers" });
 

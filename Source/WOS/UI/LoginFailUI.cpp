@@ -2,7 +2,7 @@
 
 
 #include "UI/LoginFailUI.h"
-#include "Components/EditableTextBox.h"
+#include "Components/TextBlock.h"
 #include "Managers/Manager.h"
 #include "Managers/UISystem.h"
 #include "generated/account/Protocol.gen.hpp"

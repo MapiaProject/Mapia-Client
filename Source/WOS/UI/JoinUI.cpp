@@ -4,6 +4,7 @@
 #include "UI/JoinUI.h"
 #include "Components/Button.h"
 #include "Components/EditableTextBox.h"
+#include "Components/TextBlock.h"
 #include "generated/account/ClientPacketHandler.gen.hpp"
 #include "Managers/Manager.h"
 #include "Managers/Network.h"
@@ -14,16 +15,29 @@ void UJoinUI::NativeConstruct() {
 	
 	BIDCheck->OnClicked.AddDynamic(this, &UJoinUI::OnClickIDCheck);
 	BRegist->OnClicked.AddDynamic(this, &UJoinUI::OnClickRegist);
-	isIDCheck = true;
 }
 
 void UJoinUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-	if (PW->GetText().ToString() == PWCheck->GetText().ToString() && PW->GetText().ToString() != "") {
+	if (PW->GetText().EqualTo(FText::FromString(TEXT("")))) {
+		isPWCheck = false;
+		TPWCheckResult->SetText(FText::FromString(TEXT("")));
+		TPWCheckResult->SetColorAndOpacity(FSlateColor(FLinearColor(1, 0, 0, 1)));
+	}
+	else if (FText::TrimPrecedingAndTrailing(PW->GetText()).EqualTo(FText::FromString(TEXT("")))) {
+		isPWCheck = false;
+		TPWCheckResult->SetText(FText::FromString(TEXT("사용할 수 없는 비밀번호입니다.")));
+		TPWCheckResult->SetColorAndOpacity(FSlateColor(FLinearColor(1, 0, 0, 1)));
+	}
+	else if (FText::TrimPrecedingAndTrailing(PW->GetText()).EqualTo(FText::TrimPrecedingAndTrailing(PWCheck->GetText()))) {
 		isPWCheck = true;
+		TPWCheckResult->SetText(FText::FromString(TEXT("비밀번호가 일치합니다.")));
+		TPWCheckResult->SetColorAndOpacity(FSlateColor(FLinearColor(0, 1, 0, 1)));
 	}
 	else {
 		isPWCheck = false;
+		TPWCheckResult->SetText(FText::FromString(TEXT("비밀번호가 일치하지 않습니다.")));
+		TPWCheckResult->SetColorAndOpacity(FSlateColor(FLinearColor(1, 0, 0, 1)));
 	}
 }
 
@@ -43,14 +57,20 @@ void UJoinUI::OnClickRegist() {
 }
 
 void UJoinUI::IDCheckResult(bool result) {
-	if (!result) {
-		isIDCheck = true;
-		TIDCheckResult->SetText(FText::FromString(TEXT("사용 가능한 아이디 입니다.")));
-		TIDCheckResult->SetForegroundColor(FLinearColor(0, 1, 0, 1));
+	if (result) {
+		isIDCheck = false;
+		TIDCheckResult->SetText(FText::FromString(TEXT("이미 사용 중인 아이디입니다.")));
+		TIDCheckResult->SetColorAndOpacity(FSlateColor(FLinearColor(1, 0, 0, 1)));	
+	}
+	else if (FText::TrimPrecedingAndTrailing(ID->GetText()).EqualTo(FText::FromString(TEXT("")))) {
+		isIDCheck = false;
+		TIDCheckResult->SetText(FText::FromString(TEXT("사용할 수 없는 아이디입니다.")));
+		TIDCheckResult->SetColorAndOpacity(FSlateColor(FLinearColor(1, 0, 0, 1)));
 	}
 	else {
-		TIDCheckResult->SetText(FText::FromString(TEXT("중복된 아이디 입니다.")));
-		TIDCheckResult->SetForegroundColor(FLinearColor(1, 0, 0, 1));
+		isIDCheck = true;
+		TIDCheckResult->SetText(FText::FromString(TEXT("사용 가능한 아이디입니다.")));
+		TIDCheckResult->SetColorAndOpacity(FSlateColor(FLinearColor(0, 1, 0, 1)));
 	}
 }
 
