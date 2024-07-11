@@ -39,6 +39,8 @@ public:
 		TObjectPtr<UInputAction> AttackAction;
 	UPROPERTY(EditAnywhere, Category = Input)
 		TObjectPtr<UInputAction> ParryingAction;
+	UPROPERTY(EditAnywhere, Category = Input)
+		TObjectPtr<UInputAction> InventoryOpenAction;
 
 	UPROPERTY(EditAnywhere, Category = Animation)
 		TObjectPtr<UPaperFlipbook> IdleAnimation;
@@ -102,6 +104,7 @@ private:
 	void JumpInputHandler();
 	void AttackInputHandler();
 	void ParryingInputHandler();
+	void InventoryOpenInputHandler();
 
 	void Dash(int Direction);
 	void MoveLogic(FVector2D Position);
@@ -158,4 +161,6 @@ private:
 	float DamagedMaterialTimer;
 	bool IsDamagedMaterialOn;
 	float ParryingTimer;
+
+	bool IsInventoryOpened;
 };

@@ -9,6 +9,7 @@
 #include "Engine/LocalPlayer.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Util/NetUtility.h"
+#include "Managers/UISystem.h"
 #include "Network/generated/mmo/Packet.gen.hpp"
 
 #define DebugLog(x) GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, x);
@@ -122,6 +123,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APlayerCharacter::AttackInputHandler);
 		EnhancedInputComponent->BindAction(ParryingAction, ETriggerEvent::Started, this, &APlayerCharacter::ParryingInputHandler);
 		EnhancedInputComponent->BindAction(WeaponSwitchAction, ETriggerEvent::Started, this, &APlayerCharacter::WeaponSwitchInputHandler);
+		EnhancedInputComponent->BindAction(InventoryOpenAction, ETriggerEvent::Started, this, &APlayerCharacter::InventoryOpenInputHandler);
 	}
 	else {
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("InputComponent is not EnhancedInputComponent"));
@@ -236,6 +238,8 @@ void APlayerCharacter::DestroyNetObject()
 }
 
 void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
+	if (IsInventoryOpened)return;
+
 	int Axis = Value.Get<float>();
 	if (Axis != LastMoveInput) {
 		if (LastMoveInput == 0 && LastInputTimer > 0.2f) {
@@ -282,6 +286,18 @@ void APlayerCharacter::AttackInputHandler()
 void APlayerCharacter::ParryingInputHandler()
 {
 	CurrentWeapon->ParryingHandler(LastMoveInput);
+}
+
+void APlayerCharacter::InventoryOpenInputHandler()
+{
+	if (IsInventoryOpened) {
+		UManager::UI()->HideWidget(WidgetType::Inventory);
+		IsInventoryOpened = false;
+	}
+	else {
+		UManager::UI()->ShowWidget(WidgetType::Inventory);
+		IsInventoryOpened = true;
+	}
 }
 
 void APlayerCharacter::Dash(int Direction)
