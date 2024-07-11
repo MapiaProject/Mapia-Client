@@ -147,6 +147,7 @@ private:
 	FVector2D ServerPosition;
 	float LocalPositionX;
 	int LocalPositionY;
+	Vector2Int LastPortalCheckPosition;
 	float ServerTimer;
 
 	TArray<UWeapon*> MyWeapons;

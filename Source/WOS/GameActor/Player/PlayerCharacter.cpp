@@ -149,6 +149,7 @@ void APlayerCharacter::HandleSpawn(FVector2D Position)
 {
 	LocalPositionY = Position.Y;
 	LocalPositionX = Position.X;
+	LastPortalCheckPosition = Position;
 	LastPosition = Position;
 	ServerPosition = Position;
 }
@@ -309,8 +310,9 @@ void APlayerCharacter::MoveLogic(FVector2D Position)
 			Position.Y = MapData->GetYSize() - 1;
 		}
 	}
-
-	TryUsePortal(PositionInt);
+	if (LastPortalCheckPosition != PositionInt) {
+		TryUsePortal(PositionInt);
+	}
 	SendMovePacket(Position.X, Position.Y);
 }
 

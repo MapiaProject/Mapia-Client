@@ -197,13 +197,9 @@ void UNetObjectManager::OnLevelLoaded()
 	NetObjects = TMap<uint64, NetObject*>();
 	ChangingMap = false;
 	while (!NotifySpawnBuffer.IsEmpty()) {
-		gen::mmo::NotifySpawn Packet;
-		for (const auto& Object : Packet.objects) {
-			auto O = Object;
-			ObjectInfo Info(&O);
-			NotifySpawnBuffer.Dequeue(Info);
-			NotifySpawnLogic(&Info);
-		}
+		ObjectInfo Info;
+		NotifySpawnBuffer.Dequeue(Info);
+		NotifySpawnLogic(&Info);
 	}
 
 	if (UsingPlayerSpawnBuffer) {
