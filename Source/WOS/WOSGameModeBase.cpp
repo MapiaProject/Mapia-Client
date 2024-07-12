@@ -24,11 +24,10 @@ void AWOSGameModeBase::BeginPlay()
 	
 	if (!UManager::Get()->IsConnected) {
 		UManager::Get(GetWorld())->Initialize();
-		UManager::Get(GetWorld())->ConnectToServer(ServerType::Account, [](TSharedPtr<net::Socket> Socket)
-			{
-				auto Session = MakeShared<FAccountSession>(Socket);
-				return Session;
-			});
+		UManager::Get(GetWorld())->ConnectToServer(ServerType::Account, [](TSharedPtr<net::Socket> Socket) {
+			auto Session = new FAccountSession(Socket);
+			return Session;
+		});
 	}
 }
 

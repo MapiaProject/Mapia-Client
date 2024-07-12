@@ -2,7 +2,8 @@
 #include "Packet.h"
 #include "NetWorker.h"
 
-FSession::FSession(TSharedPtr<net::Socket> socket) : Socket(socket)
+FSession::FSession(TSharedPtr<net::Socket> Socket, ServerType Type)
+	: Socket(Socket), Type(Type)
 {
 }
 
@@ -12,7 +13,7 @@ FSession::~FSession()
 
 void FSession::OnConnected()
 {
-	Worker = MakeShared<FNetWorker>(AsShared());
+	Worker = MakeShared<FNetWorker>(this);
 }
 
 void FSession::OnDisconnected()	
@@ -57,6 +58,11 @@ void FSession::Flush()
 void FSession::Disconnect() const
 {
 	Socket->disconnect();
+}
+
+ServerType FSession::GetType() const
+{
+	return Type;
 }
 
 void FSession::PushJob(TFunction<void()> Functor)

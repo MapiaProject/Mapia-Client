@@ -6,7 +6,7 @@ class FMMOSession final : public FSession
 {
 public:
 	explicit FMMOSession(TSharedPtr<net::Socket> Socket)
-		: FSession(Socket)
+		: FSession(Socket, ServerType::MMO)
 	{
 	}
 
