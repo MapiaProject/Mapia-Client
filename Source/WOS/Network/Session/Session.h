@@ -5,25 +5,21 @@
 #define RECV_PACKET(name) \
 FSession::OnReceive(buffer, length); \
 \
-uint16 Id = 0;\
-memcpy(&Id, buffer.data(), 2);\
+uint16 Id = *reinterpret_cast<uint16*>(buffer.data());\
 if (Packet::IsRpcId(Id))\
 {\
 	RpcView::RecvRPC(buffer, Id);\
 }\
 else\
 {\
-	const auto Handler = gen::name::PacketHandler::GetHandler(Id, buffer);\
-	const TSharedPtr<FSession> SharedThis = AsShared();\
-	\
-	PushJob(Handler, SharedThis);\
+	PushJob(std::bind(&gen::name::PacketHandler::HandlePacket, this, buffer));\
 }\
 
-class FSession : public TSharedFromThis<FSession>
+class FSession
 {
 	friend class FIoThread;
 public:
-	FSession(TSharedPtr<net::Socket> socket);
+	FSession(TSharedPtr<net::Socket> Socket, ServerType Type);
 	virtual ~FSession();
 public:
 	virtual void OnConnected();
@@ -36,6 +32,7 @@ public:
  	TSharedPtr<net::Socket> GetHandle();
 	void Flush();
 	void Disconnect() const;
+	ServerType GetType() const;
 
 protected:
 	void PushJob(TFunction<void()> Functor);
@@ -46,6 +43,7 @@ protected:
 		JobQue.Enqueue([=] { Functor(Args...); });
 	}
 private:
+	ServerType Type;
 	TSharedPtr<class FNetWorker> Worker;
 	TSharedPtr<net::Socket> Socket;
 	TQueue<TFunction<void()>> JobQue;

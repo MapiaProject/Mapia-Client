@@ -3,19 +3,19 @@
 
 using namespace gen;
 
-bool account::PacketHandler::LoginResPacketHandler(TSharedPtr<Session> session, TSharedPtr<LoginRes> packet)
+bool account::PacketHandler::LoginResPacketHandler(Session* Session, TSharedPtr<LoginRes> packet)
 {
 	UManager::Get()->HandleLogin(packet.Get());
 	return false;
 }
 
-bool account::PacketHandler::RegisterResPacketHandler(TSharedPtr<Session> session, TSharedPtr<RegisterRes> packet)
+bool account::PacketHandler::RegisterResPacketHandler(Session* Session, TSharedPtr<RegisterRes> packet)
 {
 	UManager::Get()->HandleRegister(packet.Get());
 	return false;
 }
 
-bool account::PacketHandler::CheckNicknameResPacketHandler(TSharedPtr<Session> session, TSharedPtr<CheckNicknameRes> packet)
+bool account::PacketHandler::CheckNicknameResPacketHandler(Session* Session, TSharedPtr<CheckNicknameRes> packet)
 {
 	UManager::Get()->HandleCheckNickname(packet.Get());
 	return false;

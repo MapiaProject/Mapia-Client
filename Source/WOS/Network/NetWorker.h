@@ -10,7 +10,7 @@
 class WOS_API FNetWorker final : public FRunnable
 {
 public:
-	FNetWorker(TSharedPtr<class FSession> SessionRef);
+	FNetWorker(class FSession* SessionRef);
 	virtual ~FNetWorker() override;
 public:
 	virtual bool Init() override;
@@ -20,5 +20,5 @@ public:
 private:
 	char m_buffer[4096];
 	FRunnableThread* Thread = nullptr;
-	TWeakPtr<class FSession> Session;
+	FSession* Session;
 };
