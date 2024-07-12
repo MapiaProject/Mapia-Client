@@ -28,6 +28,7 @@ UManager::~UManager()
 
 void UManager::BeginPlay()
 {
+	Initialize();
 	UI(GetWorld())->ShowWidget(WidgetType::Title);
 }
 
