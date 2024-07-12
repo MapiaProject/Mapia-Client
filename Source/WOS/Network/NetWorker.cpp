@@ -35,7 +35,8 @@ uint32 FNetWorker::Run()
 		else
 		{
 			Session->OnDisconnected();
-			UManager::Net()->RemoveSession(Session->GetType());
+			if (GEngine->GameViewport)
+				UManager::Net()->RemoveSession(Session->GetType());
 			delete Session;
 			break;
 		}
