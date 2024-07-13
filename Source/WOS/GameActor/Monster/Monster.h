@@ -55,7 +55,7 @@ public:
 	virtual bool TakeDamage(int Damage) override;
 	virtual void DestroyNetObject() override;
 
-	void SetStartPos(FVector2D Pos);
+	void SetSpawnPos(FVector2D Pos);
 
 protected:
 	void ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket);

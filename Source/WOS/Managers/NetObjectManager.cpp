@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include <UObject/ConstructorHelpers.h>
 #include <Util/NetUtility.h>
+#include "GameActor/Monster/Monster.h"
 
 #include "Network.h"
 
@@ -178,6 +179,7 @@ void UNetObjectManager::NotifySpawnLogic(ObjectInfo* Object)
 		if (MonsterTypeIndex < MonsterActors.Num()) {
 			auto* Actor = World->SpawnActor(MonsterActors[MonsterTypeIndex], &Position, &Rotation);
 			auto Monster = reinterpret_cast<NetObject*>(Actor);
+			Cast<AMonster>(Actor)->SetSpawnPos(FVector2D(Position.X / 100, Position.Z / 100 + 3));
 
 			if (Monster) {
 				Monster->ObjectId = Object->objectId;
