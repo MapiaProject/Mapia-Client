@@ -16,6 +16,7 @@
 #ifdef GetBPClass
 #undef GetBPClass
 #endif
+#include <GameActor/Monster/Monster.h>
 #define GetBPClass(ValueName,BPName,ClassType) static ConstructorHelpers::FClassFinder<ClassType> BPName##_BPObject(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/GameActor/"#BPName"."#BPName"_C'"));\
 if (BPName##_BPObject.Succeeded())\
 {\
@@ -177,7 +178,7 @@ void UNetObjectManager::NotifySpawnLogic(ObjectInfo* Object)
 		int MonsterTypeIndex = (int)Object->type;
 		if (MonsterTypeIndex < MonsterActors.Num()) {
 			auto* Actor = World->SpawnActor(MonsterActors[MonsterTypeIndex], &Position, &Rotation);
-			auto Monster = reinterpret_cast<NetObject*>(Actor);
+			auto Monster = static_cast<AMonster*>(Actor);
 
 			if (Monster) {
 				Monster->ObjectId = Object->objectId;
