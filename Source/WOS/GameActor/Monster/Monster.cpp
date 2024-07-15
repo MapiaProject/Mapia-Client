@@ -18,7 +18,7 @@ AMonster::AMonster() {
 void AMonster::BeginPlay() {
 	Super::BeginPlay();
 
-	GetSprite()->SetMaterial(0, DamagedMaterial);
+	GetSprite()->SetMaterial(0, DefaultMaterial);
 	GetSprite()->SetFlipbook(IdleAnimation);
 
 	SetName();
@@ -32,6 +32,7 @@ void AMonster::BeginPlay() {
 void AMonster::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 	DeltaTimeCopy = DeltaTime;
 	if (DamageEffectOn) {
 		CurDamageEffectTime += DeltaTime;
@@ -109,9 +110,10 @@ void AMonster::DestroyNetObject()
 	Destroy();
 }
 
-void AMonster::SetStartPos(FVector2D Pos)
+void AMonster::SetSpawnPos(FVector2D Pos)
 {
 	StartPos = Pos;
+	DestinationPos = Pos;
 }
 
 void AMonster::SetName()

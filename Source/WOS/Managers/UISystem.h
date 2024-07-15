@@ -42,6 +42,9 @@ public:
 	void ExecSuccessRegist();
 	UFUNCTION()
 	void ExecAddChatHistory(FString Message, FLinearColor TextColor);
+	UFUNCTION()
+	void ExecShowHP(float MaxHP, float CurHP);
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
 	TSubclassOf<class UTitleUI> TitleWidget;

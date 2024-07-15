@@ -93,3 +93,8 @@ void UUISystem::ExecSuccessRegist() {
 void UUISystem::ExecAddChatHistory(FString Message, FLinearColor TextColor) {
 	Cast<UInGameUI>(InGameWidgetObject)->AddChatHistory(Message, TextColor);
 }
+
+void UUISystem::ExecShowHP(float MaxHP, float CurHP)
+{
+	Cast<UInGameUI>(InGameWidgetObject)->ShowHP(MaxHP, CurHP);
+}

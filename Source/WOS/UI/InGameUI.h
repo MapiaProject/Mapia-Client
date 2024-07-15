@@ -20,13 +20,14 @@ public:
 	UFUNCTION()
 	void AddChatHistory(FString Message, FLinearColor TextColor);
 
+	UFUNCTION()
+	void ShowHP(float MaxHP, float CurHP);
+
 protected:
 	UFUNCTION()
 	void ShowInventory();
 	UFUNCTION()
 	void ShowMenu();
-	UFUNCTION()
-	void ShowHP(float MaxHP, float CurHP);
 	
 private:
 	UPROPERTY(meta=(BindWidget))
