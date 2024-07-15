@@ -27,7 +27,6 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
 	GetSprite()->SetFlipbook(IdleAnimation);
 	SpriteOriginScale = GetSprite()->GetComponentScale();
 
@@ -81,7 +80,12 @@ void APlayerCharacter::Tick(float DeltaTime)
 		}
 	}
 	else {
-		z = JumpAnimationBottom;
+		if (GetIsmine()) {
+			z = JumpAnimationBottom;
+		}
+		else {
+			z = LocalPositionY + 100;
+		}
 	}
 	if (IsDamagedMaterialOn && DamagedMaterialTimer < 0) {
 		GetSprite()->SetMaterial(0, DefaultMaterial);
@@ -89,13 +93,23 @@ void APlayerCharacter::Tick(float DeltaTime)
 	}
 
 	//위치 보간
-	SetActorLocation(FVector(LocalPositionX * 100, 0, z));
+	if (GetIsmine()) {
+		SetActorLocation(FVector(LocalPositionX * 100, 0, z));
+	}
+	else {
+		SetActorLocation(FVector(Lerp(LastPosition.X * 100, LocalPositionX * 100, ServerTimer / 0.2f), 0, z));
+	}
 
 	if (GetIsmine()) {
 		//0.2초마다 자유낙하 계산, 위치 패킷 보내기
 		FVector2D TargetPosition = MapData->RayCast(FVector2D(LocalPositionX, LocalPositionY), Vector2Int(LastMoveInput, 0), DeltaTime * MoveSpeed);
-		MoveAnimationLogic(TargetPosition.X - LocalPositionX);
-		LocalPositionX = TargetPosition.X;
+		int Axis = TargetPosition.X - LocalPositionX;
+		if (Axis < 0) Axis *= -1;
+
+		//if (!(Axis < DeltaTime * MoveSpeed)) {
+			MoveAnimationLogic(TargetPosition.X - LocalPositionX);
+			LocalPositionX = TargetPosition.X;
+		//}
 
 		if (time > LastSendPositionTime + sendPositionInterval) {
 			LastSendPositionTime = time;
@@ -103,17 +117,12 @@ void APlayerCharacter::Tick(float DeltaTime)
 			MoveLogic(FVector2D(LocalPositionX, LocalPositionY));
 		}
 	}
-	if (!GetIsmine()) {
-		float dir = ServerPosition.X - LastPosition.X;
-		MoveAnimationLogic(dir);
-	}
 }
 
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
 	if (EnhancedInputComponent != nullptr) {
@@ -139,7 +148,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("PlayerCharacter Can't Found PlayerController"));
 	}
 
-
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -154,6 +162,11 @@ void APlayerCharacter::HandleSpawn(FVector2D Position)
 	LastPortalCheckPosition = Position;
 	LastPosition = Position;
 	ServerPosition = Position;
+
+
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("Pos : (%f, %f)"), Position.X, Position.Y));
+
+	SetActorLocation(FVector(Position.X * 100, 0, Position.Y * 100));
 }
 
 void APlayerCharacter::SetIsmine()
@@ -189,6 +202,10 @@ void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 
 	LocalPositionY = ServerPosition.Y;
 
+	if (!GetIsmine()) {
+		LocalPositionX = ServerPosition.X;
+	}
+
 	if (!IsJumping) {
 		auto MapData = UManager::Object()->GetCurrentMapData();
 		int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X, LocalPositionY));
@@ -197,11 +214,16 @@ void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 				LocalPositionY = Bottom;
 				FallAnimationLogic(Bottom);
 
-				SendMovePacket(ServerPosition.X, Bottom);
+				if (GetIsmine()) {
+					SendMovePacket(ServerPosition.X, Bottom);
+				}
 			}
 		}
 	}
-	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("%d, %d"), (int)ServerPosition.X, (int)ServerPosition.Y));
+
+	if (!GetIsmine()) {
+		MoveAnimationLogic(ServerPosition.X - LastPosition.X);
+	}
 }
 
 void APlayerCharacter::ReceiveNotifyDamaged(gen::mmo::NotifyDamaged NotifyDamagedPacket)
@@ -238,6 +260,7 @@ void APlayerCharacter::DestroyNetObject()
 }
 
 void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
+	if (!GetIsmine())return;
 	if (IsInventoryOpened)return;
 
 	int Axis = Value.Get<float>();
@@ -254,6 +277,7 @@ void APlayerCharacter::MoveInputHandler(const FInputActionValue& Value) {
 
 void APlayerCharacter::WeaponSwitchInputHandler(const FInputActionValue& Value)
 {
+	if (!GetIsmine())return;
 	int Axis = (int)Value.Get<float>();
 
 	int Index = (CurrentWeaponIndex + Axis) % MyWeapons.Num();
@@ -264,6 +288,7 @@ void APlayerCharacter::WeaponSwitchInputHandler(const FInputActionValue& Value)
 }
 
 void APlayerCharacter::JumpInputHandler() {
+	if (!GetIsmine())return;
 	auto MapData = UManager::Object()->GetCurrentMapData();
 
 	if (MapData->GroundCast(LastSendPosX, LocalPositionY) != LocalPositionY || IsJumping || IsFalling) {
@@ -280,16 +305,19 @@ void APlayerCharacter::JumpInputHandler() {
 
 void APlayerCharacter::AttackInputHandler()
 {
+	if (!GetIsmine())return;
 	CurrentWeapon->LightAttackHandler(LastMoveInput);
 }
 
 void APlayerCharacter::ParryingInputHandler()
 {
+	if (!GetIsmine())return;
 	CurrentWeapon->ParryingHandler(LastMoveInput);
 }
 
 void APlayerCharacter::InventoryOpenInputHandler()
 {
+	if (!GetIsmine())return;
 	if (IsInventoryOpened) {
 		UManager::UI()->HideWidget(WidgetType::Inventory);
 		IsInventoryOpened = false;
