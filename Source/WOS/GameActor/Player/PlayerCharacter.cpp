@@ -84,7 +84,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 			z = JumpAnimationBottom;
 		}
 		else {
-			z = LocalPositionY + 100;
+			z = LocalPositionY * 100;
 		}
 	}
 	if (IsDamagedMaterialOn && DamagedMaterialTimer < 0) {
@@ -97,7 +97,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 		SetActorLocation(FVector(LocalPositionX * 100, 0, z));
 	}
 	else {
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("z : %f"), z));
 		SetActorLocation(FVector(Lerp(LastPosition.X * 100, LocalPositionX * 100, ServerTimer / 0.2f), 0, z));
 	}
 
@@ -163,6 +162,7 @@ void APlayerCharacter::HandleSpawn(FVector2D Position)
 	LastPortalCheckPosition = Position;
 	LastPosition = Position;
 	ServerPosition = Position;
+	JumpAnimationBottom = Position.Y;
 
 
 	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("Pos : (%f, %f)"), Position.X, Position.Y));
@@ -210,14 +210,13 @@ void APlayerCharacter::ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket) {
 	if (!IsJumping) {
 		auto MapData = UManager::Object()->GetCurrentMapData();
 		int Bottom = MapData->GroundCast(Vector2Int(ServerPosition.X, LocalPositionY));
-		if (Bottom < LocalPositionY) {
-			if (LocalPositionY > Bottom) {
-				LocalPositionY = Bottom;
-				FallAnimationLogic(Bottom);
+		if (LocalPositionY > Bottom) {
+			JumpAnimationTop = LocalPositionY * 100;
+			LocalPositionY = Bottom;
+			FallAnimationLogic(Bottom);
 
-				if (GetIsmine()) {
-					SendMovePacket(ServerPosition.X, Bottom);
-				}
+			if (GetIsmine()) {
+				SendMovePacket(ServerPosition.X, Bottom);
 			}
 		}
 	}
