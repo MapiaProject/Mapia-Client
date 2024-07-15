@@ -97,6 +97,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		SetActorLocation(FVector(LocalPositionX * 100, 0, z));
 	}
 	else {
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Magenta, FString::Printf(TEXT("z : %f"), z));
 		SetActorLocation(FVector(Lerp(LastPosition.X * 100, LocalPositionX * 100, ServerTimer / 0.2f), 0, z));
 	}
 
@@ -107,8 +108,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 		if (Axis < 0) Axis *= -1;
 
 		//if (!(Axis < DeltaTime * MoveSpeed)) {
-			MoveAnimationLogic(TargetPosition.X - LocalPositionX);
-			LocalPositionX = TargetPosition.X;
+		MoveAnimationLogic(TargetPosition.X - LocalPositionX);
+		LocalPositionX = TargetPosition.X;
 		//}
 
 		if (time > LastSendPositionTime + sendPositionInterval) {
@@ -354,7 +355,7 @@ void APlayerCharacter::MoveLogic(FVector2D Position)
 			Position.Y = MapData->GetYSize() - 1;
 		}
 	}
-	if (LastPortalCheckPosition != PositionInt) {
+	if (LastPortalCheckPosition != PositionInt && MapData->GroundCast(LastSendPosX, LocalPositionY) == LocalPositionY && !IsJumping && !IsFalling) {
 		TryUsePortal(PositionInt);
 	}
 	SendMovePacket(Position.X, Position.Y);
