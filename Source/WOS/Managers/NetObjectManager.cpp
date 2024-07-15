@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include <UObject/ConstructorHelpers.h>
 #include <Util/NetUtility.h>
+#include "GameActor/Monster/Monster.h"
 
 #include "Network.h"
 
@@ -48,14 +49,14 @@ void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 		TArray<TArray<int>> mapData;
 		int xSize, zSize;
 
-		//∏  ªÁ¿Ã¡Ó √ﬂ√‚
+		//Îßµ ÏÇ¨Ïù¥Ï¶à Ï∂îÏ∂ú
 		FString size = ini[TEXT("info")].Get<FString>("size");
 		FString xData, zData;
 		size.Split(TEXT(","), &xData, &zData);
 		xSize = FCString::Atoi(*xData);
 		zSize = FCString::Atoi(*zData);
 
-		//∏  πËø≠ ª˝º∫
+		//Îßµ Î∞∞Ïó¥ ÏÉùÏÑ±
 		mapData.Reset(0);
 		for (int z = 0;z < zSize;z++) {
 			TArray<int> Array = TArray<int>();
@@ -66,7 +67,7 @@ void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 			mapData.Insert(Array, 0);
 		}
 
-		//∏ÛΩ∫≈Õ ¡§∫∏ √ﬂ√‚
+		//Î™¨Ïä§ÌÑ∞ Ï†ïÎ≥¥ Ï∂îÏ∂ú
 		FString PortalText = ini[TEXT("info")].Get<FString>("portal");
 		TArray<FString> PortalLinks;
 		PortalText.ParseIntoArray(PortalLinks, TEXT(","));
@@ -179,6 +180,7 @@ void UNetObjectManager::NotifySpawnLogic(ObjectInfo* Object)
 		if (MonsterTypeIndex < MonsterActors.Num()) {
 			auto* Actor = World->SpawnActor(MonsterActors[MonsterTypeIndex], &Position, &Rotation);
 			auto Monster = static_cast<AMonster*>(Actor);
+			Cast<AMonster>(Actor)->SetSpawnPos(FVector2D(Position.X / 100, Position.Z / 100 + 3));
 
 			if (Monster) {
 				Monster->ObjectId = Object->objectId;

@@ -3,9 +3,10 @@
 
 #include "NetWorker.h"
 
+#include "Managers/Network.h"
 #include "Session/Session.h"
 
-FNetWorker::FNetWorker(TSharedPtr<FSession> SessionRef) : m_buffer{ 0, }, Session(SessionRef)
+FNetWorker::FNetWorker(FSession* SessionRef) : m_buffer{ 0, }, Session(SessionRef)
 {
 	Thread = FRunnableThread::Create(this, TEXT("Network Worker"));
 }
@@ -26,15 +27,17 @@ bool FNetWorker::Init()
 
 uint32 FNetWorker::Run()
 {
-	const auto SessionPtr = Session.Pin();
-	while (SessionPtr->GetHandle()->isOpen())
+	while (Session && Session->GetHandle()->isOpen())
 	{
-		const auto Length = SessionPtr->GetHandle()->receive(m_buffer);
+		const auto Length = Session->GetHandle()->receive(m_buffer);
 		if (Length > 0)
-			SessionPtr->OnReceive(m_buffer, Length);
+			Session->OnReceive(m_buffer, Length);
 		else
 		{
-			SessionPtr->OnDisconnected();
+			Session->OnDisconnected();
+			if (GEngine->GameViewport)
+				UManager::Net()->RemoveSession(Session->GetType());
+			delete Session;
 			break;
 		}
 	}

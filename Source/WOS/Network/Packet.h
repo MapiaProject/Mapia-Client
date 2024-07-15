@@ -84,12 +84,14 @@ public:
 public:
     void Parse(std::span<char> buffer);
 
+    static uint16 GetPacketId(std::span<char> buffer);
+
     template<class T>
-    static TSharedPtr<T> ParseFrom(std::span<char> buffer, uint16 id)
+    static TSharedPtr<T> ParseFrom(std::span<char> buffer)
     {
         auto pk = new T;
         pk->Parse(buffer);
-        pk->SetId(id);
+        pk->SetId(GetPacketId(buffer));
         return TSharedPtr<T>(pk);
     }
     static bool IsRpcId(uint16 id);

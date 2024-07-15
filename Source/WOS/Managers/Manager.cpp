@@ -28,6 +28,7 @@ UManager::~UManager()
 
 void UManager::BeginPlay()
 {
+	Initialize();
 	UI(GetWorld())->ShowWidget(WidgetType::Title);
 }
 
@@ -49,8 +50,13 @@ void UManager::HandlePacket() const
 	if (!NetworkObject)
 		return;
 	const auto& Sessions = NetworkObject->GetSessions();
-	for (const auto& Session : Sessions)
-		Session->Flush();
+	for (auto& Session : Sessions)
+	{
+		if (Session)
+			Session->Flush();
+		else
+			NetworkObject->RemoveSession(Session->GetType());
+	}
 }
 
 void UManager::HandleLogin(gen::account::LoginRes* Packet) const
@@ -59,11 +65,10 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 	if (Packet->success)
 	{
 		NetworkObject->SetUUID(Packet->uuid);
-		ConnectToServer(ServerType::MMO, [](TSharedPtr<net::Socket> Socket)
-			{
-				auto Session = MakeShared<FMMOSession>(Socket);
-				return Session;
-			});
+		ConnectToServer(ServerType::MMO, [](TSharedPtr<net::Socket> Socket) {
+			auto Session = new FMMOSession(Socket);
+			return Session;
+		});
 
 		UI(World)->ExecSuccessLogin();
 	}
