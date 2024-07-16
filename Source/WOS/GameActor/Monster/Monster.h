@@ -56,6 +56,7 @@ public:
 	virtual void DestroyNetObject() override;
 
 	void SetSpawnPos(FVector2D Pos);
+	void AirBorne();
 
 protected:
 	void ReceiveNotifyMove(gen::mmo::NotifyMove MovePacket);
@@ -63,7 +64,6 @@ protected:
 	void SetHP();
 	void Attack();
 	void Move();
-	void AirBorne();
 
 	float Lerp(float a, float b, float t);
 	FVector2D Lerp(FVector2D a, FVector2D b, float t);

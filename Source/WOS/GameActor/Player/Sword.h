@@ -22,6 +22,7 @@ public:
 	virtual void LightAttackHandler(int Axis) override;
 	virtual void HeavyAttackHandler(int Axis) override;
 	virtual void ParryingHandler(int Axis) override;
+	virtual void Skill1Handler(int Axis) override;
 	virtual void Skill2Handler(int Axis) override;
 	virtual void Skill3Handler(int Axis) override;
 

@@ -2,6 +2,7 @@
 
 
 #include "GameActor/Player/Sword.h"
+#include "GameActor/Monster/Monster.h"
 #include "PlayerCharacter.h"
 
 void USword::Init(TObjectPtr<APlayerCharacter> PlayerCharacter)
@@ -33,6 +34,7 @@ void USword::LightAttackHandler(int Axis)
 	{
 		SetAfterDelay(LightAttackAfterDelay);
 
+		Owner->Attack();
 		SendDamage(ScanHitbox(FVector2D(50, 0), FVector2D(150, 100)), LightAttackDamage);
 	}
 }
@@ -53,6 +55,24 @@ void USword::ParryingHandler(int Axis)
 	Parrying(ParryingTime);
 }
 
+void USword::Skill1Handler(int Axis)
+{
+	Super::Skill1Handler(Axis);
+	if (!IsAfterDelaying()) {
+		SetAfterDelay(RushAfterDelay);
+		Owner->Airbone();
+
+		auto a = ScanHitbox(FVector2D(50, 0), FVector2D(150, 150));
+		SendDamage(a, 10);
+		for (auto b : a) {
+			AMonster* O = reinterpret_cast<AMonster*>(b);
+			if (O != nullptr) {
+				return O->AirBorne();
+			}
+		}
+	}
+}
+
 void USword::Skill2Handler(int Axis)
 {
 	Super::Skill2Handler(Axis);
@@ -71,8 +91,9 @@ void USword::Skill3Handler(int Axis)
 	if (!IsAfterDelaying()) {
 		SetAfterDelay(BackStepAfterDelay);
 
+		Owner->BackStep();
 		Dash(-GetLastMoveInput() * BackStepLength);
-		MoveAnimationLogic(-GetLastMoveInput());
+		//MoveAnimationLogic(-GetLastMoveInput());
 	}
 }
 
