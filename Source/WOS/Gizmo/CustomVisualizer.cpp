@@ -4,7 +4,7 @@
 #include "Gizmo/CustomVisualizer.h"
 #include "MapLayoutViewer.h"
 #include "Util/Ini.h"
-
+/*
 CustomVisualizer::CustomVisualizer()
 {
 }
@@ -81,4 +81,4 @@ FColor CustomVisualizer::GetTileColor(int tileID) {
 	default:
 		return FColor::Magenta;
 	}
-}
+}*/

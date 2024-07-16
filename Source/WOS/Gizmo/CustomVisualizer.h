@@ -7,9 +7,7 @@
 #include <vector>
 using namespace std;
 
-/**
- *
- */
+/*
 class WOS_API CustomVisualizer : public FComponentVisualizer
 {
 public:
@@ -32,3 +30,4 @@ private:
 
 	FColor GetTileColor(int tileID);
 };
+*/
