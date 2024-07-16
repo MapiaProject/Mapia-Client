@@ -38,6 +38,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Input)
 		TObjectPtr<UInputAction> AttackAction;
 	UPROPERTY(EditAnywhere, Category = Input)
+		TObjectPtr<UInputAction> AirboneAction;
+	UPROPERTY(EditAnywhere, Category = Input)
+		TObjectPtr<UInputAction> BackStepAction;
+	UPROPERTY(EditAnywhere, Category = Input)
 		TObjectPtr<UInputAction> ParryingAction;
 	UPROPERTY(EditAnywhere, Category = Input)
 		TObjectPtr<UInputAction> InventoryOpenAction;
@@ -54,6 +58,8 @@ public:
 		TObjectPtr<UPaperFlipbook> Attack1Animation;
 	UPROPERTY(EditAnywhere, Category = Animation)
 		TObjectPtr<UPaperFlipbook> Attack2Animation;
+	UPROPERTY(EditAnywhere, Category = Animation)
+		TObjectPtr<UPaperFlipbook> BackStepAnimation;
 	UPROPERTY(EditAnywhere, Category = Animation)
 		TObjectPtr<UPaperFlipbook> DieAnimation;
 	UPROPERTY(EditAnywhere, Category = Animation)
@@ -97,6 +103,9 @@ public:
 	bool IsParrying();
 
 	void RPCJump(int JumpPower);
+	void Attack();
+	void BackStep();
+	void Airbone();
 
 private:
 	void MoveInputHandler(const FInputActionValue& Value);
@@ -104,6 +113,8 @@ private:
 	void JumpInputHandler();
 	void AttackInputHandler();
 	void ParryingInputHandler();
+	void BackStepInputHandler();
+	void AirboneInputHandler();
 	void InventoryOpenInputHandler();
 
 	void Dash(int Direction);
@@ -116,6 +127,12 @@ private:
 		void FallAnimationLogic(int Bottom);
 	RPC_FUNCTION(FarryingAnimationLogic)
 		void FarryingAnimationLogic();
+	RPC_FUNCTION(AttackAnimationLogic)
+		void AttackAnimationLogic();
+	RPC_FUNCTION(BackStepAnimationLogic)
+		void BackStepAnimationLogic();
+	RPC_FUNCTION(AirboneAnimationLogic)
+		void AirboneAnimationLogic();
 
 	bool IsActing();
 	float JumpAnimationStartZ;

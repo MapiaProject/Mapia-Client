@@ -13,11 +13,6 @@
 				"UMG",
 				"Paper2D"
 			]
-		},
-		{
-			"Name": "WOSEditor",
-			"Type": "Editor",
-			"LoadingPhase": "PostEngineInit"
 		}
 	],
 	"Plugins": [

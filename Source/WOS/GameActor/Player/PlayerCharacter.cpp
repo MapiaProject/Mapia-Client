@@ -133,6 +133,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(ParryingAction, ETriggerEvent::Started, this, &APlayerCharacter::ParryingInputHandler);
 		EnhancedInputComponent->BindAction(WeaponSwitchAction, ETriggerEvent::Started, this, &APlayerCharacter::WeaponSwitchInputHandler);
 		EnhancedInputComponent->BindAction(InventoryOpenAction, ETriggerEvent::Started, this, &APlayerCharacter::InventoryOpenInputHandler);
+		EnhancedInputComponent->BindAction(AirboneAction, ETriggerEvent::Started, this, &APlayerCharacter::Airbone);
+		EnhancedInputComponent->BindAction(BackStepAction, ETriggerEvent::Started, this, &APlayerCharacter::BackStep);
 	}
 	else {
 		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("InputComponent is not EnhancedInputComponent"));
@@ -309,6 +311,18 @@ void APlayerCharacter::AttackInputHandler()
 	CurrentWeapon->LightAttackHandler(LastMoveInput);
 }
 
+void APlayerCharacter::BackStepInputHandler()
+{
+	if (!GetIsmine())return;
+	CurrentWeapon->Skill3Handler(LastMoveInput);
+}
+
+void APlayerCharacter::AirboneInputHandler()
+{
+	if (!GetIsmine())return;
+	CurrentWeapon->Skill1Handler(LastMoveInput);
+}
+
 void APlayerCharacter::ParryingInputHandler()
 {
 	if (!GetIsmine())return;
@@ -420,6 +434,21 @@ void APlayerCharacter::FarryingAnimationLogic()
 	GetSprite()->SetFlipbook(FarryingAnimation);
 }
 
+void APlayerCharacter::AttackAnimationLogic()
+{
+	GetSprite()->SetFlipbook(Attack1Animation);
+}
+
+void APlayerCharacter::BackStepAnimationLogic()
+{
+	GetSprite()->SetFlipbook(BackStepAnimation);
+}
+
+void APlayerCharacter::AirboneAnimationLogic()
+{
+	GetSprite()->SetFlipbook(Attack2Animation);
+}
+
 bool APlayerCharacter::IsActing()
 {
 	return IsAfterDelaying() || IsParrying();
@@ -450,6 +479,23 @@ void APlayerCharacter::Parrying(float Time)
 
 		RpcView::CallRPC(FarryingAnimationLogic, RpcTarget::All);
 	}
+}
+
+void APlayerCharacter::Attack()
+{
+	RpcView::CallRPC(AttackAnimationLogic, RpcTarget::All);
+}
+
+void APlayerCharacter::BackStep()
+{
+	RpcView::CallRPC(BackStepAnimationLogic, RpcTarget::All);
+
+}
+
+void APlayerCharacter::Airbone()
+{
+	RpcView::CallRPC(AirboneAnimationLogic, RpcTarget::All);
+
 }
 
 bool APlayerCharacter::IsAfterDelaying()

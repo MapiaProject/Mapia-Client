@@ -11,6 +11,7 @@
 #include <UObject/ConstructorHelpers.h>
 #include <Util/NetUtility.h>
 #include "GameActor/Monster/Monster.h"
+#include "UISystem.h"
 
 #include "Network.h"
 
@@ -209,6 +210,8 @@ void UNetObjectManager::OnLevelLoaded()
 		SpawnPlayerLogic(&PlayerSpawnBuffer);
 		UsingPlayerSpawnBuffer = false;
 	}
+
+	UManager::UI()->ShowWidget(WidgetType::InGame);
 }
 
 NetObject* UNetObjectManager::GetObjectById(uint64 Id)
