@@ -1,3 +1,4 @@
+
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
@@ -5,12 +6,12 @@
 #include "CoreMinimal.h"
 
 /**
- * 
+ *
  */
 class WOS_API FNetWorker final : public FRunnable
 {
 public:
-	FNetWorker(class FSession* SessionRef);
+	FNetWorker(TSharedPtr<class FSession> SessionRef);
 	virtual ~FNetWorker() override;
 public:
 	virtual bool Init() override;
@@ -20,5 +21,5 @@ public:
 private:
 	char m_buffer[4096];
 	FRunnableThread* Thread = nullptr;
-	FSession* Session;
+	TWeakPtr<class FSession> Session;
 };

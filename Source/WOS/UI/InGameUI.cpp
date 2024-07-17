@@ -16,6 +16,7 @@
 void UInGameUI::NativeConstruct() {
 	Super::NativeConstruct();
 
+	TChat->OnTextCommitted.Clear();
 	TChat->OnTextCommitted.AddDynamic(this, &UInGameUI::OnChatTextCommited);
 }
 
@@ -45,7 +46,7 @@ void UInGameUI::ShowMenu() {
 
 void UInGameUI::ShowHP(float MaxHP, float CurHP) {
 	HPBar->SetPercent(CurHP / MaxHP);
-	THP->SetText(FText::FromString(FString::Printf(TEXT("%f/%f"), CurHP, MaxHP)));
+	THP->SetText(FText::FromString(FString::Printf(TEXT("%d/%d"), (int)CurHP, (int)MaxHP)));
 }
 
 void UInGameUI::OnChatTextCommited(const FText& Text, ETextCommit::Type CommitMethod) {

@@ -66,7 +66,7 @@ void UManager::HandleLogin(gen::account::LoginRes* Packet) const
 	{
 		NetworkObject->SetUUID(Packet->uuid);
 		ConnectToServer(ServerType::MMO, [](TSharedPtr<net::Socket> Socket) {
-			auto Session = new FMMOSession(Socket);
+			auto Session = MakeShared<FMMOSession>(Socket);
 			return Session;
 		});
 

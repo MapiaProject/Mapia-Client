@@ -59,9 +59,9 @@ void UNetObjectManager::HandleEnterMap(gen::mmo::EnterMapRes* Packet)
 
 		//맵 배열 생성
 		mapData.Reset(0);
-		for (int z = 0;z < zSize;z++) {
+		for (int z = 0; z < zSize; z++) {
 			TArray<int> Array = TArray<int>();
-			for (int x = 0;x < xSize;x++) {
+			for (int x = 0; x < xSize; x++) {
 				TCHAR c = data[z * xSize + x];
 				Array.Add(FCString::Atoi(&c));
 			}
@@ -166,7 +166,7 @@ void UNetObjectManager::NotifySpawnLogic(ObjectInfo* Object)
 {
 	auto* World = GetWorld();
 	auto Rotation = FRotator(0, 0, 0);
-	FVector Position = Object->position.GetFVector() * 100;
+	FVector Position = FVector(Object->position.X, 0, Object->position.Y) * 100;
 
 	if (Object->type == gen::mmo::EObjectType::PLAYER) {
 		auto* Actor = World->SpawnActor(PlayerClass, &Position, &Rotation);
@@ -181,10 +181,10 @@ void UNetObjectManager::NotifySpawnLogic(ObjectInfo* Object)
 		if (MonsterTypeIndex < MonsterActors.Num()) {
 			auto* Actor = World->SpawnActor(MonsterActors[MonsterTypeIndex], &Position, &Rotation);
 			auto Monster = static_cast<AMonster*>(Actor);
-			Cast<AMonster>(Actor)->SetSpawnPos(FVector2D(Position.X / 100, Position.Z / 100 + 3));
 
 			if (Monster) {
 				Monster->ObjectId = Object->objectId;
+				Cast<AMonster>(Actor)->SetSpawnPos(FVector2D(Position.X / 100, Position.Z / 100 + 1));
 			}
 			else {
 				UE_LOG(LogTemp, Warning, TEXT("Spawned monster is not NetObject"));

@@ -87,7 +87,7 @@ public:
     static uint16 GetPacketId(std::span<char> buffer);
 
     template<class T>
-    static TSharedPtr<T> ParseFrom(std::span<char> buffer)
+    static TSharedPtr<T> ParseFrom(std::span<char> buffer, uint16)
     {
         auto pk = new T;
         pk->Parse(buffer);

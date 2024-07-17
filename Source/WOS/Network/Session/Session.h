@@ -5,17 +5,21 @@
 #define RECV_PACKET(name) \
 FSession::OnReceive(buffer, length); \
 \
-uint16 Id = *reinterpret_cast<uint16*>(buffer.data());\
-if (Packet::IsRpcId(Id))\
+uint16 Id = 0;\
+memcpy(&Id, buffer.data(), 2);\
+if ((Id >> 15) & 1)\
 {\
 	RpcView::RecvRPC(buffer, Id);\
 }\
 else\
 {\
-	PushJob(std::bind(&gen::name::PacketHandler::HandlePacket, this, buffer));\
+	const auto Handler = gen::name::PacketHandler::GetHandler(Id, buffer);\
+	const TSharedPtr<FSession> SharedThis = AsShared();\
+	\
+	PushJob(Handler, SharedThis);\
 }\
 
-class FSession
+class FSession : public TSharedFromThis<FSession>
 {
 	friend class FIoThread;
 public:

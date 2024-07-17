@@ -59,7 +59,7 @@ UCLASS()
 class WOS_API UManager : public UGameInstance
 {
 	GENERATED_BODY()
-	using SessionFactoryFunc = TFunction<class FSession*(TSharedPtr<net::Socket>)>;
+	using SessionFactoryFunc = TFunction<TSharedPtr<class FSession>(TSharedPtr<net::Socket>)>;
 public:
 	UManager();
 	virtual ~UManager() override;

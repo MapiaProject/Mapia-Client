@@ -42,7 +42,7 @@ void UNetwork::Send(ServerType Type, Packet* Packet) const
 		Sessions[Type]->Send(Packet);
 }
 
-void UNetwork::AddSession(ServerType Type, FSession* NewSession)
+void UNetwork::AddSession(ServerType Type, TSharedPtr<FSession> NewSession)
 {
 	this->Sessions.Add(Type, NewSession);
 }
@@ -52,9 +52,9 @@ void UNetwork::RemoveSession(ServerType Type)
 	Sessions.Remove(Type);
 }
 
-TArray<FSession*> UNetwork::GetSessions()
+TArray<TSharedPtr<FSession>> UNetwork::GetSessions()
 {
-	TArray<FSession*> SessionArray;
+	TArray<TSharedPtr<FSession>> SessionArray;
 	for(auto Tuple : Sessions)
 	{
 		SessionArray.Add(Tuple.Value);

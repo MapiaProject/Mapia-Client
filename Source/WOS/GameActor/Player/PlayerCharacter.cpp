@@ -30,6 +30,8 @@ void APlayerCharacter::BeginPlay()
 	GetSprite()->SetFlipbook(IdleAnimation);
 	SpriteOriginScale = GetSprite()->GetComponentScale();
 
+	UManager::UI()->ExecShowHP(100, 100);
+
 	for (auto WeaponType : StartingWeapon) {
 		MyWeapons.Add(static_cast<UWeapon*>(this->FindComponentByClass(WeaponType)));
 	}

@@ -13,7 +13,7 @@ FSession::~FSession()
 
 void FSession::OnConnected()
 {
-	Worker = MakeShared<FNetWorker>(this);
+	Worker = MakeShared<FNetWorker>(AsShared());
 }
 
 void FSession::OnDisconnected()	
